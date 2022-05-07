@@ -1,0 +1,131 @@
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.example::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.example {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+canvas {
+  cursor: grab;
+  display: block;
+}
+
+canvas:active {
+  cursor: grabbing;
+}
+
+.hovered {
+  cursor: help;
+}
+
+
+#gui {
+  color: #555;
+  text-shadow: none !important;
+
+  padding: 5px;
+  /* background: rgba(0, 0, 0, 0.6); */
+  border-radius: 5px;
+  padding-bottom: 25px;
+  right: 20px;
+  top: 20px;
+  /* position: fixed; */
+}
+
+#gui.main::-webkit-scrollbar {
+  background: #fafafa;
+}
+
+#gui.main::-webkit-scrollbar-thumb {
+  background: #bbb;
+}
+
+#gui li.save-row .button {
+  text-shadow: none !important;
+}
+
+#gui .c input[type="text"]:hover {
+  background: rgb(0, 0, 0);
+}
+
+#gui .c .slider {
+  background: rgba(0, 0, 0, 0.446);
+  border-radius: 5px;
+}
+
+#gui .c input[type="text"] {
+  color: rgb(255, 255, 255);
+  background: rgba(0, 0, 0, 0.446);
+  border-radius: 2px;
+}
+
+#gui li.save-row .button {
+  text-shadow: none !important;
+}
+
+#gui.main.taller-than-window .close-button {
+  border-top: 1px solid #ddd;
+}
+
+#gui.main .close-button {
+  background-color: rgba(0, 0, 0, 0.309);
+  color: rgb(184, 184, 184);
+}
+
+#gui.main .close-button:hover {
+  background-color: rgb(0, 0, 0);
+  border-radius: 5px;
+}
+
+#gui li:not(.folder) {
+  background-color: rgba(0, 0, 0, 0.309);
+}
+
+#gui li:hover:not(.folder) {
+  background-color: rgb(0, 0, 0);
+}
+
+#gui ul li:not(.title) {
+  background: rgba(255, 255, 255, 0.029);
+}
+
+#gui ul li:hover:not(.title) {
+  background: rgba(0, 0, 0, 0.118);
+}
+
+#gui ul li.cr {
+  background: rgba(255, 255, 255, 0.029);
+}
+
+#gui .title {
+  color: rgb(237, 237, 237);
+  background: rgba(0, 0, 0, 0);
+}
+
+#gui .property-name {
+  color: rgb(172, 172, 172);
+}
+
+#gui .c {
+  border-radius: 5px;
+  color: #fff;
+  font-family: sans-serif;
+}
+
+#gui .c input[type="checkbox"] {
+  /* change "blue" browser chrome to yellow */
+  filter: saturate(0%);
+  background-color: #fff;
+}
+
+#gui .slider-fg {
+  background: rgba(248, 248, 248, 0.57);
+  border-radius: 5px;
+  top: 0;
+  left: 0;
+}
