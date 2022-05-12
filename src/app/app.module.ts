@@ -26,7 +26,7 @@ import { PlayerComponent } from './components/player/player.component';
     SlimeWavePlaneComponent,
     WaterWavePlaneComponent,
     LoadTextComponent,
-    PlayerComponent,
+    PlayerComponent
   ],
   imports: [
     BrowserModule,

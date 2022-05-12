@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import {GUI} from 'dat.gui';
+import { GUI } from 'dat.gui';
+import { Vector3 } from 'three';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
-
 export class ManagerService {
   _threejs: any;
   _camera: any;
@@ -16,6 +16,8 @@ export class ManagerService {
   _gui: any;
   tanFOV: any;
   windowHeight: any = window.innerHeight;
+  _target?: Vector3;
+  _physicsWorld: any;
   constructor() {}
 
   _Initialize() {
@@ -34,7 +36,7 @@ export class ManagerService {
     document.body.appendChild(this._threejs.domElement);
 
     window.addEventListener(
-      "resize",
+      'resize',
       () => {
         this._OnWindowResize();
       },
@@ -68,27 +70,25 @@ export class ManagerService {
     dirLight.shadow.camera.lookAt(0, 180, -30);
     this._scene.add(dirLight);
 
-    const fov = 60;
+    const fov = 80;
     const aspect = 1920 / 1080;
     const near = 1.0;
     const far = 1000.0;
     this._camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
     this._camera.position.set(0, 80, 200);
 
-
-    const controls = new OrbitControls(this._camera, this._threejs.domElement);
-    controls.target.set(0, 0, 0);
-    controls.update();
+    // const controls = new OrbitControls(this._camera, this._threejs.domElement);
+    // controls.target.set(0, 0, 0);
+    // controls.update();
 
     this._gui = new GUI({ width: 250 });
-    this._gui.domElement.id = "gui";
+    this._gui.domElement.id = 'gui';
 
     // this._particles = new ParticleSystem(this);
 
     this._previousRAF = null;
     this._RAF();
     this._OnWindowResize();
-
   }
 
   _OnWindowResize() {
@@ -113,8 +113,13 @@ export class ManagerService {
   }
 
   _Step(timeElapsed: number) {
-    const timeElapsedS = timeElapsed * 0.001;
-
+    // const timeElapsedS = timeElapsed * 0.001;
+    if (this._target) {
+      this._camera.position.set(this._target.x, this._target.y, this._target.z);
+      const cameraOffset = new Vector3(0.0, 5, 150); // NOTE Constant offset between the camera and the target
+      this._camera.position.add(cameraOffset);
+      this._camera.lookAt(this._target);
+    }
     // this._particles.Step(timeElapsedS);
   }
 }

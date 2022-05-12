@@ -44,12 +44,17 @@ export class ModelLoaderComponent implements OnInit {
         }
       });
 
-      if(this.name || this.name != '') object.name = this.name;
+
 
       object.scale.multiplyScalar(this.scale);
       object.position.set(this.positionX, this.positionY, this.positionZ);
       object.rotation.set(this.rotationX * Math.PI, this.rotationY * Math.PI, this.rotationZ * Math.PI);
-      scene.add(object);
+
+      const newObject = new THREE.Object3D();
+      newObject.add(object);
+      if(this.name || this.name != '') object.name = this.name.toLowerCase();
+
+      scene.add(newObject);
     });
 
   }

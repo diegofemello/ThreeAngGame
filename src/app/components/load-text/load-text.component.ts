@@ -19,10 +19,15 @@ export class LoadTextComponent implements OnInit {
   @Input() text: string = "";
   @Input() fontSize = 1;
   @Input() height: number = 2;
+  @Input() name: string = "";
 
 
 
-  constructor(private manager: ManagerService) {}
+  constructor(private manager: ManagerService) {
+    if(this.name != ""){
+      this.name = this.text
+    }
+  }
 
   ngOnInit(): void {
     const scene = this.manager._scene;
@@ -65,7 +70,7 @@ export class LoadTextComponent implements OnInit {
       textMesh.rotation.y = this.rotationY * Math.PI;
       textMesh.rotation.z = this.rotationZ  * Math.PI;
 
-      textMesh.name = this.text;
+      textMesh.name = this.name.toLowerCase();
 
       scene.add(textMesh);
     });

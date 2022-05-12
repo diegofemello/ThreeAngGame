@@ -54,6 +54,7 @@ export class DescriptionComponent implements OnInit {
       mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
       mouse.y = -(event.clientY / renderer.domElement.clientHeight) * 2 + 1;
       raycaster.setFromCamera(mouse, camera);
+
       const intersects = raycaster.intersectObject(scene, true);
 
       if (intersects.length > 0) {
@@ -69,15 +70,16 @@ export class DescriptionComponent implements OnInit {
           currentIntersection.position.z
         );
 
-
         if (Object.keys(Description).includes(currentIntersection.name.toLowerCase())) {
-          label.visible = true;
+
+        label.visible = true;
           labelDescription.style.display = 'block';
           labelDescription.innerHTML =
             Description[currentIntersection.name.toLowerCase() as keyof typeof Description] +
             '</p>';
         }else{
           label.visible = false;
+          labelDescription.style.display = 'none';
         }
 
         if (currentIntersection && currentIntersection.name === 'AltoForno') {
@@ -105,13 +107,14 @@ export class DescriptionComponent implements OnInit {
       labelDescription.style.display = 'none';
       labelDescription.innerHTML = '';
     }
+
   }
 }
 
 enum Description {
   altoforno = '<h3>Alto Forno</h3> O alto-forno é um forno de cuba ou fornalha com 20 a 30 metros de altura, com a forma de dois troncos de cone unidos pelas suas bases (cuba e ventre) e fechado na parte inferior pelo cadinho com a soleira.',
   slime = '<h3>Slime</h3> Aqui é um slime q criei pra testar a simulação do liquido.',
-  principal = '<h3>Logo</h3> Aqui é o logo do projeto.',
+  logo = '<h3>Logo</h3> Aqui é o logo do projeto.',
   sensor = '<h3>Sensor</h3> É um sensor de temperatura, que vai ser usado para calcular a temperatura do alto-forno.<p><img src="assets/images/smile.png" width="250px" align="center">',
   player = '<h3>Player</h3> É o player do projeto.',
 }
