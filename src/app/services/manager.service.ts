@@ -1,35 +1,38 @@
 import { Injectable } from '@angular/core';
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { GUI } from 'dat.gui';
 import { Vector3 } from 'three';
-import { BasicControllerInputService } from './basic-controller-input.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ManagerService {
-  _renderer: any;
-  _camera: any;
-  _scene: any;
-  _previousRAF: any;
-  _gui: any;
-  tanFOV: any;
-  windowHeight: any = window.innerHeight;
-  _target?: Vector3;
-  _physicsWorld: any;
-  clock: any;
-  rigidBodies: any = [];
-  _controller: BasicControllerInputService;
+  public _renderer!: THREE.WebGLRenderer;
+  public _camera!: THREE.PerspectiveCamera;
+  public _scene!: THREE.Scene;
+  public _gui!: GUI;
+  public _target?: Vector3;
 
-  constructor(private controller: BasicControllerInputService) {
-    this._controller = controller;
+  _Initialize() {
+    console.log();
+    this._SetupGraphics();
+    window.addEventListener(
+      'resize',
+      () => {
+        this._OnWindowResize();
+      },
+      false
+    );
+
+    this._OnWindowResize();
+
+    this._gui = new GUI({ width: 250 });
+    this._gui.domElement.id = 'gui';
+
+    this._Animate();
   }
 
   _SetupGraphics = () => {
-    // create clock for timing
-    this.clock = new THREE.Clock();
-
     // create the scene
     this._scene = new THREE.Scene();
     this._scene.background = new THREE.Color(0x101015);
@@ -87,31 +90,10 @@ export class ManagerService {
     this._renderer.setPixelRatio(window.devicePixelRatio);
     this._renderer.setSize(window.innerWidth, window.innerHeight);
 
-    this._renderer.gammaInput = true;
-    this._renderer.gammaOutput = true;
     this._renderer.shadowMap.enabled = true;
 
     document.body.appendChild(this._renderer.domElement);
   };
-
-  _Initialize() {
-    this._SetupGraphics();
-    window.addEventListener(
-      'resize',
-      () => {
-        this._OnWindowResize();
-      },
-      false
-    );
-
-    this._OnWindowResize();
-
-    this._gui = new GUI({ width: 250 });
-    this._gui.domElement.id = 'gui';
-
-    this._previousRAF = null;
-    this._RAF();
-  }
 
   _OnWindowResize() {
     this._camera.aspect = window.innerWidth / window.innerHeight;
@@ -120,28 +102,21 @@ export class ManagerService {
     this._renderer.setSize(window.innerWidth, window.innerHeight);
   }
 
-  _RAF() {
+  _Animate() {
     requestAnimationFrame((t) => {
-      if (this._previousRAF === null) {
-        this._previousRAF = t;
-      }
-
-      this._RAF();
-
       this._renderer.render(this._scene, this._camera);
-      this._Step(t - this._previousRAF);
-      this._previousRAF = t;
+      this._Step();
+      this._Animate();
     });
   }
 
-  _Step(_timeElapsed: number) {
-    // const _timeElapsedS = timeElapsed * 0.001;
+
+  _Step() {
     if (this._target) {
       this._camera.position.set(this._target.x, this._target.y, this._target.z);
       const cameraOffset = new Vector3(0.0, 5, 150); // NOTE Constant offset between the camera and the target
       this._camera.position.add(cameraOffset);
       this._camera.lookAt(this._target);
     }
-    // this._particles.Step(timeElapsedS);
   }
 }

@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { BasicControllerInputService } from 'src/app/services/basic-controller-input.service';
 import { ManagerService } from 'src/app/services/manager.service';
-import { AmmoPhysics } from '@enable3d/ammo-physics';
 import * as THREE from 'three';
+
+declare const Ammo: any;
 
 @Component({
   selector: 'app-physics',
