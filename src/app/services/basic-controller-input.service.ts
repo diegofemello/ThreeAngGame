@@ -5,6 +5,7 @@ import { Injectable } from '@angular/core';
 })
 export class BasicControllerInputService {
   public _keys: any;
+  public moveDirection = { left: 0, right: 0, forward: 0, back: 0, up: 0 };
   constructor() {
     // this._Init()
   }
@@ -37,19 +38,26 @@ export class BasicControllerInputService {
     switch (event.keyCode) {
       case 87: // w
         this._keys.forward = true;
+        this.moveDirection.forward = 1;
 
         break;
       case 65: // a
         this._keys.left = true;
+        this.moveDirection.left = 1;
+
         break;
       case 83: // s
         this._keys.backward = true;
+        this.moveDirection.back = 1;
         break;
       case 68: // d
         this._keys.right = true;
+        this.moveDirection.right = 1;
         break;
       case 32: // SPACE
         this._keys.space = true;
+        this.moveDirection.up = 0.2;
+
         break;
       case 16: // SHIFT
         this._keys.shift = true;

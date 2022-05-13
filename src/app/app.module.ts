@@ -13,6 +13,7 @@ import { SlimeWavePlaneComponent } from './components/slime-wave-plane/slime-wav
 import { WaterWavePlaneComponent } from './components/water-wave-plane/water-wave-plane.component';
 import { LoadTextComponent } from './components/load-text/load-text.component';
 import { PlayerComponent } from './components/player/player.component';
+import { PhysicsComponent } from './components/physics/physics.component';
 
 
 @NgModule({
@@ -26,7 +27,8 @@ import { PlayerComponent } from './components/player/player.component';
     SlimeWavePlaneComponent,
     WaterWavePlaneComponent,
     LoadTextComponent,
-    PlayerComponent
+    PlayerComponent,
+    PhysicsComponent
   ],
   imports: [
     BrowserModule,

@@ -64,14 +64,17 @@ export class PlayerComponent implements OnInit {
       this.manager._scene,
       true
     );
-    this.renderer = this.manager._threejs;
+    this.renderer = this.manager._renderer;
     const renderer = this.renderer;
     this.camera = this.manager._camera;
     const camera = this.camera;
     const scene = this.manager._scene;
     const mouse = this.mouse;
 
+    let interval: any;
+
     const onMouseDown = (event: any) => {
+      clearInterval(interval);
       mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
       mouse.y = -(event.clientY / renderer.domElement.clientHeight) * 2 + 1;
       this.raycaster.setFromCamera(mouse, camera);

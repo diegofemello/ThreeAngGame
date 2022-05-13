@@ -17,7 +17,7 @@ export class DescriptionComponent implements OnInit {
   ngOnInit(): void {
     const scene = this.manager._scene;
     let camera: any = this.manager._camera;
-    let renderer: any = this.manager._threejs;
+    let renderer: any = this.manager._renderer;
     let currentIntersection: any = null;
 
     // Setup labels
@@ -70,15 +70,21 @@ export class DescriptionComponent implements OnInit {
           currentIntersection.position.z
         );
 
-        if (Object.keys(Description).includes(currentIntersection.name.toLowerCase())) {
-
         label.visible = true;
+
+        if (
+          Object.keys(Description).includes(
+            currentIntersection.name.toLowerCase()
+          )
+        ) {
+
           labelDescription.style.display = 'block';
           labelDescription.innerHTML =
-            Description[currentIntersection.name.toLowerCase() as keyof typeof Description] +
-            '</p>';
-        }else{
-          label.visible = false;
+            Description[
+              currentIntersection.name.toLowerCase() as keyof typeof Description
+            ] + '</p>';
+        } else {
+          // label.visible = false;
           labelDescription.style.display = 'none';
         }
 
@@ -107,7 +113,6 @@ export class DescriptionComponent implements OnInit {
       labelDescription.style.display = 'none';
       labelDescription.innerHTML = '';
     }
-
   }
 }
 
