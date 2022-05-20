@@ -32,6 +32,6 @@ stages:
 
     - task: AzureStaticWebApp@0
       inputs :
-        app_location : ' dist '
+        app_location : ' dist/three '
         skip_app_build : false
         azure_static_web_apps_api_token: '$(TokenStatic)'
