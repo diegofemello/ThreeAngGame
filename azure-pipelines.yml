@@ -22,16 +22,16 @@ stages:
         versionSpec: '14.x'
       displayName: 'Install Node.js'
 
-    - script: 
+    - script:
         npm install
       displayName: 'NPM Install'
-    
-    - script: 
+
+    - script:
         npm run build
       displayName: 'NPM Build'
-    
+
     - task: AzureStaticWebApp@0
       inputs :
-        app_location : ' build '
-        skip_app_build : false 
+        app_location : ' dist '
+        skip_app_build : false
         azure_static_web_apps_api_token: '$(TokenStatic)'
