@@ -6,6 +6,10 @@ import * as THREE from 'three';
 import { Object3D } from 'three';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 
+declare const Ammo: any;
+
+let scalingFactor = 35;
+let interval: any;
 
 @Component({
   selector: 'app-player',
@@ -23,82 +27,44 @@ export class PlayerComponent implements OnInit {
   @Input() path!: string;
   @Input() texturePath = '';
   @Input() color = '#49BB58';
-  @Input() name = '';
+  @Input() name = 'Player';
   @Input() gender: 'male' | 'female' = 'male';
 
   private _mixer!: THREE.AnimationMixer;
-  private _scene!: THREE.Scene;
   private _loadingManager!: THREE.LoadingManager;
-  private _decceleration!: THREE.Vector3;
-  private _acceleration!: THREE.Vector3;
-  private _velocity!: THREE.Vector3;
   private _animations: any = {};
-  private _input!: BasicControllerInputService;
+  private _controller!: BasicControllerInputService;
   private _stateMachine: FiniteStateMachineService;
   private _target!: Object3D;
-  private _position: any;
-  private renderer: any;
   private raycaster = new THREE.Raycaster();
   private mouse = new THREE.Vector2();
-  private camera: any;
+  private physicsBody: any;
 
-  constructor(private manager: ManagerService, input: BasicControllerInputService, stateMachine: FiniteStateMachineService) {
-    this._input = input;
+  constructor(
+    private manager: ManagerService,
+    input: BasicControllerInputService,
+    stateMachine: FiniteStateMachineService
+  ) {
+    this._controller = input;
     this._stateMachine = stateMachine;
     this._stateMachine.SetProxy(new BasicControllerProxy(this._animations));
   }
 
   ngOnInit(): void {
-    this._input._Init();
+    this._controller._Init();
     this._stateMachine._Init();
 
-    this._scene = this.manager._scene;
-    this._decceleration = new THREE.Vector3(-0.0005, -0.0001, -5.0);
-    this._acceleration = new THREE.Vector3(2, 0.5, 100);
-    this._velocity = new THREE.Vector3(0, 0, 0);
-
-
-    // const raycaster = this.raycaster;
-
-    const intersects = this.raycaster.intersectObject(
-      this.manager._scene,
-      true
-    );
-    this.renderer = this.manager._renderer;
-    const renderer = this.renderer;
-    this.camera = this.manager._camera;
-    const camera = this.camera;
-    const scene = this.manager._scene;
-    const mouse = this.mouse;
-
-    let interval: any;
-
-    const onMouseDown = (event: any) => {
-      clearInterval(interval);
-      mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
-      mouse.y = -(event.clientY / renderer.domElement.clientHeight) * 2 + 1;
-      this.raycaster.setFromCamera(mouse, camera);
-
-      // intersection point
-
-      const intersects = this.raycaster.intersectObject(scene, true);
-
-      if (intersects.length > 0) {
-        const point = intersects[0].point;
-        point.y = this._target.position.y;
-
-        this._target.lookAt(point);
-        this._target.position.copy(point);
-
-      }
-    }
-
-    this.renderer.domElement.addEventListener(
+    this.manager._renderer.domElement.addEventListener(
       'pointerdown',
-      onMouseDown,
+      this.OnMouseDown,
       false
     );
 
+    this.LoadModel();
+    this.Animate();
+  }
+
+  LoadModel = () => {
     const loader3 = new FBXLoader();
     loader3.load(this.path, (object: THREE.Object3D) => {
       object.traverse((c: THREE.Object3D) => {
@@ -121,21 +87,22 @@ export class PlayerComponent implements OnInit {
         }
       });
 
-      if (this.name || this.name != '') object.name = this.name;
+      object.rotation.set(1.5 * Math.PI, 0 * Math.PI, 0 * Math.PI);
 
-      object.scale.multiplyScalar(this.scale);
-      object.position.set(this.positionX, this.positionY, this.positionZ);
-      object.rotation.set(
+      const newObject = new THREE.Object3D();
+      newObject.add(object);
+      if (this.name || this.name != '') newObject.name = this.name;
+
+      newObject.scale.multiplyScalar(this.scale);
+      newObject.position.set(this.positionX, this.positionY, this.positionZ);
+
+      newObject.rotation.set(
         this.rotationX * Math.PI,
         this.rotationY * Math.PI,
         this.rotationZ * Math.PI
       );
 
-      const newObject = new THREE.Object3D();
-      newObject.add(object);
-      newObject.name = this.name;
-
-      this._scene.add(newObject);
+      this.manager._scene.add(newObject);
       this._target = newObject;
 
       this._mixer = new THREE.AnimationMixer(newObject);
@@ -168,10 +135,40 @@ export class PlayerComponent implements OnInit {
       loader2.load('dance.fbx', (a) => {
         _OnLoad('dance', a);
       });
-
-      this.Animate();
     });
-  }
+  };
+
+  OnMouseDown = (event: any) => {
+    clearInterval(interval);
+    this.mouse.x =
+      (event.clientX / this.manager._renderer.domElement.clientWidth) * 2 - 1;
+    this.mouse.y =
+      -(event.clientY / this.manager._renderer.domElement.clientHeight) * 2 + 1;
+    this.raycaster.setFromCamera(this.mouse, this.manager._camera);
+
+    const intersects = this.raycaster.intersectObject(
+      this.manager._scene,
+      true
+    );
+
+    if (intersects.length > 0) {
+      const point = intersects[0].point;
+      point.y = this._target.position.y;
+
+      if (this.physicsBody) {
+        this.physicsBody
+          .getWorldTransform()
+          .setOrigin(new Ammo.btVector3(point.x, point.y, point.z));
+        this.physicsBody
+          .getWorldTransform()
+          .setRotation(new Ammo.btQuaternion(0, 0, 0, 1));
+        this.physicsBody.activate();
+
+        // this._target.lookAt(point);
+        // this._target.position.copy(point);
+      }
+    }
+  };
 
   Animate() {
     requestAnimationFrame(() => {
@@ -180,86 +177,69 @@ export class PlayerComponent implements OnInit {
     });
   }
 
-  Update(timeInSeconds: number) {
-    if (!this._target) {
-      return;
-    }
+  Jump = () => {
+    let jumpImpulse = new Ammo.btVector3(0, 15, 0);
 
-    this._stateMachine.Update(timeInSeconds, this._input);
+    let physicsBody = this._target.userData['physicsBody'];
+    physicsBody.setLinearVelocity(jumpImpulse);
+  };
 
-    const velocity = this._velocity;
-    const frameDecceleration = new THREE.Vector3(
-      velocity.x * this._decceleration.x,
-      velocity.y * this._decceleration.y,
-      velocity.z * this._decceleration.z
-    );
-    frameDecceleration.multiplyScalar(timeInSeconds);
-    frameDecceleration.z =
-      Math.sign(frameDecceleration.z) *
-      Math.min(Math.abs(frameDecceleration.z), Math.abs(velocity.z));
+  MovePlayer = () => {
+    this.physicsBody = this._target.userData['physicsBody'];
+    if (this.physicsBody) {
+      let rotateY = 0;
 
-    velocity.add(frameDecceleration);
-
-    const controlObject = this._target;
-    const _Q = new THREE.Quaternion();
-    const _A = new THREE.Vector3();
-    const _R = controlObject.quaternion.clone();
-
-    const acc = this._acceleration.clone();
-    if (this._input._keys.shift) {
-      acc.multiplyScalar(2.0);
-    }
-
-    if (this._stateMachine._currentState != null) {
-      if (this._stateMachine._currentState.Name == 'dance') {
-        acc.multiplyScalar(0.0);
+      if (this._controller._keys.space) {
+        this.Jump();
       }
-    }
 
-    if (this._input._keys.forward) {
-      velocity.z += acc.z * timeInSeconds;
-    }
-    if (this._input._keys.backward) {
-      velocity.z -= acc.z * timeInSeconds;
-    }
-    if (this._input._keys.left) {
-      _A.set(0, 1, 0);
-      _Q.setFromAxisAngle(
-        _A,
-        4.0 * Math.PI * timeInSeconds * this._acceleration.y
+      if (this._controller.moveDirection.left) {
+        rotateY = 1;
+      } else if (this._controller.moveDirection.right) {
+        rotateY = -1;
+      } else {
+        rotateY = 0;
+      }
+
+      this.physicsBody.setAngularVelocity(new Ammo.btVector3(0, rotateY, 0));
+      this.physicsBody.setAngularFactor(new Ammo.btVector3(0, 0, 0));
+
+      if (this._controller._keys.shift && scalingFactor < 70) {
+        scalingFactor++;
+      } else if (scalingFactor > 35) {
+        scalingFactor--;
+      }
+
+      // get position player looking
+      let direction = new THREE.Vector3(0, 0, -1);
+      direction.applyQuaternion(this._target.quaternion);
+      direction.normalize();
+
+      let moveZ =
+        this._controller.moveDirection.back -
+        this._controller.moveDirection.forward;
+
+      if (moveZ == 0) {
+        return;
+      }
+
+      this.physicsBody.setLinearVelocity(
+        new Ammo.btVector3(
+          direction.x * moveZ * scalingFactor,
+          0,
+          direction.z * moveZ * scalingFactor
+        )
       );
-      _R.multiply(_Q);
     }
-    if (this._input._keys.right) {
-      _A.set(0, 1, 0);
-      _Q.setFromAxisAngle(
-        _A,
-        4.0 * -Math.PI * timeInSeconds * this._acceleration.y
-      );
-      _R.multiply(_Q);
-    }
+  };
 
-    controlObject.quaternion.copy(_R);
+  Update(timeInSeconds: number) {
+    if (!this._target) return;
 
-    const oldPosition = new THREE.Vector3();
-    oldPosition.copy(controlObject.position);
+    this._stateMachine.Update(timeInSeconds, this._controller);
 
-    const forward = new THREE.Vector3(0, 0, 1);
-    forward.applyQuaternion(controlObject.quaternion);
-    forward.normalize();
-
-    const sideways = new THREE.Vector3(1, 0, 0);
-    sideways.applyQuaternion(controlObject.quaternion);
-    sideways.normalize();
-
-    sideways.multiplyScalar(velocity.x * timeInSeconds);
-    forward.multiplyScalar(velocity.z * timeInSeconds);
-
-    controlObject.position.add(forward);
-    controlObject.position.add(sideways);
-
-    this._position = oldPosition.copy(controlObject.position);
-    this.manager._target = this._position;
+    this.MovePlayer();
+    this.manager._target = this._target.position;
 
     if (this._mixer) {
       this._mixer.update(timeInSeconds);
@@ -276,4 +256,4 @@ export class BasicControllerProxy {
   get animations() {
     return this._animations;
   }
-};
+}

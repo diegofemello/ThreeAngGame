@@ -114,7 +114,7 @@ export class ManagerService {
   _Step() {
     if (this._target) {
       this._camera.position.set(this._target.x, this._target.y, this._target.z);
-      const cameraOffset = new Vector3(0.0, 5, 150); // NOTE Constant offset between the camera and the target
+      const cameraOffset = new Vector3(0.0, 60, 150); // NOTE Constant offset between the camera and the target
       this._camera.position.add(cameraOffset);
       this._camera.lookAt(this._target);
     }

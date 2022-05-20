@@ -69,15 +69,19 @@ export class BasicControllerInputService {
     switch(event.keyCode) {
       case 87: // w
         this._keys.forward = false;
+        this.moveDirection.forward = 0;
         break;
       case 65: // a
         this._keys.left = false;
+        this.moveDirection.left = 0;
         break;
       case 83: // s
         this._keys.backward = false;
+        this.moveDirection.back = 0;
         break;
       case 68: // d
         this._keys.right = false;
+        this.moveDirection.right = 0;
         break;
       case 32: // SPACE
         this._keys.space = false;

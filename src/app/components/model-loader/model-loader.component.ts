@@ -15,10 +15,11 @@ export class ModelLoaderComponent implements OnInit {
   @Input() rotationX = 0;
   @Input() rotationY = 0;
   @Input() rotationZ = 0;
-  @Input() scale = 0.2;
+
+  @Input() scale = 1;
   @Input() path!: string;
-  @Input() texturePath = ''
-  @Input() color = '#49BB58';
+  @Input() texturePath?: string;
+  @Input() color?: string;
   @Input() name = '';
 
   constructor(private manager: ManagerService) {}
@@ -32,30 +33,35 @@ export class ModelLoaderComponent implements OnInit {
         // c.castShadow = true;
       });
 
-      const texture = new THREE.TextureLoader().load(this.texturePath);
+      const texture = this.texturePath
+        ? new THREE.TextureLoader().load(this.texturePath)
+        : null;
 
       object.traverse((c: any) => {
         if (c instanceof THREE.Mesh) {
-          c.material.color.set(this.color)
-          if(texture.image) c.material.normalMap = texture;
-              c.material.normalMap = texture;
-              c.material.displacementScale = 0.01;
-              c.castShadow = true;
+          if (this.color) c.material.color.set(this.color);
+          if (texture) {
+            c.material.normalMap = texture;
+            c.material.normalMap = texture;
+          }
+          c.material.displacementScale = 0.01;
+          c.castShadow = true;
         }
       });
 
-
-
       object.scale.multiplyScalar(this.scale);
       object.position.set(this.positionX, this.positionY, this.positionZ);
-      object.rotation.set(this.rotationX * Math.PI, this.rotationY * Math.PI, this.rotationZ * Math.PI);
+      object.rotation.set(
+        this.rotationX * Math.PI,
+        this.rotationY * Math.PI,
+        this.rotationZ * Math.PI
+      );
 
       const newObject = new THREE.Object3D();
       newObject.add(object);
-      if(this.name || this.name != '') object.name = this.name.toLowerCase();
+      if (this.name || this.name != '') newObject.name = this.name;
 
       scene.add(newObject);
     });
-
   }
 }

@@ -77,7 +77,6 @@ export class DescriptionComponent implements OnInit {
             currentIntersection.name.toLowerCase()
           )
         ) {
-
           labelDescription.style.display = 'block';
           labelDescription.innerHTML =
             Description[
