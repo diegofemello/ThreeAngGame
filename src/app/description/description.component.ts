@@ -129,4 +129,5 @@ enum Description {
   sensor = '<h3>Sensor</h3> É um sensor de temperatura, que vai ser usado para calcular a temperatura do alto-forno.<p><img src="assets/images/smile.png" width="250px" align="center">',
   player = '<h3>Player</h3> É o jogador principal, que pode ser controlado pelo mouse ou teclado.',
   ground = '<h3>Ground</h3> É o chão do jogo, obviamente.',
+  robot = '<h3>Robot</h3> Mas que p**** de robô é esse ???.',
 }
