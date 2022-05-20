@@ -1,5 +1,5 @@
 trigger:
-- main
+- master
 
 variables:
   azureSubscription: 'b423d5e7-9838-48d4-a014-589d002299ed'
