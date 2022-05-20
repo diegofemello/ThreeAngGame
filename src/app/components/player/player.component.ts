@@ -1,10 +1,12 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { BasicControllerInputService } from 'src/app/services/basic-controller-input.service';
 import { FiniteStateMachineService } from 'src/app/services/finite-state-machine.service';
 import { ManagerService } from 'src/app/services/manager.service';
 import * as THREE from 'three';
 import { Object3D } from 'three';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
+import { ModalTestComponent } from '../modal-test/modal-test.component';
 
 declare const Ammo: any;
 
@@ -43,9 +45,7 @@ export class PlayerComponent implements OnInit {
   constructor(
     private manager: ManagerService,
     controller: BasicControllerInputService,
-    stateMachine: FiniteStateMachineService,
-
-    private modalService: NgbModal,
+    stateMachine: FiniteStateMachineService
   ) {
     this._controller = controller;
     this._stateMachine = stateMachine;
@@ -171,8 +171,6 @@ export class PlayerComponent implements OnInit {
       let physicsBody = this._target.userData['physicsBody'];
       physicsBody.setLinearVelocity(jumpImpulse);
       this.isGrounded = false;
-    } else {
-      console.log('Already Jumping');
     }
   };
 

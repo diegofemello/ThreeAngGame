@@ -10,6 +10,8 @@ import { PlayerComponent } from './components/player/player.component';
 import { PhysicsComponent } from './components/physics/physics.component';
 import { GltfLoaderComponent } from './components/gltf-loader/gltf-loader.component';
 import { FbxLoaderComponent } from './components/fbx-loader/fbx-loader.component';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { ModalTestComponent } from './components/modal-test/modal-test.component';
 
 @NgModule({
   declarations: [
@@ -20,8 +22,9 @@ import { FbxLoaderComponent } from './components/fbx-loader/fbx-loader.component
     PhysicsComponent,
     GltfLoaderComponent,
     FbxLoaderComponent,
+    ModalTestComponent,
   ],
-  imports: [BrowserModule, AppRoutingModule],
+  imports: [BrowserModule, AppRoutingModule, NgbModule],
   providers: [],
   bootstrap: [AppComponent],
 })

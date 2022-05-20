@@ -5,6 +5,8 @@ import {
   CSS2DObject,
   CSS2DRenderer,
 } from 'three/examples/jsm/renderers/CSS2DRenderer';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { ModalTestComponent } from '../components/modal-test/modal-test.component';
 
 @Component({
   selector: 'app-description',
@@ -12,7 +14,11 @@ import {
   styleUrls: ['./description.component.scss'],
 })
 export class DescriptionComponent implements OnInit {
-  constructor(private manager: ManagerService) {}
+  private currentIntersection: any;
+  constructor(
+    private manager: ManagerService,
+    private modalService: NgbModal
+  ) {}
 
   ngOnInit(): void {
     const scene = this.manager._scene;
@@ -43,12 +49,10 @@ export class DescriptionComponent implements OnInit {
     )[0] as HTMLDivElement;
     labelDescription.style.display = 'none';
 
-    renderer.domElement.addEventListener('pointermove', onMouseMove, false);
-
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
-    function onMouseMove(event: any) {
+    const onMouseMove = (event: any) => {
       mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
       mouse.y = -(event.clientY / renderer.domElement.clientHeight) * 2 + 1;
       raycaster.setFromCamera(mouse, camera);
@@ -56,6 +60,7 @@ export class DescriptionComponent implements OnInit {
       const intersects = raycaster.intersectObject(scene, true);
 
       if (intersects.length > 0) {
+        this.currentIntersection = intersects[0];
         currentIntersection = intersects[0].object;
         label.position.copy(intersects[0].point);
 
@@ -89,7 +94,14 @@ export class DescriptionComponent implements OnInit {
         }
       }
       labelRenderer.render(scene, camera);
-    }
+    };
+
+    const onMouseDown = (event: any) => {
+      this.openModal();
+    };
+
+    renderer.domElement.addEventListener('pointermove', onMouseMove, false);
+    renderer.domElement.addEventListener('pointerdown', onMouseDown, false);
 
     function resetLabel() {
       renderer.domElement.className = '';
@@ -99,6 +111,14 @@ export class DescriptionComponent implements OnInit {
       labelDescription.style.display = 'none';
       labelDescription.innerHTML = '';
     }
+  }
+
+  openModal() {
+    const modalRef = this.modalService.open(ModalTestComponent, {
+      size: 'lg',
+      centered: true,
+    });
+    modalRef.componentInstance.name = this.currentIntersection.object.name;
   }
 }
 
