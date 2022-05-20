@@ -44,9 +44,7 @@ export class DescriptionComponent implements OnInit {
     labelDescription.style.display = 'none';
 
     renderer.domElement.addEventListener('pointermove', onMouseMove, false);
-    renderer.domElement.addEventListener('pointerdown', onMouseDown, false);
 
-    // Track mouse movement to pick objects
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
@@ -59,16 +57,11 @@ export class DescriptionComponent implements OnInit {
 
       if (intersects.length > 0) {
         currentIntersection = intersects[0].object;
+        label.position.copy(intersects[0].point);
 
         // Setup label
         renderer.domElement.className = 'hovered';
         labelDiv.textContent = currentIntersection.name;
-
-        label.position.set(
-          currentIntersection.position.x,
-          currentIntersection.position.y,
-          currentIntersection.position.z
-        );
 
         label.visible = true;
 
@@ -83,14 +76,13 @@ export class DescriptionComponent implements OnInit {
               currentIntersection.name.toLowerCase() as keyof typeof Description
             ] + '</p>';
         } else {
-          // label.visible = false;
-          labelDescription.style.display = 'none';
+          resetLabel();
         }
 
         if (currentIntersection && currentIntersection.name === 'AltoForno') {
           currentIntersection.material.color.setRGB(0.05, 0.05, 0.05);
         }
-      } /*if(!clicked)*/ else {
+      } else {
         resetLabel();
         if (currentIntersection && currentIntersection.name === 'AltoForno') {
           currentIntersection.material.color.setRGB(0.03, 0.03, 0.03);
@@ -99,12 +91,7 @@ export class DescriptionComponent implements OnInit {
       labelRenderer.render(scene, camera);
     }
 
-    function onMouseDown(event: any) {
-      // if(clicked) {clicked = false} else {clicked = true}
-    }
-
     function resetLabel() {
-      // Reset label
       renderer.domElement.className = '';
       label.visible = false;
       labelDiv.textContent = '';
@@ -120,5 +107,6 @@ enum Description {
   slime = '<h3>Slime</h3> Aqui é um slime q criei pra testar a simulação do liquido.',
   logo = '<h3>Logo</h3> Aqui é o logo do projeto.',
   sensor = '<h3>Sensor</h3> É um sensor de temperatura, que vai ser usado para calcular a temperatura do alto-forno.<p><img src="assets/images/smile.png" width="250px" align="center">',
-  player = '<h3>Player</h3> É o player do projeto.',
+  player = '<h3>Player</h3> É o jogador principal, que pode ser controlado pelo mouse ou teclado.',
+  ground = '<h3>Ground</h3> É o chão do jogo, obviamente.',
 }

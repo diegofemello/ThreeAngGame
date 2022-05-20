@@ -25,27 +25,29 @@ export class PlayerComponent implements OnInit {
   @Input() rotationZ = 0;
   @Input() scale = 0.2;
   @Input() path!: string;
-  @Input() texturePath = '';
-  @Input() color = '#49BB58';
   @Input() name = 'Player';
   @Input() gender: 'male' | 'female' = 'male';
 
   private _mixer!: THREE.AnimationMixer;
   private _loadingManager!: THREE.LoadingManager;
   private _animations: any = {};
-  private _controller!: BasicControllerInputService;
+  private _controller: BasicControllerInputService;
   private _stateMachine: FiniteStateMachineService;
   private _target!: Object3D;
   private raycaster = new THREE.Raycaster();
   private mouse = new THREE.Vector2();
   private physicsBody: any;
+  private collision: any = {};
+  private isGrounded = false;
 
   constructor(
     private manager: ManagerService,
-    input: BasicControllerInputService,
-    stateMachine: FiniteStateMachineService
+    controller: BasicControllerInputService,
+    stateMachine: FiniteStateMachineService,
+
+    private modalService: NgbModal,
   ) {
-    this._controller = input;
+    this._controller = controller;
     this._stateMachine = stateMachine;
     this._stateMachine.SetProxy(new BasicControllerProxy(this._animations));
   }
@@ -65,25 +67,19 @@ export class PlayerComponent implements OnInit {
   }
 
   LoadModel = () => {
-    const loader3 = new FBXLoader();
-    loader3.load(this.path, (object: THREE.Object3D) => {
+    const loader = new FBXLoader();
+    loader.load(this.path, (object: THREE.Object3D) => {
       object.traverse((c: THREE.Object3D) => {
-        c.children.forEach((child) => {
-          if (this.gender == 'female') {
-            if (child.name == 'Head01' || child.name == 'Body01')
-              child.visible = false;
-          } else {
-            if (child.name == 'Head02' || child.name == 'Body02')
-              child.visible = false;
-          }
-        });
-      });
+        if (this.gender == 'female') {
+          if (c.name == 'Head01' || c.name == 'Body01') c.visible = false;
+        } else {
+          if (c.name == 'Head02' || c.name == 'Body02') c.visible = false;
+        }
 
-      object.traverse((c: any) => {
         if (c instanceof THREE.Mesh) {
-          c.material.color.set(this.color);
           c.material.displacementScale = 0.01;
           c.castShadow = true;
+          c.name = this.name;
         }
       });
 
@@ -105,36 +101,40 @@ export class PlayerComponent implements OnInit {
       this.manager._scene.add(newObject);
       this._target = newObject;
 
-      this._mixer = new THREE.AnimationMixer(newObject);
-      this._loadingManager = new THREE.LoadingManager();
-      this._loadingManager.onLoad = () => {
-        this._stateMachine.SetState('idle');
+      this.LoadAnimations();
+    });
+  };
+
+  LoadAnimations = () => {
+    const onLoad = (animName: any, anim: any) => {
+      const clip = anim.animations[0];
+      const action = this._mixer.clipAction(clip);
+
+      this._animations[animName] = {
+        clip: clip,
+        action: action,
       };
+    };
 
-      const _OnLoad = (animName: any, anim: any) => {
-        const clip = anim.animations[0];
-        const action = this._mixer.clipAction(clip);
+    this._mixer = new THREE.AnimationMixer(this._target);
+    this._loadingManager = new THREE.LoadingManager();
+    this._loadingManager.onLoad = () => {
+      this._stateMachine.SetState('idle');
+    };
 
-        this._animations[animName] = {
-          clip: clip,
-          action: action,
-        };
-      };
-
-      const loader2 = new FBXLoader(this._loadingManager);
-      loader2.setPath('./assets/models-3d/');
-      loader2.load('walk.fbx', (a) => {
-        _OnLoad('walk', a);
-      });
-      loader2.load('run.fbx', (a) => {
-        _OnLoad('run', a);
-      });
-      loader2.load('idle.fbx', (a) => {
-        _OnLoad('idle', a);
-      });
-      loader2.load('dance.fbx', (a) => {
-        _OnLoad('dance', a);
-      });
+    const loader = new FBXLoader(this._loadingManager);
+    loader.setPath('./assets/models-3d/');
+    loader.load('walk.fbx', (a) => {
+      onLoad('walk', a);
+    });
+    loader.load('run.fbx', (a) => {
+      onLoad('run', a);
+    });
+    loader.load('idle.fbx', (a) => {
+      onLoad('idle', a);
+    });
+    loader.load('dance.fbx', (a) => {
+      onLoad('dance', a);
     });
   };
 
@@ -152,21 +152,8 @@ export class PlayerComponent implements OnInit {
     );
 
     if (intersects.length > 0) {
-      const point = intersects[0].point;
-      point.y = this._target.position.y;
-
-      if (this.physicsBody) {
-        this.physicsBody
-          .getWorldTransform()
-          .setOrigin(new Ammo.btVector3(point.x, point.y, point.z));
-        this.physicsBody
-          .getWorldTransform()
-          .setRotation(new Ammo.btQuaternion(0, 0, 0, 1));
-        this.physicsBody.activate();
-
-        // this._target.lookAt(point);
-        // this._target.position.copy(point);
-      }
+      console.log(intersects[0].point);
+      console.log(intersects[0].object);
     }
   };
 
@@ -178,10 +165,15 @@ export class PlayerComponent implements OnInit {
   }
 
   Jump = () => {
-    let jumpImpulse = new Ammo.btVector3(0, 15, 0);
+    if (this.isGrounded) {
+      let jumpImpulse = new Ammo.btVector3(0, 15, 0);
 
-    let physicsBody = this._target.userData['physicsBody'];
-    physicsBody.setLinearVelocity(jumpImpulse);
+      let physicsBody = this._target.userData['physicsBody'];
+      physicsBody.setLinearVelocity(jumpImpulse);
+      this.isGrounded = false;
+    } else {
+      console.log('Already Jumping');
+    }
   };
 
   MovePlayer = () => {
@@ -233,11 +225,21 @@ export class PlayerComponent implements OnInit {
     }
   };
 
+  Collisions = () => {
+    if (this._target.userData) {
+      this.collision = this._target.userData['collision'];
+      if (this.collision) {
+        this.isGrounded = this.collision.tag == 'Ground';
+      }
+    }
+  };
+
   Update(timeInSeconds: number) {
     if (!this._target) return;
 
     this._stateMachine.Update(timeInSeconds, this._controller);
 
+    this.Collisions();
     this.MovePlayer();
     this.manager._target = this._target.position;
 
@@ -251,9 +253,5 @@ export class BasicControllerProxy {
   _animations: any;
   constructor(animations: any) {
     this._animations = animations;
-  }
-
-  get animations() {
-    return this._animations;
   }
 }

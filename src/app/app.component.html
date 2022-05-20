@@ -1,5 +1,6 @@
 <app-description></app-description>
-<app-model-loader
+
+<app-fbx-loader
   [path]="'./assets/models-3d/AltoForno.fbx'"
   [positionY]="9"
   [positionZ]="-150"
@@ -7,7 +8,7 @@
   [name]="'AltoForno'"
   [rotationY]="1.5"
   [scale]="0.2"
-></app-model-loader>
+></app-fbx-loader>
 
 <app-player
   [path]="'./assets/models-3d/DefaultCharacterMeshPolyart.fbx'"
@@ -18,28 +19,33 @@
   [gender]="'male'"
 ></app-player>
 
-<app-model-loader
+<app-fbx-loader
   [path]="'./assets/LowPolyTerrain.FBX'"
   [positionY]="0"
   [rotationY]="1.5"
   [scale]="20"
   [color]="'#49BB58'"
   [name]="'Ground'"
-></app-model-loader>
+></app-fbx-loader>
 
-<!-- <app-wave-plane></app-wave-plane>
-<app-liquid-waves></app-liquid-waves>
-<app-slime-wave-plane></app-slime-wave-plane>
-<app-water-wave-plane></app-water-wave-plane> -->
-
-<!-- <app-load-text
+<app-load-text
   [text]="'Logo'"
   [name]="'Logo'"
   [positionX]="-10"
-  [positionY]="15"
+  [positionY]="80"
   [positionZ]="-10"
   [positionZ]="0"
   [fontSize]="5"
-></app-load-text> -->
+></app-load-text>
+
+<app-gltf-loader
+  [scale]="50"
+  [name]="'Robot'"
+  [positionX]="-180"
+  [positionY]="0"
+  [positionZ]="-130"
+  [rotationY]="0.3"
+  [path]="'assets/tactical_droid/scene.gltf'"
+></app-gltf-loader>
 
 <app-physics></app-physics>

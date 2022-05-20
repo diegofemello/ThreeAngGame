@@ -1,13 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { BasicControllerInputService } from 'src/app/services/basic-controller-input.service';
 import { ManagerService } from 'src/app/services/manager.service';
-import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 import * as THREE from 'three';
 declare const Ammo: any;
 
 const STATE = { DISABLE_DEACTIVATION: 4 };
-let cbContactResult: any;
-// let tmpTrans: any = null;
 
 @Component({
   selector: 'app-physics',
@@ -19,11 +15,11 @@ export class PhysicsComponent implements OnInit {
   private _transformAux1: any;
   private rigidBodies: any = [];
   private clock = new THREE.Clock();
+  private _player: any;
 
-  constructor(
-    private manager: ManagerService,
-    private controller: BasicControllerInputService
-  ) {}
+  private cbContactResult: any;
+
+  constructor(private manager: ManagerService) {}
 
   ngOnInit(): void {
     Ammo().then(() => {
@@ -35,6 +31,8 @@ export class PhysicsComponent implements OnInit {
       this.CreatePlayer();
 
       this.AddCollisionToGroundMesh();
+
+      this.SetupContactResultCallback();
 
       this.RenderPhysicsFrame();
 
@@ -57,20 +55,65 @@ export class PhysicsComponent implements OnInit {
     this._physicsWorld.setGravity(new Ammo.btVector3(0, -10, 0));
   };
 
+  CreateObjectPhysics = (
+    object: THREE.Object3D,
+    pos = new THREE.Vector3(),
+    scale = new THREE.Vector3(1, 1, 1),
+    quat = new THREE.Quaternion(),
+    mass = 0,
+    friction = 0.5,
+    restitution = 0.5
+  ) => {
+    let transform = new Ammo.btTransform();
+    transform.setIdentity();
+    transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
+    transform.setRotation(
+      new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w)
+    );
+
+    let motionState = new Ammo.btDefaultMotionState(transform);
+
+    let colShape = new Ammo.btBoxShape(
+      new Ammo.btVector3(scale.x * 0.5, scale.y * 0.5, scale.z * 0.5)
+    );
+    colShape.setMargin(0.5);
+
+    let localInertia = new Ammo.btVector3(0, 0, 0);
+    colShape.calculateLocalInertia(mass, localInertia);
+
+    let rbInfo = new Ammo.btRigidBodyConstructionInfo(
+      mass,
+      motionState,
+      colShape,
+      localInertia
+    );
+    let body = new Ammo.btRigidBody(rbInfo);
+    body.setFriction(friction);
+    body.setRestitution(restitution);
+
+    body.setFriction(4);
+    body.setRollingFriction(10);
+    body.setActivationState(STATE.DISABLE_DEACTIVATION);
+
+    this._physicsWorld.addRigidBody(body);
+
+    body.threeObject = object;
+    object.userData['physicsBody'] = body;
+  };
+
   CreateFloorTiles = () => {
     let tiles = [
-      { name: 'yellow', color: 0xffff00, pos: { x: -20, y: 0, z: 20 } },
-      { name: 'red', color: 0xff0000, pos: { x: 20, y: 0, z: 20 } },
-      { name: 'green', color: 0x008000, pos: { x: 20, y: 0, z: -20 } },
-      { name: 'blue', color: 0x0000ff, pos: { x: -20, y: 0, z: -20 } },
+      { name: 'yellow', color: 0xffff00, pos: new THREE.Vector3(-20, 0, 20) },
+      { name: 'red', color: 0xff0000, pos: new THREE.Vector3(20, 0, 20) },
+      { name: 'green', color: 0x008000, pos: new THREE.Vector3(20, 0, -20) },
+      { name: 'blue', color: 0x0000ff, pos: new THREE.Vector3(-20, 0, -20) },
     ];
 
-    let scale = { x: 40, y: 6, z: 40 };
-    let quat = { x: 0, y: 0, z: 0, w: 1 };
+    let scale = new THREE.Vector3(40, 6, 40);
+    let quat = new THREE.Quaternion(0, 0, 0, 1);
     let mass = 0;
 
     for (const tile of tiles) {
-      //threeJS Section
       let pos = tile.pos;
       let mesh = new THREE.Mesh(
         new THREE.BoxBufferGeometry(),
@@ -88,41 +131,7 @@ export class PhysicsComponent implements OnInit {
 
       this.manager._scene.add(mesh);
 
-      //Ammojs Section
-      let transform = new Ammo.btTransform();
-      transform.setIdentity();
-      transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
-      transform.setRotation(
-        new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w)
-      );
-      let motionState = new Ammo.btDefaultMotionState(transform);
-
-      let colShape = new Ammo.btBoxShape(
-        new Ammo.btVector3(scale.x * 0.5, scale.y * 0.5, scale.z * 0.5)
-      );
-      colShape.setMargin(0.05);
-
-      let localInertia = new Ammo.btVector3(0, 0, 0);
-      colShape.calculateLocalInertia(mass, localInertia);
-
-      let rbInfo = new Ammo.btRigidBodyConstructionInfo(
-        mass,
-        motionState,
-        colShape,
-        localInertia
-      );
-      let body = new Ammo.btRigidBody(rbInfo);
-
-      body.setFriction(4);
-      body.setRollingFriction(10);
-
-      this._physicsWorld.addRigidBody(body);
-
-      body.threeObject = mesh;
-
-      if (tile.name == 'red') {
-        mesh.userData['physicsBody'] = body;
-      }
+      this.CreateObjectPhysics(mesh, pos, scale, quat, mass);
     }
   };
 
@@ -130,41 +139,19 @@ export class PhysicsComponent implements OnInit {
     let groundMesh = this.manager._scene.getObjectByName('Ground');
 
     if (groundMesh) {
-      // get dimensions of the ground mesh
       let box3 = new THREE.Box3().setFromObject(groundMesh);
       let size = new THREE.Vector3();
       box3.getSize(size);
 
-      let transform = new Ammo.btTransform();
-      transform.setIdentity();
-      transform.setOrigin(new Ammo.btVector3(0, -size.y * 0.5, 0));
-      transform.setRotation(new Ammo.btQuaternion(0, 0, 0, 1));
-
-      let motionState = new Ammo.btDefaultMotionState(transform);
-
-      let colShape = new Ammo.btBoxShape(
-        new Ammo.btVector3(size.x * 0.5, size.y * 0.5, size.z * 0.5)
-      );
-      colShape.setMargin(0.05);
-
-      let localInertia = new Ammo.btVector3(0, 0, 0);
-      colShape.calculateLocalInertia(0, localInertia);
-
-      let rbInfo = new Ammo.btRigidBodyConstructionInfo(
-        0,
-        motionState,
-        colShape,
-        localInertia
+      this.CreateObjectPhysics(
+        groundMesh,
+        new THREE.Vector3(0, -size.y * 0.5, 0),
+        size,
+        new THREE.Quaternion(0, 0, 0, 1),
+        0
       );
 
-      let body = new Ammo.btRigidBody(rbInfo);
-
-      body.setFriction(4);
-      body.setRollingFriction(10);
-
-      this._physicsWorld.addRigidBody(body);
-
-      body.threeObject = groundMesh;
+      groundMesh.userData['tag'] = 'Ground';
     }
   };
 
@@ -175,44 +162,22 @@ export class PhysicsComponent implements OnInit {
       let pos = player.position.addScalar(2);
       let quat = player.quaternion;
 
-      //Ammojs Section
-      let transform = new Ammo.btTransform();
-      transform.setIdentity();
-      transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
-      transform.setRotation(
-        new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w)
-      );
+      this.CreateObjectPhysics(player, pos, player.scale, quat, mass);
 
-      let motionState = new Ammo.btDefaultMotionState(transform);
 
-      let colShape = new Ammo.btBoxShape(new Ammo.btVector3(1, 1, 1));
-      colShape.setMargin(0);
-
-      let localInertia = new Ammo.btVector3(0, 0, 0);
-      colShape.calculateLocalInertia(mass, localInertia);
-
-      let rbInfo = new Ammo.btRigidBodyConstructionInfo(
-        mass,
-        motionState,
-        colShape,
-        localInertia
-      );
-
-      let body = new Ammo.btRigidBody(rbInfo);
-
-      body.setFriction(4);
-      body.setRollingFriction(10);
-
-      body.setActivationState(STATE.DISABLE_DEACTIVATION);
-
-      this._physicsWorld.addRigidBody(body);
+      this._player = player;
       this.rigidBodies.push(player);
-      player.userData['physicsBody'] = body;
     }
   };
 
+  CheckContact = () => {
+    this._physicsWorld.contactTest(
+      this._player.userData['physicsBody'],
+      this.cbContactResult
+    );
+  };
+
   UpdatePhysics = (deltaTime: any) => {
-    // Step world
     this._physicsWorld.stepSimulation(deltaTime, 10);
 
     for (let i = 0; i < this.rigidBodies.length; i++) {
@@ -234,7 +199,64 @@ export class PhysicsComponent implements OnInit {
     let deltaTime = this.clock.getDelta();
 
     this.UpdatePhysics(deltaTime);
+    this.CheckContact();
 
     requestAnimationFrame(this.RenderPhysicsFrame);
+  };
+
+  SetupContactResultCallback = () => {
+    this.cbContactResult = new Ammo.ConcreteContactResultCallback();
+
+    this.cbContactResult.addSingleResult = (
+      cp: any,
+      colObj0Wrap: any,
+      partId0: any,
+      index0: any,
+      colObj1Wrap: any,
+      partId1: any,
+      index1: any
+    ) => {
+      let contactPoint = Ammo.wrapPointer(cp, Ammo.btManifoldPoint);
+
+      const distance = contactPoint.getDistance();
+
+      if (distance > 0) return;
+
+      let colWrapper1 = Ammo.wrapPointer(
+        colObj1Wrap,
+        Ammo.btCollisionObjectWrapper
+      );
+      let rb1 = Ammo.castObject(
+        colWrapper1.getCollisionObject(),
+        Ammo.btRigidBody
+      );
+
+      let threeObject1 = rb1.threeObject;
+
+      let tag, localPos, worldPos;
+
+      tag = threeObject1.userData.tag;
+      localPos = contactPoint.get_m_localPointB();
+      worldPos = contactPoint.get_m_positionWorldOnB();
+
+      let localPosDisplay = {
+        x: localPos.x(),
+        y: localPos.y(),
+        z: localPos.z(),
+      };
+      let worldPosDisplay = {
+        x: worldPos.x(),
+        y: worldPos.y(),
+        z: worldPos.z(),
+      };
+
+      // console.log({ tag, localPosDisplay, worldPosDisplay });
+
+      this._player.userData['collision'] = {
+        tag,
+        localPosDisplay,
+        worldPosDisplay,
+      };
+    };
   };
 }

@@ -3,42 +3,26 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { ModelComponent } from './components/model/model.component';
 
 import { DescriptionComponent } from './description/description.component';
-import { WavePlaneComponent } from './components/wave-plane/wave-plane.component';
-import { LiquidWavesComponent } from './components/liquid-waves/liquid-waves.component';
-import { ModelLoaderComponent } from './components/model-loader/model-loader.component';
-import { SlimeWavePlaneComponent } from './components/slime-wave-plane/slime-wave-plane.component';
-import { WaterWavePlaneComponent } from './components/water-wave-plane/water-wave-plane.component';
 import { LoadTextComponent } from './components/load-text/load-text.component';
 import { PlayerComponent } from './components/player/player.component';
 import { PhysicsComponent } from './components/physics/physics.component';
-
+import { GltfLoaderComponent } from './components/gltf-loader/gltf-loader.component';
+import { FbxLoaderComponent } from './components/fbx-loader/fbx-loader.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    ModelComponent,
     DescriptionComponent,
-    WavePlaneComponent,
-    LiquidWavesComponent,
-    ModelLoaderComponent,
-    SlimeWavePlaneComponent,
-    WaterWavePlaneComponent,
     LoadTextComponent,
     PlayerComponent,
-    PhysicsComponent
+    PhysicsComponent,
+    GltfLoaderComponent,
+    FbxLoaderComponent,
   ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-
-  ],
+  imports: [BrowserModule, AppRoutingModule],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule {
-
-
-}
+export class AppModule {}

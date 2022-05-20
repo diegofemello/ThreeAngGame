@@ -9,10 +9,9 @@ import { ManagerService } from './services/manager.service';
 export class AppComponent {
   title = 'three';
 
-  constructor(private manager: ManagerService) {
-  }
+  constructor(private manager: ManagerService) {}
 
- ngOnInit(): void {
-   this.manager._Initialize();
- }
+  ngOnInit(): void {
+    this.manager._Initialize();
+  }
 }
