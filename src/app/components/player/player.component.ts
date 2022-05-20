@@ -123,7 +123,7 @@ export class PlayerComponent implements OnInit {
     };
 
     const loader = new FBXLoader(this._loadingManager);
-    loader.setPath('./assets/models-3d/');
+    loader.setPath('./assets/models3d/DefaultCharacter/animations/');
     loader.load('walk.fbx', (a) => {
       onLoad('walk', a);
     });
