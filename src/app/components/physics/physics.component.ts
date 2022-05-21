@@ -172,7 +172,7 @@ export class PhysicsComponent implements OnInit {
   };
 
   CheckContact = () => {
-    if(this._player.userData){
+    if(this._player.userData['physicsBody']){
       this._physicsWorld.contactTest(
         this._player.userData['physicsBody'],
         this.cbContactResult
