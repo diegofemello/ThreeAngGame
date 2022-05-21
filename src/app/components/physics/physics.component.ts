@@ -14,9 +14,7 @@ export class PhysicsComponent implements OnInit {
   private _physicsWorld: any;
   private _transformAux1: any;
   private rigidBodies: any = [];
-  private clock = new THREE.Clock();
   private _player: any;
-  private count = 0;
 
   private cbContactResult: any;
 
@@ -35,7 +33,7 @@ export class PhysicsComponent implements OnInit {
 
       this.SetupContactResultCallback();
 
-      this.RenderPhysicsFrame();
+      this.Update(1 / 60);
 
       return;
     });
@@ -99,9 +97,9 @@ export class PhysicsComponent implements OnInit {
 
     this._physicsWorld.addRigidBody(body);
     object.userData = {
-      physicsBody : body,
+      physicsBody: body,
       tag: tag,
-    }
+    };
     body.threeObject = object;
   };
 
@@ -189,7 +187,7 @@ export class PhysicsComponent implements OnInit {
       let objThree = this.rigidBodies[i];
       let objAmmo = objThree?.userData['physicsBody'];
 
-      if(objAmmo) {
+      if (objAmmo) {
         let ms = objAmmo.getMotionState();
         if (ms) {
           ms.getWorldTransform(this._transformAux1);
@@ -199,22 +197,21 @@ export class PhysicsComponent implements OnInit {
           objThree.quaternion.set(q.x(), q.y(), q.z(), q.w());
         }
       }
-
-
     }
   };
 
-  RenderPhysicsFrame = () => {
-    let deltaTime = this.clock.getDelta();
-    this.count ++;
-    if (this?._player?.userData['physicsBody']) {
+  Update(timeInSeconds: number) {
+    requestAnimationFrame(() => {
+      console.log('renderframe', this._player);
 
-      this.UpdatePhysics(deltaTime);
-      this.CheckContact();
-    }
+      if (this._player?.userData['physicsBody']) {
+        this.UpdatePhysics(timeInSeconds);
+        this.CheckContact();
+      }
 
-    requestAnimationFrame(this.RenderPhysicsFrame);
-  };
+      this.Update(timeInSeconds);
+    });
+  }
 
   SetupContactResultCallback = () => {
     this.cbContactResult = new Ammo.ConcreteContactResultCallback();
