@@ -178,24 +178,20 @@ export class PhysicsComponent implements OnInit {
       return;
     }
 
-    if (player) {
-      let pos = player.position.addScalar(2);
-      let quat = player.quaternion;
+    let pos = player.position.addScalar(2);
+    let quat = player.quaternion;
 
-      this.CreateObjectPhysics(player, pos, player.scale, quat, 'Player', mass);
+    this.CreateObjectPhysics(player, pos, player.scale, quat, 'Player', mass);
 
-      this.rigidBodies.push(player);
-      this._player = player;
-    }
+    this.rigidBodies.push(player);
+    this._player = player;
   };
 
   CheckContact = () => {
-    // if (this._player.userData['physicsBody']) {
-    //   this._physicsWorld.contactTest(
-    //     this._player.userData['physicsBody'],
-    //     this.cbContactResult
-    //   );
-    // }
+    this._physicsWorld.contactTest(
+      this._player.userData['physicsBody'],
+      this.cbContactResult
+    );
   };
 
   UpdatePhysics = (deltaTime: any) => {
@@ -205,24 +201,20 @@ export class PhysicsComponent implements OnInit {
       let objThree = this.rigidBodies[i];
       let objAmmo = objThree?.userData['physicsBody'];
 
-      if (objAmmo) {
-        let ms = objAmmo.getMotionState();
-        if (ms) {
-          ms.getWorldTransform(this._transformAux1);
-          let p = this._transformAux1.getOrigin();
-          let q = this._transformAux1.getRotation();
-          objThree.position.set(p.x(), p.y(), p.z());
-          objThree.quaternion.set(q.x(), q.y(), q.z(), q.w());
-        }
+      let ms = objAmmo.getMotionState();
+      if (ms) {
+        ms.getWorldTransform(this._transformAux1);
+        let p = this._transformAux1.getOrigin();
+        let q = this._transformAux1.getRotation();
+        objThree.position.set(p.x(), p.y(), p.z());
+        objThree.quaternion.set(q.x(), q.y(), q.z(), q.w());
       }
     }
   };
 
   Update(timeInSeconds: number) {
     requestAnimationFrame(() => {
-      console.log('renderframe', this._player);
-
-      if (this._player?.userData['physicsBody']) {
+      if (this._player) {
         this.UpdatePhysics(timeInSeconds);
         this.CheckContact();
       }
@@ -279,11 +271,11 @@ export class PhysicsComponent implements OnInit {
 
       // console.log({ tag, localPosDisplay, worldPosDisplay });
 
-      // this._player.userData['collision'] = {
-      //   tag,
-      //   localPosDisplay,
-      //   worldPosDisplay,
-      // };
+      this._player.userData['collision'] = {
+        tag,
+        localPosDisplay,
+        worldPosDisplay,
+      };
     };
   };
 }

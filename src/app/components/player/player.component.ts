@@ -37,8 +37,8 @@ export class PlayerComponent implements OnInit, OnDestroy {
   private raycaster = new THREE.Raycaster();
   private mouse = new THREE.Vector2();
   private physicsBody: any;
-  // private collision: any = {};
-  // private isGrounded = false;
+  private collision: any = {};
+  private isGrounded = false;
   private randomUid =
     Math.random().toString(36).substring(2, 15) +
     Math.random().toString(36).substring(2, 15);
@@ -165,7 +165,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
   };
 
   Jump = () => {
-    if (this._target && this.physicsBody) {
+    if (this._target && this.physicsBody && this.isGrounded) {
       let jumpImpulse = new Ammo.btVector3(0, 15, 0);
 
       this.physicsBody.setLinearVelocity(jumpImpulse);
@@ -173,7 +173,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
   };
 
   MovePlayer = () => {
-    if (!this?._target?.userData['physicsBody']) return;
+    if (!this._target?.userData['physicsBody']) return;
 
     this.physicsBody = this._target.userData['physicsBody'];
     if (this.physicsBody) {
@@ -235,12 +235,12 @@ export class PlayerComponent implements OnInit, OnDestroy {
   };
 
   Collisions = () => {
-    // if (this._target.userData) {
-    //   this.collision = this._target.userData['collision'];
-    //   if (this.collision) {
-    //     this.isGrounded = this.collision.tag == 'Ground';
-    //   }
-    // }
+    if (this._target.userData) {
+      this.collision = this._target.userData['collision'];
+      if (this.collision) {
+        this.isGrounded = this.collision.tag == 'Ground';
+      }
+    }
   };
 
   Update(timeInSeconds: number) {
