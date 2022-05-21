@@ -41,8 +41,8 @@ export class PlayerComponent implements OnInit, OnDestroy {
   private raycaster = new THREE.Raycaster();
   private mouse = new THREE.Vector2();
   private physicsBody: any;
-  private collision: any = {};
-  private isGrounded = false;
+  // private collision: any = {};
+  // private isGrounded = false;
   private randomUid =
     Math.random().toString(36).substring(2, 15) +
     Math.random().toString(36).substring(2, 15);
@@ -61,7 +61,6 @@ export class PlayerComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {}
 
   ngOnInit(): void {
-    this.playerService.newPlayer(this.randomUid);
     this._controller._Init();
     this._stateMachine._Init();
 
@@ -72,7 +71,6 @@ export class PlayerComponent implements OnInit, OnDestroy {
     );
 
     this.LoadModel();
-    this.Animate();
   }
 
   LoadModel = () => {
@@ -146,6 +144,8 @@ export class PlayerComponent implements OnInit, OnDestroy {
     loader.load('dance.fbx', (a) => {
       onLoad('dance', a);
     });
+
+    this.Update(1 / 60);
   };
 
   OnMouseDown = (event: any) => {
@@ -162,29 +162,23 @@ export class PlayerComponent implements OnInit, OnDestroy {
     );
 
     if (intersects.length > 0) {
-      console.log(intersects[0].point);
-      console.log(intersects[0].object);
+      // console.log(intersects[0].point);
+      // console.log(intersects[0].object);
     }
   };
 
-  Animate() {
-    requestAnimationFrame(() => {
-      this.Update(1 / 60);
-      this.Animate();
-    });
-  }
-
   Jump = () => {
-    if (this.isGrounded) {
+    if (this._target && this.physicsBody) {
       let jumpImpulse = new Ammo.btVector3(0, 15, 0);
 
       let physicsBody = this._target.userData['physicsBody'];
       physicsBody.setLinearVelocity(jumpImpulse);
-      this.isGrounded = false;
     }
   };
 
   MovePlayer = () => {
+    if (!this._target.userData) return;
+
     this.physicsBody = this._target.userData['physicsBody'];
     if (this.physicsBody) {
       let rotateY = 0;
@@ -246,26 +240,30 @@ export class PlayerComponent implements OnInit, OnDestroy {
   };
 
   Collisions = () => {
-    if (this._target.userData) {
-      this.collision = this._target.userData['collision'];
-      if (this.collision) {
-        this.isGrounded = this.collision.tag == 'Ground';
-      }
-    }
+    // if (this._target.userData) {
+    //   this.collision = this._target.userData['collision'];
+    //   if (this.collision) {
+    //     this.isGrounded = this.collision.tag == 'Ground';
+    //   }
+    // }
   };
 
   Update(timeInSeconds: number) {
-    if (!this._target) return;
+    requestAnimationFrame(() => {
+      if (!this._target) return;
 
-    this._stateMachine.Update(timeInSeconds, this._controller);
+      this._stateMachine.Update(timeInSeconds, this._controller);
 
-    this.Collisions();
-    this.MovePlayer();
-    this.manager._target = this._target.position;
+      this.Collisions();
+      this.MovePlayer();
+      this.manager._target = this._target.position;
 
-    if (this._mixer) {
-      this._mixer.update(timeInSeconds);
-    }
+      if (this._mixer) {
+        this._mixer.update(timeInSeconds);
+      }
+
+      this.Update(timeInSeconds);
+    });
   }
 }
 

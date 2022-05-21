@@ -60,6 +60,7 @@ export class PhysicsComponent implements OnInit {
     pos = new THREE.Vector3(),
     scale = new THREE.Vector3(1, 1, 1),
     quat = new THREE.Quaternion(),
+    tag = '',
     mass = 0,
     friction = 0.5,
     restitution = 0.5
@@ -97,8 +98,9 @@ export class PhysicsComponent implements OnInit {
 
     this._physicsWorld.addRigidBody(body);
 
-    body.threeObject = object;
     object.userData['physicsBody'] = body;
+    object.userData['tag'] = tag;
+    body.threeObject = object;
   };
 
   CreateFloorTiles = () => {
@@ -126,12 +128,11 @@ export class PhysicsComponent implements OnInit {
       mesh.castShadow = true;
       mesh.receiveShadow = true;
 
-      mesh.userData['tag'] = tile.name;
       mesh.name = 'Tile ' + tile.name;
 
       this.manager._scene.add(mesh);
 
-      this.CreateObjectPhysics(mesh, pos, scale, quat, mass);
+      this.CreateObjectPhysics(mesh, pos, scale, quat, tile.name, mass);
     }
   };
 
@@ -148,10 +149,11 @@ export class PhysicsComponent implements OnInit {
         new THREE.Vector3(0, -size.y * 0.5, 0),
         size,
         new THREE.Quaternion(0, 0, 0, 1),
-        0
+        'Ground',
+        0,
+        0.5,
+        0.5
       );
-
-      groundMesh.userData['tag'] = 'Ground';
     }
   };
 
@@ -162,8 +164,7 @@ export class PhysicsComponent implements OnInit {
       let pos = player.position.addScalar(2);
       let quat = player.quaternion;
 
-      this.CreateObjectPhysics(player, pos, player.scale, quat, mass);
-
+      this.CreateObjectPhysics(player, pos, player.scale, quat, 'Player', mass);
 
       this._player = player;
       this.rigidBodies.push(player);
@@ -171,10 +172,13 @@ export class PhysicsComponent implements OnInit {
   };
 
   CheckContact = () => {
-    this._physicsWorld.contactTest(
-      this._player.userData['physicsBody'],
-      this.cbContactResult
-    );
+    if(this._player.userData){
+      this._physicsWorld.contactTest(
+        this._player.userData['physicsBody'],
+        this.cbContactResult
+      );
+    }
+
   };
 
   UpdatePhysics = (deltaTime: any) => {

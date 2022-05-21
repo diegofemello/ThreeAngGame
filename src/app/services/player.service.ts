@@ -10,7 +10,8 @@ export class PlayerService {
   players = this.socket.fromEvent<Player[]>('players');
   playersMovement = this.socket.fromEvent<Player[]>('playersMovement');
 
-  currentPlayer = "";
+
+  currentPlayer = '';
 
   constructor(private socket: Socket) {}
 
@@ -18,16 +19,24 @@ export class PlayerService {
     this.socket.emit('getPlayer', uid);
   }
 
-  getPlayers(){
+  getPlayers() {
     this.socket.emit('getPlayers');
   }
 
   newPlayer(uid: string) {
-    this.socket.emit('addPlayer', { uid: uid, position: new THREE.Vector3, rotation:  new THREE.Vector3 });
+    this.socket.emit('addPlayer', {
+      uid: uid,
+      position: new THREE.Vector3(),
+      rotation: new THREE.Vector3(),
+    });
     this.currentPlayer = uid;
   }
 
-  updatePlayerPosition(uid: string, position: THREE.Vector3, rotation: THREE.Vector3) {
+  updatePlayerPosition(
+    uid: string,
+    position: THREE.Vector3,
+    rotation: THREE.Vector3
+  ) {
     this.socket.emit('playerMove', {
       uid: uid,
       position: position,
