@@ -1,0 +1,19 @@
+<div class="sidenav">
+  <span
+    *ngFor="let player of players | async"
+  >
+    {{ player.uid }}
+  </span>
+</div>
+
+<!-- <div *ngFor="let player of players | async">
+  <app-other-player
+    [uid]='player.uid'
+    [path]="'./assets/models3d/DefaultCharacter/DefaultCharacterMeshPolyart.fbx'"
+    [positionX]="player.position.x"
+    [positionY]="player.position.y"
+    [positionZ]="player.position.z"
+  [rotationY]="1"
+  [scale]="0.2"
+  [gender]="'male'"></app-other-player>
+</div> -->
