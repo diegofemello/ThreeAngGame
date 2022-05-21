@@ -139,6 +139,14 @@ export class PhysicsComponent implements OnInit {
   AddCollisionToGroundMesh = () => {
     let groundMesh = this.manager._scene.getObjectByName('Ground');
 
+    if (!groundMesh) {
+      setTimeout(() => {
+        console.log('ground not loaded yet');
+        this.AddCollisionToGroundMesh();
+      }, 100);
+      return;
+    }
+
     if (groundMesh) {
       let box3 = new THREE.Box3().setFromObject(groundMesh);
       let size = new THREE.Vector3();
@@ -160,6 +168,16 @@ export class PhysicsComponent implements OnInit {
   CreatePlayer = () => {
     const mass = 1;
     const player = this.manager._scene.getObjectByName('Player');
+
+    // while player is not loaded yet we wait
+    if (!player) {
+      setTimeout(() => {
+        console.log('player not loaded yet');
+        this.CreatePlayer();
+      }, 100);
+      return;
+    }
+
     if (player) {
       let pos = player.position.addScalar(2);
       let quat = player.quaternion;
