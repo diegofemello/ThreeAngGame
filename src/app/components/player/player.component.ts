@@ -1,8 +1,4 @@
 import { Component, Input, OnInit, OnDestroy } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { startWith } from 'rxjs';
-import { Subscription } from 'rxjs/internal/Subscription';
-import { Player } from 'src/app/models/player.model';
 import { BasicControllerInputService } from 'src/app/services/basic-controller-input.service';
 import { FiniteStateMachineService } from 'src/app/services/finite-state-machine.service';
 import { ManagerService } from 'src/app/services/manager.service';
@@ -61,6 +57,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {}
 
   ngOnInit(): void {
+    this.playerService.newPlayer(this.randomUid);
     this._controller._Init();
     this._stateMachine._Init();
 
@@ -162,8 +159,8 @@ export class PlayerComponent implements OnInit, OnDestroy {
     );
 
     if (intersects.length > 0) {
-      // console.log(intersects[0].point);
-      // console.log(intersects[0].object);
+      console.log(intersects[0].point);
+      console.log(intersects[0].object);
     }
   };
 
@@ -171,13 +168,12 @@ export class PlayerComponent implements OnInit, OnDestroy {
     if (this._target && this.physicsBody) {
       let jumpImpulse = new Ammo.btVector3(0, 15, 0);
 
-      let physicsBody = this._target.userData['physicsBody'];
-      physicsBody.setLinearVelocity(jumpImpulse);
+      this.physicsBody.setLinearVelocity(jumpImpulse);
     }
   };
 
   MovePlayer = () => {
-    if (!this._target.userData) return;
+    if (!this?._target?.userData['physicsBody']) return;
 
     this.physicsBody = this._target.userData['physicsBody'];
     if (this.physicsBody) {
@@ -216,7 +212,6 @@ export class PlayerComponent implements OnInit, OnDestroy {
         scalingFactor--;
       }
 
-      // get position player looking
       let direction = new THREE.Vector3(0, 0, -1);
       direction.applyQuaternion(this._target.quaternion);
       direction.normalize();

@@ -98,9 +98,10 @@ export class PhysicsComponent implements OnInit {
     body.setActivationState(STATE.DISABLE_DEACTIVATION);
 
     this._physicsWorld.addRigidBody(body);
-
-    object.userData['physicsBody'] = body;
-    object.userData['tag'] = tag;
+    object.userData = {
+      physicsBody : body,
+      tag: tag,
+    }
     body.threeObject = object;
   };
 
@@ -173,12 +174,12 @@ export class PhysicsComponent implements OnInit {
   };
 
   CheckContact = () => {
-    if (this._player.userData['physicsBody']) {
-      this._physicsWorld.contactTest(
-        this._player.userData['physicsBody'],
-        this.cbContactResult
-      );
-    }
+    // if (this._player.userData['physicsBody']) {
+    //   this._physicsWorld.contactTest(
+    //     this._player.userData['physicsBody'],
+    //     this.cbContactResult
+    //   );
+    // }
   };
 
   UpdatePhysics = (deltaTime: any) => {
@@ -186,23 +187,27 @@ export class PhysicsComponent implements OnInit {
 
     for (let i = 0; i < this.rigidBodies.length; i++) {
       let objThree = this.rigidBodies[i];
-      let objAmmo = objThree.userData['physicsBody'];
+      let objAmmo = objThree?.userData['physicsBody'];
 
-      let ms = objAmmo.getMotionState();
-      if (ms) {
-        ms.getWorldTransform(this._transformAux1);
-        let p = this._transformAux1.getOrigin();
-        let q = this._transformAux1.getRotation();
-        objThree.position.set(p.x(), p.y(), p.z());
-        objThree.quaternion.set(q.x(), q.y(), q.z(), q.w());
+      if(objAmmo) {
+        let ms = objAmmo.getMotionState();
+        if (ms) {
+          ms.getWorldTransform(this._transformAux1);
+          let p = this._transformAux1.getOrigin();
+          let q = this._transformAux1.getRotation();
+          objThree.position.set(p.x(), p.y(), p.z());
+          objThree.quaternion.set(q.x(), q.y(), q.z(), q.w());
+        }
       }
+
+
     }
   };
 
   RenderPhysicsFrame = () => {
     let deltaTime = this.clock.getDelta();
     this.count ++;
-    if (this._player.userData['physicsBody'] && this.count >= 40) {
+    if (this?._player?.userData['physicsBody']) {
 
       this.UpdatePhysics(deltaTime);
       this.CheckContact();
@@ -259,11 +264,11 @@ export class PhysicsComponent implements OnInit {
 
       // console.log({ tag, localPosDisplay, worldPosDisplay });
 
-      this._player.userData['collision'] = {
-        tag,
-        localPosDisplay,
-        worldPosDisplay,
-      };
+      // this._player.userData['collision'] = {
+      //   tag,
+      //   localPosDisplay,
+      //   worldPosDisplay,
+      // };
     };
   };
 }
