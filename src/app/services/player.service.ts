@@ -7,9 +7,10 @@ import * as THREE from 'three';
   providedIn: 'root',
 })
 export class PlayerService {
-  currentPlayer = this.socket.fromEvent<Player>('player');
   players = this.socket.fromEvent<Player[]>('players');
   playersMovement = this.socket.fromEvent<Player[]>('playersMovement');
+
+  currentPlayer = "";
 
   constructor(private socket: Socket) {}
 
@@ -23,6 +24,7 @@ export class PlayerService {
 
   newPlayer(uid: string) {
     this.socket.emit('addPlayer', { uid: uid, position: new THREE.Vector3, rotation:  new THREE.Vector3 });
+    this.currentPlayer = uid;
   }
 
   updatePlayerPosition(uid: string, position: THREE.Vector3, rotation: THREE.Vector3) {

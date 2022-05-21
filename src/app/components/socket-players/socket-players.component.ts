@@ -7,11 +7,11 @@ import * as THREE from 'three';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 
 @Component({
-  selector: 'app-other-player',
-  templateUrl: './other-player.component.html',
-  styleUrls: ['./other-player.component.scss'],
+  selector: 'app-socket-players',
+  templateUrl: './socket-players.component.html',
+  styleUrls: ['./socket-players.component.scss'],
 })
-export class OtherPlayerComponent implements OnInit {
+export class SocketPlayersComponent implements OnInit {
   @Input() positionX = 0;
   @Input() positionY = 0;
   @Input() positionZ = 0;
@@ -22,6 +22,7 @@ export class OtherPlayerComponent implements OnInit {
   @Input() path!: string;
   @Input() gender: 'male' | 'female' = 'male';
 
+  _obsPlayer!: Observable<Player[]>;
   private players!: Player[];
   private _playersSub!: Subscription;
   private _playersMovement!: Subscription;
@@ -31,7 +32,9 @@ export class OtherPlayerComponent implements OnInit {
   constructor(
     private manager: ManagerService,
     private playerService: PlayerService
-  ) {}
+  ) {
+    this._obsPlayer = this.playerService.players;
+  }
 
   ngOnDestroy(): void {
     this._playersSub.unsubscribe();
@@ -39,10 +42,9 @@ export class OtherPlayerComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this._obsPlayer = this.playerService.players;
     this._playersSub = this.playerService.players.subscribe((players) => {
       this.players = players;
-      console.log('Atualizando lista de players', this.players);
-
       this.LoadModel();
     });
 
@@ -57,7 +59,6 @@ export class OtherPlayerComponent implements OnInit {
   LoadModel = () => {
     const loader = new FBXLoader();
     loader.load(this.path, (object: THREE.Object3D) => {
-      // players in playersOn but not in this.players
       const playersToRemove = this.playersOn.filter((player) => {
         return !this.players.find((p) => p.uid === player.uuid);
       });
@@ -70,7 +71,7 @@ export class OtherPlayerComponent implements OnInit {
       for (let i = 0; i < this.players.length; i++) {
         const player = this.players[i];
         const playerOn = this.playersOn.find((p) => p.uuid == player.uid);
-        if (playerOn) {
+        if (playerOn || player.uid == this.playerService.currentPlayer) {
           continue;
         }
 
@@ -133,7 +134,11 @@ export class OtherPlayerComponent implements OnInit {
       this.playersOn.forEach((player: THREE.Object3D) => {
         const playerOn = this.players.find((p) => p.uid == player.uuid);
         if (playerOn) {
-          player.position.set(playerOn.position.x, playerOn.position.y, playerOn.position.z);
+          player.position.set(
+            playerOn.position.x,
+            playerOn.position.y,
+            playerOn.position.z
+          );
           player.rotation.set(
             playerOn.rotation.x,
             playerOn.rotation.y,

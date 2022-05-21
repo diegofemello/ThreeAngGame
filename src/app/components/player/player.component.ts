@@ -106,7 +106,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
         this.rotationY * Math.PI,
         this.rotationZ * Math.PI
       );
-      newObject.visible = false;
+      newObject.visible = true;
 
       this.manager._scene.add(newObject);
       this._target = newObject;

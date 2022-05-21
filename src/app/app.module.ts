@@ -12,13 +12,10 @@ import { GltfLoaderComponent } from './components/gltf-loader/gltf-loader.compon
 import { FbxLoaderComponent } from './components/fbx-loader/fbx-loader.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ModalTestComponent } from './components/modal-test/modal-test.component';
-import { DocumentListComponent } from './components/document-list/document-list.component';
-import { DocumentComponent } from './components/document/document.component';
 
 import { FormsModule } from '@angular/forms';
 import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
-import { PlayersComponent } from './components/players/players.component';
-import { OtherPlayerComponent } from './components/other-player/other-player.component';
+import { SocketPlayersComponent } from './components/socket-players/socket-players.component';
 
 const config: SocketIoConfig = { url: 'http://localhost:4444', options: {} };
 
@@ -32,10 +29,7 @@ const config: SocketIoConfig = { url: 'http://localhost:4444', options: {} };
     GltfLoaderComponent,
     FbxLoaderComponent,
     ModalTestComponent,
-    DocumentListComponent,
-    DocumentComponent,
-    PlayersComponent,
-    OtherPlayerComponent,
+    SocketPlayersComponent,
   ],
   imports: [
     BrowserModule,

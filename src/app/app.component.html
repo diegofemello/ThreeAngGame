@@ -49,11 +49,9 @@
 ></app-gltf-loader>
 
 <app-physics></app-physics>
-<app-players></app-players>
-<!-- <app-document-list></app-document-list> -->
-<!-- <app-document></app-document> -->
-<app-other-player
-    [path]="'./assets/models3d/DefaultCharacter/DefaultCharacterMeshPolyart.fbx'"
+<app-socket-players
+  [path]="'./assets/models3d/DefaultCharacter/DefaultCharacterMeshPolyart.fbx'"
   [rotationY]="1"
   [scale]="0.2"
-  [gender]="'male'"></app-other-player>
+  [gender]="'male'"
+></app-socket-players>
