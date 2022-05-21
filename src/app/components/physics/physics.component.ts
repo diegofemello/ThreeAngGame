@@ -172,13 +172,12 @@ export class PhysicsComponent implements OnInit {
   };
 
   CheckContact = () => {
-    if(this._player.userData['physicsBody']){
-      this._physicsWorld.contactTest(
-        this._player.userData['physicsBody'],
-        this.cbContactResult
-      );
-    }
-
+    // if (this._player.userData['physicsBody']) {
+    //   this._physicsWorld.contactTest(
+    //     this._player.userData['physicsBody'],
+    //     this.cbContactResult
+    //   );
+    // }
   };
 
   UpdatePhysics = (deltaTime: any) => {
@@ -197,13 +196,13 @@ export class PhysicsComponent implements OnInit {
         objThree.quaternion.set(q.x(), q.y(), q.z(), q.w());
       }
     }
+    this.CheckContact();
   };
 
   RenderPhysicsFrame = () => {
     let deltaTime = this.clock.getDelta();
 
     this.UpdatePhysics(deltaTime);
-    this.CheckContact();
 
     requestAnimationFrame(this.RenderPhysicsFrame);
   };
