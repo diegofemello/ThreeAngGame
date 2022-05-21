@@ -166,18 +166,18 @@ export class PhysicsComponent implements OnInit {
 
       this.CreateObjectPhysics(player, pos, player.scale, quat, 'Player', mass);
 
-      this._player = player;
       this.rigidBodies.push(player);
+      this._player = player;
     }
   };
 
   CheckContact = () => {
-    // if (this._player.userData['physicsBody']) {
-    //   this._physicsWorld.contactTest(
-    //     this._player.userData['physicsBody'],
-    //     this.cbContactResult
-    //   );
-    // }
+    if (this._player.userData['physicsBody']) {
+      this._physicsWorld.contactTest(
+        this._player.userData['physicsBody'],
+        this.cbContactResult
+      );
+    }
   };
 
   UpdatePhysics = (deltaTime: any) => {
