@@ -16,6 +16,7 @@ export class PhysicsComponent implements OnInit {
   private rigidBodies: any = [];
   private clock = new THREE.Clock();
   private _player: any;
+  private count = 0;
 
   private cbContactResult: any;
 
@@ -196,13 +197,16 @@ export class PhysicsComponent implements OnInit {
         objThree.quaternion.set(q.x(), q.y(), q.z(), q.w());
       }
     }
-    this.CheckContact();
   };
 
   RenderPhysicsFrame = () => {
     let deltaTime = this.clock.getDelta();
+    this.count ++;
+    if (this._player.userData['physicsBody'] && this.count >= 40) {
 
-    this.UpdatePhysics(deltaTime);
+      this.UpdatePhysics(deltaTime);
+      this.CheckContact();
+    }
 
     requestAnimationFrame(this.RenderPhysicsFrame);
   };
