@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  socketUrl: 'ws://threeang.azurewebsites.net'
+  socketUrl: 'wss://threeang.azurewebsites.net'
 };
