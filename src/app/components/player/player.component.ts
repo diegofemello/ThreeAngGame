@@ -159,8 +159,8 @@ export class PlayerComponent implements OnInit, OnDestroy {
     );
 
     if (intersects.length > 0) {
-      console.log(intersects[0].point);
-      console.log(intersects[0].object);
+      // console.log(intersects[0].point);
+      // console.log(intersects[0].object);
     }
   };
 

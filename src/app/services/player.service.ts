@@ -10,7 +10,6 @@ export class PlayerService {
   players = this.socket.fromEvent<Player[]>('players');
   playersMovement = this.socket.fromEvent<Player[]>('playersMovement');
 
-
   currentPlayer = '';
 
   constructor(private socket: Socket) {}

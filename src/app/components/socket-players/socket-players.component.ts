@@ -58,7 +58,14 @@ export class SocketPlayersComponent implements OnInit {
 
   LoadModel = () => {
     const loader = new FBXLoader();
-    loader.load(this.path, (object: THREE.Object3D) => {
+
+    for (let i = 0; i < this.players.length; i++) {
+      const player = this.players[i];
+      const playerOn = this.playersOn.find((p) => p.uuid == player.uid);
+      if (playerOn || player.uid == this.playerService.currentPlayer) {
+        continue;
+      }
+
       const playersToRemove = this.playersOn.filter((player) => {
         return !this.players.find((p) => p.uid === player.uuid);
       });
@@ -68,13 +75,7 @@ export class SocketPlayersComponent implements OnInit {
         this.playersOn.slice(this.playersOn.indexOf(player), 1);
       });
 
-      for (let i = 0; i < this.players.length; i++) {
-        const player = this.players[i];
-        const playerOn = this.playersOn.find((p) => p.uuid == player.uid);
-        if (playerOn || player.uid == this.playerService.currentPlayer) {
-          continue;
-        }
-
+      loader.load(this.path, (object: THREE.Object3D) => {
         object.traverse((c: THREE.Object3D) => {
           if (this.gender == 'female') {
             if (c.name == 'Head01' || c.name == 'Body01') c.visible = false;
@@ -110,11 +111,14 @@ export class SocketPlayersComponent implements OnInit {
 
         newObject.name = player.uid;
         newObject.uuid = player.uid;
+        newObject.visible = false;
         this.manager._scene.add(newObject);
 
         this.playersOn.push(newObject);
-      }
-    });
+
+        newObject.visible = true;
+      });
+    }
 
     // remove players not contained in this.playersOn
     this.playersOn.forEach((player: THREE.Object3D) => {
