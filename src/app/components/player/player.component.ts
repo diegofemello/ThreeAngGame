@@ -11,7 +11,6 @@ import { LoginModalComponent } from '../login-modal/login-modal.component';
 
 declare const Ammo: any;
 
-
 let scalingFactor = 35;
 let interval: any;
 
@@ -53,12 +52,12 @@ export class PlayerComponent implements OnInit, OnDestroy {
   constructor(
     private manager: ManagerService,
     controller: BasicControllerInputService,
-    stateMachine: FiniteStateMachineService,
+    // stateMachine: FiniteStateMachineService,
     private playerService: PlayerService,
     private modalService: NgbModal
   ) {
     this._controller = controller;
-    this._stateMachine = stateMachine;
+    this._stateMachine = new FiniteStateMachineService();
     this._stateMachine.SetProxy(new BasicControllerProxy(this._animations));
   }
 
@@ -142,7 +141,6 @@ export class PlayerComponent implements OnInit, OnDestroy {
       labelDiv.style.borderRadius = '5px';
       labelDiv.style.display = 'block';
       labelDiv.innerHTML = this.username;
-
 
       const labelRenderer = new CSS2DObject(labelDiv);
       labelRenderer.position.set(
@@ -278,7 +276,6 @@ export class PlayerComponent implements OnInit, OnDestroy {
           direction.z * moveZ * scalingFactor
         )
       );
-
     }
   };
 

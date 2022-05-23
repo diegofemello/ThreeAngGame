@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as THREE from 'three';
+import { BasicControllerProxy } from '../components/player/player.component';
 
 @Injectable({
   providedIn: 'root',
@@ -21,15 +22,15 @@ export class FiniteStateMachineService {
     this._AddState('jump', JumpState);
   }
 
-  _AddState(name: any, type: any) {
+  _AddState(name: string, type: any) {
     this._states[name] = type;
   }
 
-  SetProxy(proxy: any) {
+  SetProxy(proxy: BasicControllerProxy) {
     this._proxy = proxy;
   }
 
-  SetState(name: any) {
+  SetState(name: string) {
     const prevState = this._currentState;
 
     if (prevState) {
@@ -68,7 +69,7 @@ export class State {
 export interface IState {
   Enter(prevState: any): any;
   Exit(): any;
-  Update(timeElapsed: any, input: any): any
+  Update(timeElapsed: any, input: any): any;
 }
 
 class WalkState extends State implements IState {
@@ -77,7 +78,7 @@ class WalkState extends State implements IState {
     this._name = 'walk';
   }
 
-  Enter(prevState: any) {
+  Enter(prevState: State) {
     const curAction = this._parent._proxy._animations[this._name].action;
     if (prevState) {
       const prevAction = this._parent._proxy._animations[prevState.Name].action;
