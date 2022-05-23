@@ -7,12 +7,12 @@
   [positionX]="50"
   [name]="'AltoForno'"
   [rotationY]="1.5"
-  [scale]="0.2"
+  [multiplyScalar]="0.2"
 ></app-fbx-loader>
 
 <app-player
   [path]="'./assets/models3d/CharacterRPG/CharacterBaseMesh.fbx'"
-  [positionY]="15"
+  [positionY]="0"
   [rotationY]="1"
   [scale]="0.2"
   [name]="'Player'"
@@ -21,9 +21,9 @@
 
 <app-fbx-loader
   [path]="'./assets/models3d/LowPolyTerrain.FBX'"
-  [positionY]="0"
   [rotationY]="1.5"
-  [scale]="20"
+  [multiplyScalar]="40"
+  [scaleY]="0.2"
   [color]="'#49BB58'"
   [name]="'Ground'"
 ></app-fbx-loader>

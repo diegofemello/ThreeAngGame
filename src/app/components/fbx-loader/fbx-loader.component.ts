@@ -15,8 +15,11 @@ export class FbxLoaderComponent implements OnInit {
   @Input() rotationX = 0;
   @Input() rotationY = 0;
   @Input() rotationZ = 0;
+  @Input() scaleX = 1;
+  @Input() scaleY = 1;
+  @Input() scaleZ = 1;
 
-  @Input() scale = 1;
+  @Input() multiplyScalar = 1;
   @Input() path!: string;
   @Input() texturePath?: string;
   @Input() color?: string;
@@ -46,20 +49,25 @@ export class FbxLoaderComponent implements OnInit {
         }
       });
 
-      const newObject = new THREE.Object3D();
-      newObject.add(object);
+      const fbxObject = new THREE.Object3D();
+      fbxObject.add(object);
 
-      newObject.scale.multiplyScalar(this.scale);
-      newObject.rotation.set(
+      fbxObject.scale.set(this.scaleX, this.scaleY, this.scaleZ);
+
+      fbxObject.scale.multiplyScalar(this.multiplyScalar);
+      fbxObject.rotation.set(
         this.rotationX * Math.PI,
         this.rotationY * Math.PI,
         this.rotationZ * Math.PI
       );
 
-      newObject.position.set(this.positionX, this.positionY, this.positionZ);
-      if (this.name || this.name != '') newObject.name = this.name;
+      // move object to position
+      fbxObject.position.copy(new THREE.Vector3(this.positionX, this.positionY, this.positionZ));
 
-      scene.add(newObject);
+      // fbxObject.position.set(this.positionX, this.positionY, this.positionZ);
+      if (this.name || this.name != '') fbxObject.name = "_"+this.name;
+
+      scene.add(fbxObject);
     });
   }
 

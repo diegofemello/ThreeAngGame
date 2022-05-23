@@ -12,6 +12,7 @@ export class ManagerService {
   public _scene!: THREE.Scene;
   public _gui!: GUI;
   public _player?: Vector3;
+  public initialized = false;
 
   _Initialize() {
     console.log();
@@ -107,6 +108,7 @@ export class ManagerService {
       this._renderer.render(this._scene, this._camera);
       this._Step();
       this._Animate();
+      this._scene.visible = this.initialized;
     });
   }
 

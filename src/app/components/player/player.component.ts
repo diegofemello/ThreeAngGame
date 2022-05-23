@@ -65,6 +65,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     this.username = await this.OpenModal();
+    this.manager.initialized = true;
     this.playerService.newPlayer(this.randomUid, this.username, this.style);
     this.LoadModel();
     this._controller._Init();
@@ -117,7 +118,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
 
       const newObject = new THREE.Object3D();
       newObject.add(object);
-      if (this.name || this.name != '') newObject.name = this.name;
+      if (this.name || this.name != '') newObject.name = "_Player";
 
       newObject.scale.multiplyScalar(this.scale);
       newObject.position.set(this.positionX, this.positionY, this.positionZ);
@@ -211,9 +212,11 @@ export class PlayerComponent implements OnInit, OnDestroy {
 
   Jump = () => {
     if (this._player && this.physicsBody && this.isGrounded) {
-      let jumpImpulse = new Ammo.btVector3(0, 15, 0);
+      let jumpImpulse = new Ammo.btVector3(0, 50, 0);
 
       this.physicsBody.setLinearVelocity(jumpImpulse);
+      this.isGrounded = false;
+
     }
   };
 

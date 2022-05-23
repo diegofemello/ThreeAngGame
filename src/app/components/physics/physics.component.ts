@@ -51,7 +51,7 @@ export class PhysicsComponent implements OnInit {
       solver,
       collisionConfiguration
     );
-    this._physicsWorld.setGravity(new Ammo.btVector3(0, -10, 0));
+    this._physicsWorld.setGravity(new Ammo.btVector3(0, -50, 0));
   };
 
   CreateObjectPhysics = (
@@ -137,7 +137,7 @@ export class PhysicsComponent implements OnInit {
   };
 
   AddCollisionToGroundMesh = () => {
-    let groundMesh = this.manager._scene.getObjectByName('Ground');
+    let groundMesh = this.manager._scene.getObjectByName('_Ground');
 
     if (!groundMesh) {
       setTimeout(() => {
@@ -166,7 +166,7 @@ export class PhysicsComponent implements OnInit {
 
   CreatePlayer = () => {
     const mass = 1;
-    const player = this.manager._scene.getObjectByName('Player');
+    const player = this.manager._scene.getObjectByName('_Player');
 
     // while player is not loaded yet we wait
     if (!player) {

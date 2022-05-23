@@ -34,7 +34,7 @@ export class DescriptionComponent implements OnInit {
     labelRenderer.domElement.style.pointerEvents = 'none';
     document.body.appendChild(labelRenderer.domElement);
 
-    
+
 
     const labelDiv = document.getElementsByClassName(
       'label'
@@ -45,6 +45,11 @@ export class DescriptionComponent implements OnInit {
     label.visible = false;
 
     scene.add(label);
+
+    const labelWeb = document.getElementsByClassName(
+      'description-web'
+    )[0] as HTMLDivElement;
+    labelWeb.style.display = 'none';
 
     const labelDescription = document.getElementsByClassName(
       'description-items'
@@ -71,6 +76,7 @@ export class DescriptionComponent implements OnInit {
         labelDiv.textContent = currentIntersection.name;
 
         label.visible = true;
+        labelWeb.style.display = 'block';
 
         if (
           Object.keys(Description).includes(
