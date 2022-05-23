@@ -4,6 +4,7 @@ import { BasicControllerInputService } from 'src/app/services/basic-controller-i
 import { FiniteStateMachineService } from 'src/app/services/finite-state-machine.service';
 import { ManagerService } from 'src/app/services/manager.service';
 import { PlayerService } from 'src/app/services/player.service';
+import { environment } from 'src/environments/environment';
 import * as THREE from 'three';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer';
@@ -64,8 +65,11 @@ export class PlayerComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {}
 
   async ngOnInit(): Promise<void> {
-    this.username = await this.OpenModal();
-    this.manager.initialized = true;
+    // if(environment.production) {
+      this.username = await this.OpenModal();
+    // }
+
+
     this.playerService.newPlayer(this.randomUid, this.username, this.style);
     this.LoadModel();
     this._controller._Init();
@@ -118,7 +122,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
 
       const newObject = new THREE.Object3D();
       newObject.add(object);
-      if (this.name || this.name != '') newObject.name = "_Player";
+      if (this.name || this.name != '') newObject.name = '_Player';
 
       newObject.scale.multiplyScalar(this.scale);
       newObject.position.set(this.positionX, this.positionY, this.positionZ);
@@ -143,13 +147,15 @@ export class PlayerComponent implements OnInit, OnDestroy {
       labelDiv.style.display = 'block';
       labelDiv.innerHTML = this.username;
 
-      const labelRenderer = new CSS2DObject(labelDiv);
-      labelRenderer.position.set(
-        newObject.position.x,
-        newObject.position.y + 200,
-        newObject.position.z
-      );
-      newObject.add(labelRenderer);
+      // const labelRenderer = new CSS2DObject(labelDiv);
+      // labelRenderer.position.set(
+      //   newObject.position.x,
+      //   newObject.position.y + 200,
+      //   newObject.position.z
+      // );
+      // newObject.add(labelRenderer);
+
+      this.manager.initialized = true;
 
       this.LoadAnimations();
       this.Update(1 / 60);
@@ -216,7 +222,6 @@ export class PlayerComponent implements OnInit, OnDestroy {
 
       this.physicsBody.setLinearVelocity(jumpImpulse);
       this.isGrounded = false;
-
     }
   };
 
@@ -275,7 +280,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
       this.physicsBody.setLinearVelocity(
         new Ammo.btVector3(
           direction.x * moveZ * scalingFactor,
-          0,
+          this.physicsBody.getLinearVelocity().y(),
           direction.z * moveZ * scalingFactor
         )
       );
@@ -285,9 +290,8 @@ export class PlayerComponent implements OnInit, OnDestroy {
   Collisions = () => {
     if (this._player.userData) {
       this.collision = this._player.userData['collision'];
-      if (this.collision) {
-        this.isGrounded = this.collision.tag == 'Ground';
-      }
+
+      this.isGrounded = this.collision?.tag == 'Ground';
     }
   };
 

@@ -5,7 +5,10 @@ import { ManagerService } from 'src/app/services/manager.service';
 import { PlayerService } from 'src/app/services/player.service';
 import * as THREE from 'three';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
-import { CSS2DObject, CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer';
+import {
+  CSS2DObject,
+  CSS2DRenderer,
+} from 'three/examples/jsm/renderers/CSS2DRenderer';
 
 @Component({
   selector: 'app-socket-players',
@@ -125,8 +128,6 @@ export class SocketPlayersComponent implements OnInit {
 
         this.playersOn.push(newObject);
 
-        newObject.visible = true;
-
         const labelDiv = document.createElement('div');
         labelDiv.style.backgroundColor = 'rgba(0,0,0,0.5)';
         labelDiv.style.padding = '2px';
@@ -137,14 +138,15 @@ export class SocketPlayersComponent implements OnInit {
         labelDiv.style.display = 'block';
         labelDiv.innerHTML = player.username;
 
+        newObject.visible = true;
 
-        const labelRenderer = new CSS2DObject(labelDiv);
-        labelRenderer.position.set(
-          newObject.position.x,
-          newObject.position.y + 200,
-          newObject.position.z
-        );
-        newObject.add(labelRenderer);
+        // const labelRenderer = new CSS2DObject(labelDiv);
+        // labelRenderer.position.set(
+        //   newObject.position.x,
+        //   newObject.position.y + 200,
+        //   newObject.position.z
+        // );
+        // newObject.add(labelRenderer);
       });
     }
 

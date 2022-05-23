@@ -88,7 +88,10 @@ export class DescriptionComponent implements OnInit {
             Description[
               currentIntersection.name.toLowerCase() as keyof typeof Description
             ] + '</p>';
-        } else {
+        } else if(currentIntersection.userData){
+          labelDescription.style.display = 'none';
+
+        }else {
           resetLabel();
         }
 
