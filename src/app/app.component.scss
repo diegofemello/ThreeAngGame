@@ -159,3 +159,17 @@ canvas:active {
 }
 
 
+
+::ng-deep  {
+  .modal-content {
+    color: white;
+    background-color: rgba(25, 26, 31, 0.771);
+  }
+
+  .modal-header, .modal-body, .modal-footer{
+    border: 1;
+    border-color: #38353558;
+    text-align: center;
+  }
+
+}

@@ -1,42 +1,39 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { ManagerService } from 'src/app/services/manager.service';
+
 import * as THREE from 'three';
-import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry';
 import { Font, FontLoader } from 'three/examples/jsm/loaders/FontLoader';
+import { ManagerService } from 'src/app/services/manager.service';
+import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry';
 
 @Component({
-  selector: 'app-load-text',
-  templateUrl: './load-text.component.html',
-  styleUrls: ['./load-text.component.scss']
+  selector: 'app-text-loader',
+  templateUrl: './text-loader.component.html',
+  styleUrls: ['./text-loader.component.scss'],
 })
-export class LoadTextComponent implements OnInit {
+export class TextLoaderComponent implements OnInit {
+  @Input() color: string = '#ffffff';
+  @Input() fontSize = 1;
+  @Input() height: number = 2;
+  @Input() name: string = '';
   @Input() positionX = 0;
   @Input() positionY = 0;
   @Input() positionZ = 0;
   @Input() rotationX = 0;
   @Input() rotationY = 0;
   @Input() rotationZ = 0;
-  @Input() text: string = "";
-  @Input() fontSize = 1;
-  @Input() height: number = 2;
-  @Input() name: string = "";
+  @Input() text: string = '';
 
+  @Input() path: string = 'assets/fonts/GROBOLD_Regular.json';
 
-
-  constructor(private manager: ManagerService) {
-    if(this.name != ""){
-      this.name = this.text
-    }
-  }
+  constructor(private manager: ManagerService) {}
 
   ngOnInit(): void {
-    const scene = this.manager._scene;
     const loader = new FontLoader();
 
     loader.load('assets/fonts/GROBOLD_Regular.json', (font: Font) => {
       const paramsFont = {
         size: this.fontSize,
-        height: 2,
+        height: this.height,
         curveSegments: 12,
         font: font,
         weight: 'normal',
@@ -50,7 +47,7 @@ export class LoadTextComponent implements OnInit {
       };
 
       const frontMaterial = new THREE.MeshPhongMaterial({
-        color: 0xffffff,
+        color: this.color,
         flatShading: true,
       });
       const sideMaterial = new THREE.MeshPhongMaterial({
@@ -65,14 +62,13 @@ export class LoadTextComponent implements OnInit {
       textMesh.position.y += this.positionY;
       textMesh.position.z += this.positionZ;
 
-
-      textMesh.rotation.x = this.rotationX  * Math.PI;
+      textMesh.rotation.x = this.rotationX * Math.PI;
       textMesh.rotation.y = this.rotationY * Math.PI;
-      textMesh.rotation.z = this.rotationZ  * Math.PI;
+      textMesh.rotation.z = this.rotationZ * Math.PI;
 
-      textMesh.name = this.name.toLowerCase();
+      textMesh.name = this.name ? this.name : this.text;
 
-      scene.add(textMesh);
+      this.manager._scene.add(textMesh);
     });
   }
 }

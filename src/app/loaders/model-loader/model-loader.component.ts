@@ -1,14 +1,16 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ManagerService } from 'src/app/services/manager.service';
+
 import * as THREE from 'three';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
+import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 @Component({
-  selector: 'app-fbx-loader',
-  templateUrl: './fbx-loader.component.html',
-  styleUrls: ['./fbx-loader.component.scss']
+  selector: 'app-model-loader',
+  templateUrl: './model-loader.component.html',
+  styleUrls: ['./model-loader.component.scss'],
 })
-export class FbxLoaderComponent implements OnInit {
+export class ModelLoaderComponent implements OnInit {
   @Input() positionX = 0;
   @Input() positionY = 0;
   @Input() positionZ = 0;
@@ -25,13 +27,21 @@ export class FbxLoaderComponent implements OnInit {
   @Input() color?: string;
   @Input() name = '';
 
+  @Input() isAnimated = false;
+  @Input() type: string = 'gltf';
+
+  private _loader: any;
+
   constructor(private manager: ManagerService) {}
 
   ngOnInit(): void {
-    const scene = this.manager._scene;
+    if (this.type.toLowerCase() == 'gltf') this._loader = new GLTFLoader();
+    else if (this.type.toLowerCase() == 'fbx') this._loader = new FBXLoader();
 
-    const loader = new FBXLoader();
-    loader.load(this.path, (object: THREE.Object3D) => {
+    this._loader.load(this.path, (item: any) => {
+      let object: any = item;
+      if (this.type == 'gltf') object = item.scene;
+
       const texture = this.texturePath
         ? new THREE.TextureLoader().load(this.texturePath)
         : null;
@@ -49,26 +59,28 @@ export class FbxLoaderComponent implements OnInit {
         }
       });
 
-      const fbxObject = new THREE.Object3D();
-      fbxObject.add(object);
+      const model = new THREE.Object3D();
+      model.add(object);
 
-      fbxObject.scale.set(this.scaleX, this.scaleY, this.scaleZ);
+      model.scale.set(this.scaleX, this.scaleY, this.scaleZ);
 
-      fbxObject.scale.multiplyScalar(this.multiplyScalar);
-      fbxObject.rotation.set(
+      model.scale.multiplyScalar(this.multiplyScalar);
+      model.rotation.set(
         this.rotationX * Math.PI,
         this.rotationY * Math.PI,
         this.rotationZ * Math.PI
       );
 
-      // move object to position
-      fbxObject.position.copy(new THREE.Vector3(this.positionX, this.positionY, this.positionZ));
+      model.position.set(this.positionX, this.positionY, this.positionZ);
+      if (this.name || this.name != '') model.name = '_' + this.name;
 
-      // fbxObject.position.set(this.positionX, this.positionY, this.positionZ);
-      if (this.name || this.name != '') fbxObject.name = "_"+this.name;
+      this.manager._scene.add(model);
 
-      scene.add(fbxObject);
+      if (this.isAnimated) {
+        const mixer = new THREE.AnimationMixer(model);
+        const action = mixer.clipAction(object.animations[0]);
+        action.play();
+      }
     });
   }
-
 }

@@ -1,14 +1,11 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Observable, startWith, Subscription } from 'rxjs';
-import { Player } from 'src/app/models/player.model';
-import { ManagerService } from 'src/app/services/manager.service';
-import { PlayerService } from 'src/app/services/player.service';
+import { Observable, Subscription } from 'rxjs';
+
 import * as THREE from 'three';
+import { ManagerService } from 'src/app/services/manager.service';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
-import {
-  CSS2DObject,
-  CSS2DRenderer,
-} from 'three/examples/jsm/renderers/CSS2DRenderer';
+import { Player } from 'src/app/models/player.model';
+import { PlayerService } from 'src/app/services/player.service';
 
 @Component({
   selector: 'app-socket-players',
@@ -16,22 +13,15 @@ import {
   styleUrls: ['./socket-players.component.scss'],
 })
 export class SocketPlayersComponent implements OnInit {
-  @Input() positionX = 0;
-  @Input() positionY = 0;
-  @Input() positionZ = 0;
-  @Input() rotationX = 0;
-  @Input() rotationY = 0;
-  @Input() rotationZ = 0;
-  @Input() scale = 0.2;
-  @Input() path!: string;
-  @Input() gender: 'male' | 'female' = 'male';
-
   _obsPlayer!: Observable<Player[]>;
+  private playersOn: THREE.Object3D[] = [];
+
+  private path = './assets/models3d/CharacterRPG/CharacterBaseMesh.fbx';
+  private scale = 0.2;
   private players!: Player[];
   private _playersSub!: Subscription;
   private _playersMovement!: Subscription;
 
-  playersOn: THREE.Object3D[] = [];
 
   constructor(
     private manager: ManagerService,
@@ -102,19 +92,14 @@ export class SocketPlayersComponent implements OnInit {
             c.name = player.username;
           }
         });
+
         object.userData['tag'] = 'SocketPlayer';
 
         const newObject = new THREE.Object3D();
         newObject.add(object);
 
         newObject.scale.multiplyScalar(this.scale);
-        newObject.position.set(this.positionX, this.positionY, this.positionZ);
 
-        newObject.rotation.set(
-          this.rotationX * Math.PI,
-          this.rotationY * Math.PI,
-          this.rotationZ * Math.PI
-        );
         newObject.position.set(
           player.position.x,
           player.position.y,
@@ -127,6 +112,8 @@ export class SocketPlayersComponent implements OnInit {
         this.manager._scene.add(newObject);
 
         this.playersOn.push(newObject);
+
+
 
         const labelDiv = document.createElement('div');
         labelDiv.style.backgroundColor = 'rgba(0,0,0,0.5)';
@@ -147,6 +134,8 @@ export class SocketPlayersComponent implements OnInit {
         //   newObject.position.z
         // );
         // newObject.add(labelRenderer);
+        newObject.visible = true;
+
       });
     }
 

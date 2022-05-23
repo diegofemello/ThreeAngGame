@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import * as THREE from 'three';
-import { ManagerService } from '../services/manager.service';
+import { ManagerService } from '../../services/manager.service';
 import {
   CSS2DObject,
   CSS2DRenderer,
 } from 'three/examples/jsm/renderers/CSS2DRenderer';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ModalTestComponent } from '../components/modal-test/modal-test.component';
+import { ModalTestComponent } from '../modal-test/modal-test.component';
 
 @Component({
   selector: 'app-description',
@@ -33,8 +33,6 @@ export class DescriptionComponent implements OnInit {
     labelRenderer.domElement.style.top = '0px';
     labelRenderer.domElement.style.pointerEvents = 'none';
     document.body.appendChild(labelRenderer.domElement);
-
-
 
     const labelDiv = document.getElementsByClassName(
       'label'
@@ -88,10 +86,9 @@ export class DescriptionComponent implements OnInit {
             Description[
               currentIntersection.name.toLowerCase() as keyof typeof Description
             ] + '</p>';
-        } else if(currentIntersection.userData){
+        } else if (currentIntersection.userData) {
           labelDescription.style.display = 'none';
-
-        }else {
+        } else {
           resetLabel();
         }
 
@@ -107,7 +104,7 @@ export class DescriptionComponent implements OnInit {
       labelRenderer.render(scene, camera);
     };
 
-    const onMouseDown = (event: any) => {
+    const onMouseDown = (_event: any) => {
       this.openModal();
     };
 
@@ -115,7 +112,6 @@ export class DescriptionComponent implements OnInit {
     renderer.domElement.addEventListener('pointerdown', onMouseDown, false);
 
     function resetLabel() {
-      renderer.domElement.className = '';
       label.visible = false;
       labelDiv.textContent = '';
 
@@ -126,8 +122,11 @@ export class DescriptionComponent implements OnInit {
 
   openModal() {
     const modalRef = this.modalService.open(ModalTestComponent, {
-      size: 'lg',
+      size: 'md',
       centered: true,
+      keyboard: false,
+      scrollable: true,
+      backdropClass: 'modal-backdrop-test',
     });
     modalRef.componentInstance.name = this.currentIntersection.object.name;
   }

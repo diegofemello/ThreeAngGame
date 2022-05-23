@@ -1,78 +1,58 @@
-import { Component, Input, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { environment } from 'src/environments/environment';
+import { LoginModalComponent } from '../../ui/login-modal/login-modal.component';
+
+import * as THREE from 'three';
 import { BasicControllerInputService } from 'src/app/services/basic-controller-input.service';
+import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 import { FiniteStateMachineService } from 'src/app/services/finite-state-machine.service';
 import { ManagerService } from 'src/app/services/manager.service';
 import { PlayerService } from 'src/app/services/player.service';
-import { environment } from 'src/environments/environment';
-import * as THREE from 'three';
-import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
-import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer';
-import { LoginModalComponent } from '../login-modal/login-modal.component';
 
 declare const Ammo: any;
-
-let scalingFactor = 35;
-let interval: any;
 
 @Component({
   selector: 'app-player',
   templateUrl: './player.component.html',
   styleUrls: ['./player.component.scss'],
 })
-export class PlayerComponent implements OnInit, OnDestroy {
-  @Input() positionX = 0;
-  @Input() positionY = 0;
-  @Input() positionZ = 0;
-  @Input() rotationX = 0;
-  @Input() rotationY = 0;
-  @Input() rotationZ = 0;
-  @Input() scale = 0.2;
-  @Input() path!: string;
-  @Input() name = 'Player';
-  @Input() gender: 'male' | 'female' = 'male';
-
-  private _mixer!: THREE.AnimationMixer;
-  private _loadingManager = new THREE.LoadingManager();
+export class PlayerComponent implements OnInit {
   private _animations: any = {};
-  private _controller: BasicControllerInputService;
-  private _stateMachine: FiniteStateMachineService;
+  private _loadingManager!: THREE.LoadingManager;
+  private _mixer!: THREE.AnimationMixer;
   private _player!: THREE.Object3D;
-  private raycaster = new THREE.Raycaster();
-  private mouse = new THREE.Vector2();
-  private physicsBody: any;
-  private collision: any = {};
-  private isGrounded = false;
-  private randomUid =
-    Math.random().toString(36).substring(2, 15) +
-    Math.random().toString(36).substring(2, 15);
-  private username = '';
+  private _stateMachine!: FiniteStateMachineService;
 
+  private isGrounded = false;
+  private mouse = new THREE.Vector2();
+  private path = './assets/models3d/CharacterRPG/CharacterBaseMesh.fbx';
+  private physicsBody: any;
+  private randomUid = Math.random().toString(36).substring(2, 15);
+  private raycaster = new THREE.Raycaster();
+  private scale = 0.2;
+  private scalingFactor = 35;
   private style = Math.floor(Math.random() * 4) + 1;
+  private username = 'Diego';
 
   constructor(
     private manager: ManagerService,
-    controller: BasicControllerInputService,
-    // stateMachine: FiniteStateMachineService,
+    private controller: BasicControllerInputService,
     private playerService: PlayerService,
     private modalService: NgbModal
   ) {
-    this._controller = controller;
     this._stateMachine = new FiniteStateMachineService();
     this._stateMachine.SetProxy(new BasicControllerProxy(this._animations));
   }
 
-  ngOnDestroy(): void {}
-
   async ngOnInit(): Promise<void> {
-    // if(environment.production) {
-      this.username = await this.OpenModal();
+    // if (environment.production) {
+    this.username = await this.OpenModal();
     // }
-
 
     this.playerService.newPlayer(this.randomUid, this.username, this.style);
     this.LoadModel();
-    this._controller._Init();
+    this.controller._Init();
     this._stateMachine._Init();
 
     this.manager._renderer.domElement.addEventListener(
@@ -90,10 +70,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
       backdrop: 'static',
       keyboard: false,
     });
-    modalRef.componentInstance.name = 'wtf';
-    return modalRef.result.then((result) => {
-      return result;
-    });
+    return await modalRef.result;
   }
 
   LoadModel = () => {
@@ -118,44 +95,18 @@ export class PlayerComponent implements OnInit, OnDestroy {
           c.name = this.username;
         }
       });
-      object.userData['tag'] = 'Player';
 
       const newObject = new THREE.Object3D();
       newObject.add(object);
-      if (this.name || this.name != '') newObject.name = '_Player';
+      this.manager._scene.add(newObject);
+      newObject.name = '_Player';
 
       newObject.scale.multiplyScalar(this.scale);
-      newObject.position.set(this.positionX, this.positionY, this.positionZ);
-
-      newObject.rotation.set(
-        this.rotationX * Math.PI,
-        this.rotationY * Math.PI,
-        this.rotationZ * Math.PI
-      );
       newObject.visible = false;
 
-      this.manager._scene.add(newObject);
-      this._player = newObject;
-
-      const labelDiv = document.createElement('div');
-      labelDiv.style.backgroundColor = 'rgba(0,0,0,0.5)';
-      labelDiv.style.padding = '2px';
-      labelDiv.style.color = '#fff';
-      labelDiv.style.fontSize = '12px';
-      labelDiv.style.textAlign = 'center';
-      labelDiv.style.borderRadius = '5px';
-      labelDiv.style.display = 'block';
-      labelDiv.innerHTML = this.username;
-
-      // const labelRenderer = new CSS2DObject(labelDiv);
-      // labelRenderer.position.set(
-      //   newObject.position.x,
-      //   newObject.position.y + 200,
-      //   newObject.position.z
-      // );
-      // newObject.add(labelRenderer);
-
       this.manager.initialized = true;
+      this._player = newObject;
+      newObject.visible = true;
 
       this.LoadAnimations();
       this.Update(1 / 60);
@@ -163,6 +114,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
   };
 
   LoadAnimations = () => {
+    this._loadingManager = new THREE.LoadingManager();
     this._mixer = new THREE.AnimationMixer(this._player);
 
     const onLoad = (animName: any, anim: any) => {
@@ -173,8 +125,6 @@ export class PlayerComponent implements OnInit, OnDestroy {
         clip: clip,
         action: action,
       };
-
-      this._player.visible = true;
     };
 
     this._loadingManager.onLoad = () => {
@@ -198,7 +148,6 @@ export class PlayerComponent implements OnInit, OnDestroy {
   };
 
   OnMouseDown = (event: any) => {
-    clearInterval(interval);
     this.mouse.x =
       (event.clientX / this.manager._renderer.domElement.clientWidth) * 2 - 1;
     this.mouse.y =
@@ -211,8 +160,8 @@ export class PlayerComponent implements OnInit, OnDestroy {
     );
 
     if (intersects.length > 0) {
-      // console.log(intersects[0].point);
-      // console.log(intersects[0].object);
+      console.log('point', intersects[0].point);
+      console.log('object', intersects[0].object);
     }
   };
 
@@ -232,13 +181,13 @@ export class PlayerComponent implements OnInit, OnDestroy {
     if (this.physicsBody) {
       let rotateY = 0;
 
-      if (this._controller._keys.space) {
+      if (this.controller._keys.space) {
         this.Jump();
       }
 
-      if (this._controller.moveDirection.left) {
+      if (this.controller.moveDirection.left) {
         rotateY = 1;
-      } else if (this._controller.moveDirection.right) {
+      } else if (this.controller.moveDirection.right) {
         rotateY = -1;
       } else {
         rotateY = 0;
@@ -259,10 +208,10 @@ export class PlayerComponent implements OnInit, OnDestroy {
       this.physicsBody.setAngularVelocity(new Ammo.btVector3(0, rotateY, 0));
       this.physicsBody.setAngularFactor(new Ammo.btVector3(0, 0, 0));
 
-      if (this._controller._keys.shift && scalingFactor < 70) {
-        scalingFactor++;
-      } else if (scalingFactor > 35) {
-        scalingFactor--;
+      if (this.controller._keys.shift && this.scalingFactor < 70) {
+        this.scalingFactor++;
+      } else if (this.scalingFactor > 35) {
+        this.scalingFactor--;
       }
 
       let direction = new THREE.Vector3(0, 0, -1);
@@ -270,8 +219,8 @@ export class PlayerComponent implements OnInit, OnDestroy {
       direction.normalize();
 
       let moveZ =
-        this._controller.moveDirection.back -
-        this._controller.moveDirection.forward;
+        this.controller.moveDirection.back -
+        this.controller.moveDirection.forward;
 
       if (moveZ == 0) {
         return;
@@ -279,9 +228,9 @@ export class PlayerComponent implements OnInit, OnDestroy {
 
       this.physicsBody.setLinearVelocity(
         new Ammo.btVector3(
-          direction.x * moveZ * scalingFactor,
+          direction.x * moveZ * this.scalingFactor,
           this.physicsBody.getLinearVelocity().y(),
-          direction.z * moveZ * scalingFactor
+          direction.z * moveZ * this.scalingFactor
         )
       );
     }
@@ -289,9 +238,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
 
   Collisions = () => {
     if (this._player.userData) {
-      this.collision = this._player.userData['collision'];
-
-      this.isGrounded = this.collision?.tag == 'Ground';
+      this.isGrounded = this._player.userData['collision']?.tag == 'Ground';
     }
   };
 
@@ -299,7 +246,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
     requestAnimationFrame(() => {
       if (!this._player) return;
 
-      this._stateMachine.Update(timeInSeconds, this._controller);
+      this._stateMachine.Update(timeInSeconds, this.controller);
 
       this.Collisions();
       this.MovePlayer();

@@ -11,6 +11,8 @@ export class PlayerService {
   playersMovement = this.socket.fromEvent<Player[]>('playersMovement');
 
   currentPlayer = '';
+  currentStyle!: number;
+  player!: Player;
 
   constructor(private socket: Socket) {}
 
