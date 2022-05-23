@@ -25,7 +25,7 @@ export class PhysicsComponent implements OnInit {
       this._transformAux1 = new Ammo.btTransform();
 
       this.SetupPhysicsWorld();
-      this.CreateFloorTiles();
+      // this.CreateFloorTiles();
 
       this.CreatePlayer();
 
@@ -141,7 +141,6 @@ export class PhysicsComponent implements OnInit {
 
     if (!groundMesh) {
       setTimeout(() => {
-        console.log('ground not loaded yet');
         this.AddCollisionToGroundMesh();
       }, 100);
       return;
@@ -172,7 +171,6 @@ export class PhysicsComponent implements OnInit {
     // while player is not loaded yet we wait
     if (!player) {
       setTimeout(() => {
-        console.log('player not loaded yet');
         this.CreatePlayer();
       }, 100);
       return;

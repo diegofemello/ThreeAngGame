@@ -22,11 +22,13 @@ export class PlayerService {
     this.socket.emit('getPlayers');
   }
 
-  newPlayer(uid: string) {
+  newPlayer(uid: string, username: string, style: number) {
     this.socket.emit('addPlayer', {
       uid: uid,
+      username: username,
       position: new THREE.Vector3(),
       rotation: new THREE.Vector3(),
+      style: style,
     });
     this.currentPlayer = uid;
   }
@@ -40,6 +42,13 @@ export class PlayerService {
       uid: uid,
       position: position,
       rotation: rotation,
+    });
+  }
+
+  updatePlayerStyle(uid: string, style: number) {
+    this.socket.emit('playerStyle', {
+      uid: uid,
+      style: style,
     });
   }
 }

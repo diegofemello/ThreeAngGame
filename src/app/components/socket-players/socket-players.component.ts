@@ -5,6 +5,7 @@ import { ManagerService } from 'src/app/services/manager.service';
 import { PlayerService } from 'src/app/services/player.service';
 import * as THREE from 'three';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
+import { CSS2DObject, CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer';
 
 @Component({
   selector: 'app-socket-players',
@@ -45,6 +46,7 @@ export class SocketPlayersComponent implements OnInit {
     this._obsPlayer = this.playerService.players;
     this._playersSub = this.playerService.players.subscribe((players) => {
       this.players = players;
+      console.log(this.players);
       this.LoadModel();
     });
 
@@ -62,6 +64,7 @@ export class SocketPlayersComponent implements OnInit {
     for (let i = 0; i < this.players.length; i++) {
       const player = this.players[i];
       const playerOn = this.playersOn.find((p) => p.uuid == player.uid);
+
       if (playerOn || player.uid == this.playerService.currentPlayer) {
         continue;
       }
@@ -77,20 +80,26 @@ export class SocketPlayersComponent implements OnInit {
 
       loader.load(this.path, (object: THREE.Object3D) => {
         object.traverse((c: THREE.Object3D) => {
-          if (this.gender == 'female') {
-            if (c.name == 'Head01' || c.name == 'Body01') c.visible = false;
-          } else {
-            if (c.name == 'Head02' || c.name == 'Body02') c.visible = false;
-          }
-
           if (c instanceof THREE.Mesh) {
-            c.material.displacementScale = 0.01;
-            c.castShadow = true;
-            c.name = player.uid;
+            if (
+              c.name == 'Face' + player.style ||
+              c.name == 'Cloth' + player.style ||
+              c.name == 'Hair' + player.style ||
+              c.name == 'Glove' + player.style ||
+              c.name == 'Shoe' + player.style ||
+              c.name == 'ShoulderPad' + player.style ||
+              c.name == 'Belt' + player.style
+            ) {
+              c.visible = true;
+              c.material.displacementScale = 0.01;
+              c.castShadow = true;
+            } else {
+              c.visible = false;
+            }
+            c.name = player.username;
           }
         });
-
-        object.rotation.set(1.5 * Math.PI, 0 * Math.PI, 0 * Math.PI);
+        object.userData['tag'] = 'SocketPlayer';
 
         const newObject = new THREE.Object3D();
         newObject.add(object);
@@ -117,6 +126,25 @@ export class SocketPlayersComponent implements OnInit {
         this.playersOn.push(newObject);
 
         newObject.visible = true;
+
+        const labelDiv = document.createElement('div');
+        labelDiv.style.backgroundColor = 'rgba(0,0,0,0.5)';
+        labelDiv.style.padding = '2px';
+        labelDiv.style.color = '#fff';
+        labelDiv.style.fontSize = '12px';
+        labelDiv.style.textAlign = 'center';
+        labelDiv.style.borderRadius = '5px';
+        labelDiv.style.display = 'block';
+        labelDiv.innerHTML = player.username;
+
+
+        const labelRenderer = new CSS2DObject(labelDiv);
+        labelRenderer.position.set(
+          newObject.position.x,
+          newObject.position.y + 200,
+          newObject.position.z
+        );
+        newObject.add(labelRenderer);
       });
     }
 

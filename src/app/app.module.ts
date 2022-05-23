@@ -17,6 +17,7 @@ import { FormsModule } from '@angular/forms';
 import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 import { SocketPlayersComponent } from './components/socket-players/socket-players.component';
 import { environment } from 'src/environments/environment';
+import { LoginModalComponent } from './components/login-modal/login-modal.component';
 
 const config: SocketIoConfig = { url: environment.socketUrl, options: {} };
 
@@ -31,6 +32,7 @@ const config: SocketIoConfig = { url: environment.socketUrl, options: {} };
     FbxLoaderComponent,
     ModalTestComponent,
     SocketPlayersComponent,
+    LoginModalComponent,
   ],
   imports: [
     BrowserModule,

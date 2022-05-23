@@ -11,7 +11,7 @@ export class ManagerService {
   public _camera!: THREE.PerspectiveCamera;
   public _scene!: THREE.Scene;
   public _gui!: GUI;
-  public _target?: Vector3;
+  public _player?: Vector3;
 
   _Initialize() {
     console.log();
@@ -110,13 +110,12 @@ export class ManagerService {
     });
   }
 
-
   _Step() {
-    if (this._target) {
-      this._camera.position.set(this._target.x, this._target.y, this._target.z);
+    if (this._player) {
+      this._camera.position.set(this._player.x, this._player.y, this._player.z);
       const cameraOffset = new Vector3(0.0, 60, 150); // NOTE Constant offset between the camera and the target
       this._camera.position.add(cameraOffset);
-      this._camera.lookAt(this._target);
+      this._camera.lookAt(this._player);
     }
   }
 }

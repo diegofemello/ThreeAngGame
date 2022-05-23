@@ -34,6 +34,8 @@ export class DescriptionComponent implements OnInit {
     labelRenderer.domElement.style.pointerEvents = 'none';
     document.body.appendChild(labelRenderer.domElement);
 
+    
+
     const labelDiv = document.getElementsByClassName(
       'label'
     )[0] as HTMLDivElement;

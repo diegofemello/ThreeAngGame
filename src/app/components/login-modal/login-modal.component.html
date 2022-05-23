@@ -1,0 +1,29 @@
+<div class="d-flex text-center shadow-sm rounded p-3 my-3">
+  <form #loginForm="ngForm" class="form-signin" (ngSubmit)="submit()">
+    <i class="fa-solid fa-user-gear"></i>
+    <h1 class="h3 mb-3 font-weight-normal">Digite um nome de usuário</h1>
+
+    <div class="form-group p-2">
+      <input
+        type="email"
+        id="inputEmail"
+        class="form-control"
+        placeholder="Usuário"
+        name="username"
+        [(ngModel)]="username"
+        required
+        autofocus
+        name="username"
+      />
+    </div>
+
+    <!-- button disabled if username == null -->
+    <button
+      class="btn btn-lg btn-primary btn-block"
+      type="submit"
+      [disabled]="!username"
+    >
+      Entrar
+    </button>
+  </form>
+</div>

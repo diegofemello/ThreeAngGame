@@ -18,7 +18,7 @@ export class FiniteStateMachineService {
     this._AddState('idle', IdleState);
     this._AddState('walk', WalkState);
     this._AddState('run', RunState);
-    this._AddState('dance', DanceState);
+    this._AddState('jump', JumpState);
   }
 
   _AddState(name: any, type: any) {
@@ -186,17 +186,17 @@ class IdleState extends State implements IState {
     if (input._keys.forward || input._keys.backward) {
       this._parent.SetState('walk');
     } else if (input._keys.space) {
-      this._parent.SetState('dance');
+      this._parent.SetState('jump');
     }
   }
 }
 
-class DanceState extends State implements IState {
+class JumpState extends State implements IState {
   private _FinishedCallback: () => void;
   private _CleanupCallback: any;
   constructor(parent: any) {
     super(parent);
-    this._name = 'dance';
+    this._name = 'jump';
 
     this._FinishedCallback = () => {
       this._Finished();
@@ -227,7 +227,7 @@ class DanceState extends State implements IState {
   }
 
   _Cleanup() {
-    const action = this._parent._proxy._animations['dance'].action;
+    const action = this._parent._proxy._animations['jump'].action;
 
     action.getMixer().removeEventListener('finished', this._CleanupCallback);
   }
@@ -238,47 +238,3 @@ class DanceState extends State implements IState {
 
   Update(_: any) {}
 }
-
-// export class FiniteStateMachine {
-//   private _states: any;
-//   private _currentState: any;
-
-//   constructor() {
-//     this._states = {};
-//     this._currentState = null;
-
-//   }
-
-//   _Init() {
-//     this._AddState('idle', IdleState);
-//     this._AddState('walk', WalkState);
-//     this._AddState('run', RunState);
-//     this._AddState('dance', DanceState);
-//   }
-
-//   _AddState(name: any, type: any) {
-//     this._states[name] = type;
-//   }
-
-//   SetState(name: any) {
-//     const prevState = this._currentState;
-
-//     if (prevState) {
-//       if (prevState.Name == name) {
-//         return;
-//       }
-//       prevState.Exit();
-//     }
-
-//     const state = new this._states[name](this);
-
-//     this._currentState = state;
-//     state.Enter(prevState);
-//   }
-
-//   Update(timeElapsed: any, input: any) {
-//     if (this._currentState) {
-//       this._currentState.Update(timeElapsed, input);
-//     }
-//   }
-// };
