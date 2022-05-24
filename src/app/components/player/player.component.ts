@@ -45,9 +45,9 @@ export class PlayerComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
-    // if (environment.production) {
-    this.username = await this.OpenModal();
-    // }
+    if (environment.production) {
+      this.username = await this.OpenModal();
+    }
 
     this.LoadModel();
     this.controller._Init();
@@ -94,16 +94,14 @@ export class PlayerComponent implements OnInit {
         }
       });
 
-      const newObject = new THREE.Object3D();
-      newObject.add(object);
-      this.manager._scene.add(newObject);
-      newObject.name = '_Player';
+      this.manager._scene.add(object);
+      object.name = '_Player';
 
-      newObject.scale.multiplyScalar(this.scale);
-      newObject.visible = false;
+      object.scale.multiplyScalar(this.scale);
+      object.visible = false;
 
-      this._player = newObject;
-      newObject.visible = true;
+      this._player = object;
+      object.visible = true;
       this.manager.initialized = true;
 
       this.playerService.newPlayer(this.username, this.style, this._player);
@@ -166,7 +164,7 @@ export class PlayerComponent implements OnInit {
   };
 
   Jump = () => {
-    if (this._player && this.physicsBody && this.isGrounded) {
+    if (this._player && this.physicsBody ) {
       let jumpImpulse = new Ammo.btVector3(0, 50, 0);
 
       this.physicsBody.setLinearVelocity(jumpImpulse);
@@ -244,15 +242,13 @@ export class PlayerComponent implements OnInit {
       this._player.position.y,
       this._player.position.z
     );
-    const cameraOffset = new THREE.Vector3(0.0, 60, 150); // NOTE Constant offset between the camera and the target
+    const cameraOffset = new THREE.Vector3(0.0, 60, 150);
     this.manager._camera.position.add(cameraOffset);
     this.manager._camera.lookAt(this._player.position);
   };
 
   Update(timeInSeconds: number) {
     requestAnimationFrame(() => {
-      if (!this._player) return;
-
       this._stateMachine.Update(timeInSeconds, this.controller);
 
       this.Collisions();

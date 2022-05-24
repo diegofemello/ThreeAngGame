@@ -18,16 +18,14 @@ export class SocketPlayersComponent implements OnInit {
 
   private path = './assets/models3d/CharacterRPG/CharacterBaseMesh.fbx';
   private scale = 0.2;
-  private players!: Player[];
+  players!: Player[];
   private _playersSub!: Subscription;
   private _playersMovement!: Subscription;
 
   constructor(
     private manager: ManagerService,
     private playerService: PlayerService
-  ) {
-    this._obsPlayer = this.playerService.players;
-  }
+  ) {}
 
   ngOnDestroy(): void {
     this._playersSub.unsubscribe();
@@ -38,7 +36,6 @@ export class SocketPlayersComponent implements OnInit {
     this._obsPlayer = this.playerService.players;
     this._playersSub = this.playerService.players.subscribe((players) => {
       this.players = players;
-      console.log(this.players);
       this.LoadModel();
     });
 
@@ -57,7 +54,7 @@ export class SocketPlayersComponent implements OnInit {
       const player = this.players[i];
       const playerOn = this.playersOn.find((p) => p.uuid == player.uid);
 
-      if (playerOn || player.uid == this.playerService.currentPlayer.uid) {
+      if (playerOn || player.uid == this.playerService?.currentPlayer?.uid) {
         continue;
       }
 
@@ -92,46 +89,21 @@ export class SocketPlayersComponent implements OnInit {
           }
         });
 
-        object.userData['tag'] = 'SocketPlayer';
+        object.scale.multiplyScalar(this.scale);
 
-        const newObject = new THREE.Object3D();
-        newObject.add(object);
-
-        newObject.scale.multiplyScalar(this.scale);
-
-        newObject.position.set(
+        object.position.set(
           player.position.x,
           player.position.y,
           player.position.z
         );
 
-        newObject.name = player.uid;
-        newObject.uuid = player.uid;
-        newObject.visible = false;
-        this.manager._scene.add(newObject);
+        object.name = player.uid;
+        object.uuid = player.uid;
+        object.visible = false;
+        this.manager._scene.add(object);
+        this.playersOn.push(object);
 
-        this.playersOn.push(newObject);
-
-        const labelDiv = document.createElement('div');
-        labelDiv.style.backgroundColor = 'rgba(0,0,0,0.5)';
-        labelDiv.style.padding = '2px';
-        labelDiv.style.color = '#fff';
-        labelDiv.style.fontSize = '12px';
-        labelDiv.style.textAlign = 'center';
-        labelDiv.style.borderRadius = '5px';
-        labelDiv.style.display = 'block';
-        labelDiv.innerHTML = player.username;
-
-        newObject.visible = true;
-
-        // const labelRenderer = new CSS2DObject(labelDiv);
-        // labelRenderer.position.set(
-        //   newObject.position.x,
-        //   newObject.position.y + 200,
-        //   newObject.position.z
-        // );
-        // newObject.add(labelRenderer);
-        newObject.visible = true;
+        object.visible = true;
       });
     }
 

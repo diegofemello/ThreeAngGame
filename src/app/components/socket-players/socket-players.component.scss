@@ -26,20 +26,3 @@
     }
   }
 }
-
-.labelNickname {
-  width: 100px;
-  height: 100px;
-  background-color: rgba(0, 0, 0, 0.5);
-  color: #fff;
-  font-size: 12px;
-  line-height: 100px;
-  text-align: center;
-  border-radius: 5px;
-  pointer-events: none;
-  display: block;
-  position: absolute;
-  top: 0;
-  left: 0;
-  transform: translate(-50%, -50%);
-}

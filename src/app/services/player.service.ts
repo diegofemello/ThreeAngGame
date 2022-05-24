@@ -14,9 +14,6 @@ export class PlayerService {
 
   constructor(private socket: Socket) {}
 
-  getPlayer(uid: string) {
-    this.socket.emit('getPlayer', uid);
-  }
 
   getPlayers() {
     this.socket.emit('getPlayers');
