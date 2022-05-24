@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
+
 import * as THREE from 'three';
 import { GUI } from 'dat.gui';
-import { Vector3 } from 'three';
-
 @Injectable({
   providedIn: 'root',
 })
@@ -11,12 +10,18 @@ export class ManagerService {
   public _camera!: THREE.PerspectiveCamera;
   public _scene!: THREE.Scene;
   public _gui!: GUI;
-  public _player?: Vector3;
+
   public initialized = false;
 
   _Initialize() {
-    console.log();
     this._SetupGraphics();
+    this._OnWindowResize();
+
+    this._gui = new GUI({ width: 250 });
+    this._gui.domElement.id = 'gui';
+
+    this._Update();
+
     window.addEventListener(
       'resize',
       () => {
@@ -24,13 +29,6 @@ export class ManagerService {
       },
       false
     );
-
-    this._OnWindowResize();
-
-    this._gui = new GUI({ width: 250 });
-    this._gui.domElement.id = 'gui';
-
-    this._Animate();
   }
 
   _SetupGraphics = () => {
@@ -103,21 +101,11 @@ export class ManagerService {
     this._renderer.setSize(window.innerWidth, window.innerHeight);
   }
 
-  _Animate() {
+  _Update() {
     requestAnimationFrame((t) => {
-      this._renderer.render(this._scene, this._camera);
-      this._Step();
-      this._Animate();
       this._scene.visible = this.initialized;
+      this._renderer.render(this._scene, this._camera);
+      this._Update();
     });
-  }
-
-  _Step() {
-    if (this._player) {
-      this._camera.position.set(this._player.x, this._player.y, this._player.z);
-      const cameraOffset = new Vector3(0.0, 60, 150); // NOTE Constant offset between the camera and the target
-      this._camera.position.add(cameraOffset);
-      this._camera.lookAt(this._player);
-    }
   }
 }

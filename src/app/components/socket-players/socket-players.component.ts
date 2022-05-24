@@ -22,7 +22,6 @@ export class SocketPlayersComponent implements OnInit {
   private _playersSub!: Subscription;
   private _playersMovement!: Subscription;
 
-
   constructor(
     private manager: ManagerService,
     private playerService: PlayerService
@@ -58,7 +57,7 @@ export class SocketPlayersComponent implements OnInit {
       const player = this.players[i];
       const playerOn = this.playersOn.find((p) => p.uuid == player.uid);
 
-      if (playerOn || player.uid == this.playerService.currentPlayer) {
+      if (playerOn || player.uid == this.playerService.currentPlayer.uid) {
         continue;
       }
 
@@ -113,8 +112,6 @@ export class SocketPlayersComponent implements OnInit {
 
         this.playersOn.push(newObject);
 
-
-
         const labelDiv = document.createElement('div');
         labelDiv.style.backgroundColor = 'rgba(0,0,0,0.5)';
         labelDiv.style.padding = '2px';
@@ -135,7 +132,6 @@ export class SocketPlayersComponent implements OnInit {
         // );
         // newObject.add(labelRenderer);
         newObject.visible = true;
-
       });
     }
 

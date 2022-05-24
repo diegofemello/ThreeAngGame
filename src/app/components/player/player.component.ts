@@ -28,7 +28,6 @@ export class PlayerComponent implements OnInit {
   private mouse = new THREE.Vector2();
   private path = './assets/models3d/CharacterRPG/CharacterBaseMesh.fbx';
   private physicsBody: any;
-  private randomUid = Math.random().toString(36).substring(2, 15);
   private raycaster = new THREE.Raycaster();
   private scale = 0.2;
   private scalingFactor = 35;
@@ -50,7 +49,6 @@ export class PlayerComponent implements OnInit {
     this.username = await this.OpenModal();
     // }
 
-    this.playerService.newPlayer(this.randomUid, this.username, this.style);
     this.LoadModel();
     this.controller._Init();
     this._stateMachine._Init();
@@ -104,9 +102,11 @@ export class PlayerComponent implements OnInit {
       newObject.scale.multiplyScalar(this.scale);
       newObject.visible = false;
 
-      this.manager.initialized = true;
       this._player = newObject;
       newObject.visible = true;
+      this.manager.initialized = true;
+
+      this.playerService.newPlayer(this.username, this.style, this._player);
 
       this.LoadAnimations();
       this.Update(1 / 60);
@@ -199,11 +199,7 @@ export class PlayerComponent implements OnInit {
         this._player.rotation.z
       );
 
-      this.playerService.updatePlayerPosition(
-        this.randomUid,
-        this._player.position,
-        rotation
-      );
+      this.playerService.updatePlayerPosition(this._player.position, rotation);
 
       this.physicsBody.setAngularVelocity(new Ammo.btVector3(0, rotateY, 0));
       this.physicsBody.setAngularFactor(new Ammo.btVector3(0, 0, 0));
@@ -242,6 +238,17 @@ export class PlayerComponent implements OnInit {
     }
   };
 
+  FollowCamera = () => {
+    this.manager._camera.position.set(
+      this._player.position.x,
+      this._player.position.y,
+      this._player.position.z
+    );
+    const cameraOffset = new THREE.Vector3(0.0, 60, 150); // NOTE Constant offset between the camera and the target
+    this.manager._camera.position.add(cameraOffset);
+    this.manager._camera.lookAt(this._player.position);
+  };
+
   Update(timeInSeconds: number) {
     requestAnimationFrame(() => {
       if (!this._player) return;
@@ -250,7 +257,7 @@ export class PlayerComponent implements OnInit {
 
       this.Collisions();
       this.MovePlayer();
-      this.manager._player = this._player.position;
+      this.FollowCamera();
 
       if (this._mixer) {
         this._mixer.update(timeInSeconds);
