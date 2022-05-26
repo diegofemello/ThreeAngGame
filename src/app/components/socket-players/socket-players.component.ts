@@ -186,13 +186,12 @@ export class SocketPlayersComponent implements OnInit {
 
               action.enabled = true;
 
-              if(playerOn.state == 'idle'){
+              if (playerOn.state == 'idle') {
                 action.time = 0.0;
                 action.setEffectiveTimeScale(1.0);
                 action.setEffectiveWeight(1.0);
                 action.crossFadeFrom(prevAction, 0.5, true);
-              }
-              else if (
+              } else if (
                 (playerOn.state == 'walk' && playerOn.previousState == 'run') ||
                 (playerOn.state == 'run' && playerOn.previousState == 'walk')
               ) {
@@ -206,12 +205,17 @@ export class SocketPlayersComponent implements OnInit {
               }
 
               action.crossFadeFrom(prevAction, 1, true);
+            } else {
+              this.playerMixers[player.uuid].stopAllAction();
+              this.playerMixers[player.uuid].uncacheRoot(player);
             }
 
             action.play();
           }
 
-          this.playerMixers[playerOn.uid].update(this.manager._clock.getDelta());
+          this.playerMixers[playerOn.uid].update(
+            this.manager._clock.getDelta()
+          );
         }
       });
       this.Animate();

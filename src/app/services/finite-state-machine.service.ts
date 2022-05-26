@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import * as THREE from 'three';
-import { BasicControllerProxy } from '../components/player/player.component';
 import { PlayerService } from './player.service';
 
 @Injectable({
@@ -9,7 +8,7 @@ import { PlayerService } from './player.service';
 export class FiniteStateMachineService {
   private _states: any;
   public _currentState: any;
-  private _proxy: any;
+  public _animations: any;
 
   constructor(private playerService: PlayerService) {
     this._states = {};
@@ -27,8 +26,8 @@ export class FiniteStateMachineService {
     this._states[name] = type;
   }
 
-  SetProxy(proxy: BasicControllerProxy) {
-    this._proxy = proxy;
+  SetProxy(animations: any) {
+    this._animations = animations;
   }
 
   SetState(name: string) {
@@ -81,9 +80,9 @@ class WalkState extends State implements IState {
   }
 
   Enter(prevState: State) {
-    const curAction = this._parent._proxy._animations[this._name].action;
+    const curAction = this._parent._animations[this._name].action;
     if (prevState) {
-      const prevAction = this._parent._proxy._animations[prevState.Name].action;
+      const prevAction = this._parent._animations[prevState.Name].action;
 
       curAction.enabled = true;
 
@@ -125,9 +124,9 @@ class RunState extends State implements IState {
   }
 
   Enter(prevState: any) {
-    const curAction = this._parent._proxy._animations[this._name].action;
+    const curAction = this._parent._animations[this._name].action;
     if (prevState) {
-      const prevAction = this._parent._proxy._animations[prevState.Name].action;
+      const prevAction = this._parent._animations[prevState.Name].action;
 
       curAction.enabled = true;
 
@@ -169,17 +168,17 @@ class IdleState extends State implements IState {
   }
 
   Enter(prevState: any) {
-    const idleAction = this._parent._proxy._animations[this._name].action;
+    const curAction = this._parent._animations[this._name].action;
     if (prevState) {
-      const prevAction = this._parent._proxy._animations[prevState.Name].action;
-      idleAction.time = 0.0;
-      idleAction.enabled = true;
-      idleAction.setEffectiveTimeScale(1.0);
-      idleAction.setEffectiveWeight(1.0);
-      idleAction.crossFadeFrom(prevAction, 0.5, true);
-      idleAction.play();
+      const prevAction = this._parent._animations[prevState.Name].action;
+      curAction.time = 0.0;
+      curAction.enabled = true;
+      curAction.setEffectiveTimeScale(1.0);
+      curAction.setEffectiveWeight(1.0);
+      curAction.crossFadeFrom(prevAction, 0.5, true);
+      curAction.play();
     } else {
-      idleAction.play();
+      curAction.play();
     }
   }
 
@@ -207,12 +206,12 @@ class JumpState extends State implements IState {
   }
 
   Enter(prevState: any) {
-    const curAction = this._parent._proxy._animations[this._name].action;
+    const curAction = this._parent._animations[this._name].action;
     const mixer = curAction.getMixer();
     mixer.addEventListener('finished', this._FinishedCallback);
 
     if (prevState) {
-      const prevAction = this._parent._proxy._animations[prevState.Name].action;
+      const prevAction = this._parent._animations[prevState.Name].action;
 
       curAction.reset();
       curAction.setLoop(THREE.LoopOnce, 1);
@@ -230,7 +229,7 @@ class JumpState extends State implements IState {
   }
 
   _Cleanup() {
-    const action = this._parent._proxy._animations['jump'].action;
+    const action = this._parent._animations['jump'].action;
 
     action.getMixer().removeEventListener('finished', this._CleanupCallback);
   }

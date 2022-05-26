@@ -40,7 +40,7 @@ export class PlayerComponent implements OnInit {
     private stateMachineService: FiniteStateMachineService
   ) {
     this._stateMachine = this.stateMachineService;
-    this._stateMachine.SetProxy(new BasicControllerProxy(this._animations));
+    this._stateMachine.SetProxy(this._animations);
   }
 
   async ngOnInit(): Promise<void> {
@@ -236,12 +236,5 @@ export class PlayerComponent implements OnInit {
 
       this.Update(timeInSeconds);
     });
-  }
-}
-
-export class BasicControllerProxy {
-  _animations: any;
-  constructor(animations: any) {
-    this._animations = animations;
   }
 }
