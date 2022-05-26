@@ -24,7 +24,7 @@ export class SocketPlayersComponent implements OnInit {
 
   private _animations: any = {};
   private _loadingManager!: THREE.LoadingManager;
-  private _mixer!: THREE.AnimationMixer;
+  private playerMixers: any = {};
 
   constructor(
     private manager: ManagerService,
@@ -78,13 +78,6 @@ export class SocketPlayersComponent implements OnInit {
   };
 
   LoadModel = () => {
-    if (this._animations.length < 3) {
-      setTimeout(() => {
-        this.LoadModel();
-      }, 100);
-      return;
-    }
-
     const loader = new FBXLoader();
 
     for (let i = 0; i < this.players.length; i++) {
@@ -141,12 +134,18 @@ export class SocketPlayersComponent implements OnInit {
         this.playersOn.push(object);
 
         object.visible = true;
+
+        this.playerMixers[player.uid] = new THREE.AnimationMixer(object);
       });
     }
 
     // remove players not contained in this.playersOn
     this.playersOn.forEach((player: THREE.Object3D) => {
       if (!this.players.find((p) => p.uid == player.uuid)) {
+        this.playerMixers[player.uuid].stopAllAction();
+        this.playerMixers[player.uuid].uncacheRoot(player);
+        delete this.playerMixers[player.uuid];
+
         this.manager._scene.remove(player);
         this.playersOn.forEach((p: THREE.Object3D, i: number) => {
           if (p.uuid == player.uuid) this.playersOn.splice(i, 1);
@@ -173,20 +172,21 @@ export class SocketPlayersComponent implements OnInit {
             playerOn.rotation.z
           );
 
-          const animation = this._animations[playerOn.state];
-          if (animation && playerOn.previousState != playerOn.state) {
-            this._mixer = new THREE.AnimationMixer(player);
-            const idleAction = this._mixer.clipAction(animation);
-            idleAction.play();
+          if (playerOn.state != playerOn.previousState) {
+            this.playerMixers[player.uuid].stopAllAction();
+            this.playerMixers[player.uuid].uncacheRoot(player);
+
+            const action = this.playerMixers[player.uuid].clipAction(
+              this._animations[playerOn.state]
+            );
+            action.play();
+            console.log(this.playerMixers);
           }
+
+          this.playerMixers[playerOn.uid].update(0.01);
         }
       });
-
       this.Animate();
     });
-
-    if (this._mixer) {
-      this._mixer.update(1 / 60);
-    }
   }
 }
