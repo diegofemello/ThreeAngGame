@@ -10,10 +10,13 @@ export class ManagerService {
   public _camera!: THREE.PerspectiveCamera;
   public _scene!: THREE.Scene;
   public _gui!: GUI;
+  public _clock!: THREE.Clock;
 
   public initialized = false;
 
   _Initialize() {
+    this._clock = new THREE.Clock();
+
     this._SetupGraphics();
     this._OnWindowResize();
 
@@ -102,7 +105,7 @@ export class ManagerService {
   }
 
   _Update() {
-    requestAnimationFrame((t) => {
+    requestAnimationFrame(() => {
       this._scene.visible = this.initialized;
       this._renderer.render(this._scene, this._camera);
       this._Update();

@@ -136,14 +136,16 @@ export class SocketPlayersComponent implements OnInit {
         object.visible = true;
 
         this.playerMixers[player.uid] = new THREE.AnimationMixer(object);
+        const action = this.playerMixers[player.uid].clipAction(
+          this._animations['idle']
+        );
+
+        action.play();
       });
     }
 
-    // remove players not contained in this.playersOn
     this.playersOn.forEach((player: THREE.Object3D) => {
       if (!this.players.find((p) => p.uid == player.uuid)) {
-        this.playerMixers[player.uuid].stopAllAction();
-        this.playerMixers[player.uuid].uncacheRoot(player);
         delete this.playerMixers[player.uuid];
 
         this.manager._scene.remove(player);
@@ -173,17 +175,43 @@ export class SocketPlayersComponent implements OnInit {
           );
 
           if (playerOn.state != playerOn.previousState) {
-            this.playerMixers[player.uuid].stopAllAction();
-            this.playerMixers[player.uuid].uncacheRoot(player);
-
             const action = this.playerMixers[player.uuid].clipAction(
               this._animations[playerOn.state]
             );
+
+            if (playerOn.previousState) {
+              const prevAction = this.playerMixers[player.uuid].clipAction(
+                this._animations[playerOn.previousState]
+              );
+
+              action.enabled = true;
+
+              if(playerOn.state == 'idle'){
+                action.time = 0.0;
+                action.setEffectiveTimeScale(1.0);
+                action.setEffectiveWeight(1.0);
+                action.crossFadeFrom(prevAction, 0.5, true);
+              }
+              else if (
+                (playerOn.state == 'walk' && playerOn.previousState == 'run') ||
+                (playerOn.state == 'run' && playerOn.previousState == 'walk')
+              ) {
+                const ratio =
+                  action.getClip().duration / prevAction.getClip().duration;
+                action.time = prevAction.time * ratio;
+              } else {
+                action.time = 0.0;
+                action.setEffectiveTimeScale(1.0);
+                action.setEffectiveWeight(1.0);
+              }
+
+              action.crossFadeFrom(prevAction, 1, true);
+            }
+
             action.play();
-            console.log(this.playerMixers);
           }
 
-          this.playerMixers[playerOn.uid].update(0.01);
+          this.playerMixers[playerOn.uid].update(this.manager._clock.getDelta());
         }
       });
       this.Animate();
