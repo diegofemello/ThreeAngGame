@@ -15,6 +15,9 @@ import { ModalTestComponent } from '../modal-test/modal-test.component';
 })
 export class DescriptionComponent implements OnInit {
   private currentIntersection: any;
+  private mouse = new THREE.Vector2();
+  private raycaster = new THREE.Raycaster();
+
   constructor(
     private manager: ManagerService,
     private modalService: NgbModal
@@ -54,15 +57,13 @@ export class DescriptionComponent implements OnInit {
     )[0] as HTMLDivElement;
     labelDescription.style.display = 'none';
 
-    const raycaster = new THREE.Raycaster();
-    const mouse = new THREE.Vector2();
-
     const onMouseMove = (event: any) => {
-      mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
-      mouse.y = -(event.clientY / renderer.domElement.clientHeight) * 2 + 1;
-      raycaster.setFromCamera(mouse, camera);
+      this.mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
+      this.mouse.y =
+        -(event.clientY / renderer.domElement.clientHeight) * 2 + 1;
+      this.raycaster.setFromCamera(this.mouse, camera);
 
-      const intersects = raycaster.intersectObject(scene, true);
+      const intersects = this.raycaster.intersectObject(scene, true);
 
       if (intersects.length > 0) {
         this.currentIntersection = intersects[0];
@@ -118,7 +119,20 @@ export class DescriptionComponent implements OnInit {
       labelDescription.style.display = 'none';
       labelDescription.innerHTML = '';
     }
+
+    this.manager._renderer.domElement.addEventListener(
+      'pointerdown',
+      this.OnMouseDown,
+      false
+    );
   }
+
+  OnMouseDown = () => {
+    if (this.currentIntersection) {
+      console.log('point', this.currentIntersection.point);
+      console.log('object', this.currentIntersection.object);
+    }
+  };
 
   openModal() {
     const modalRef = this.modalService.open(ModalTestComponent, {

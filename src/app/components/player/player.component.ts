@@ -25,10 +25,8 @@ export class PlayerComponent implements OnInit {
   private _stateMachine!: FiniteStateMachineService;
 
   private isGrounded = false;
-  private mouse = new THREE.Vector2();
   private path = './assets/models3d/CharacterRPG/CharacterBaseMesh.fbx';
   private physicsBody: any;
-  private raycaster = new THREE.Raycaster();
   private scale = 0.2;
   private scalingFactor = 35;
   private style = Math.floor(Math.random() * 4) + 1;
@@ -38,9 +36,10 @@ export class PlayerComponent implements OnInit {
     private manager: ManagerService,
     private controller: BasicControllerInputService,
     private playerService: PlayerService,
-    private modalService: NgbModal
+    private modalService: NgbModal,
+    private stateMachineService: FiniteStateMachineService
   ) {
-    this._stateMachine = new FiniteStateMachineService();
+    this._stateMachine = this.stateMachineService;
     this._stateMachine.SetProxy(new BasicControllerProxy(this._animations));
   }
 
@@ -52,12 +51,6 @@ export class PlayerComponent implements OnInit {
     this.LoadModel();
     this.controller._Init();
     this._stateMachine._Init();
-
-    this.manager._renderer.domElement.addEventListener(
-      'pointerdown',
-      this.OnMouseDown,
-      false
-    );
   }
 
   async OpenModal(): Promise<string> {
@@ -145,26 +138,8 @@ export class PlayerComponent implements OnInit {
     });
   };
 
-  OnMouseDown = (event: any) => {
-    this.mouse.x =
-      (event.clientX / this.manager._renderer.domElement.clientWidth) * 2 - 1;
-    this.mouse.y =
-      -(event.clientY / this.manager._renderer.domElement.clientHeight) * 2 + 1;
-    this.raycaster.setFromCamera(this.mouse, this.manager._camera);
-
-    const intersects = this.raycaster.intersectObject(
-      this.manager._scene,
-      true
-    );
-
-    if (intersects.length > 0) {
-      console.log('point', intersects[0].point);
-      console.log('object', intersects[0].object);
-    }
-  };
-
   Jump = () => {
-    if (this._player && this.physicsBody ) {
+    if (this._player && this.physicsBody && this.isGrounded) {
       let jumpImpulse = new Ammo.btVector3(0, 50, 0);
 
       this.physicsBody.setLinearVelocity(jumpImpulse);
