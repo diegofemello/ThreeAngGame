@@ -22,6 +22,10 @@ export class SocketPlayersComponent implements OnInit {
   private _playersSub!: Subscription;
   private _playersMovement!: Subscription;
 
+  private _animations: any = {};
+  private _loadingManager!: THREE.LoadingManager;
+  private _mixer!: THREE.AnimationMixer;
+
   constructor(
     private manager: ManagerService,
     private playerService: PlayerService
@@ -33,6 +37,8 @@ export class SocketPlayersComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.LoadAnimations();
+
     this._obsPlayer = this.playerService.players;
     this._playersSub = this.playerService.players.subscribe((players) => {
       this.players = players;
@@ -47,7 +53,38 @@ export class SocketPlayersComponent implements OnInit {
     this.Animate();
   }
 
+  LoadAnimations = () => {
+    this._loadingManager = new THREE.LoadingManager();
+
+    const onLoad = (animName: any, anim: any) => {
+      const clip = anim.animations[0];
+      this._animations[animName] = clip;
+    };
+
+    const loader = new FBXLoader(this._loadingManager);
+    loader.setPath('./assets/models3d/CharacterRPG/animations/');
+    loader.load('walk.fbx', (a) => {
+      onLoad('walk', a);
+    });
+    loader.load('run.fbx', (a) => {
+      onLoad('run', a);
+    });
+    loader.load('idle.fbx', (a) => {
+      onLoad('idle', a);
+    });
+    loader.load('jump.fbx', (a) => {
+      onLoad('jump', a);
+    });
+  };
+
   LoadModel = () => {
+    if (this._animations.length < 3) {
+      setTimeout(() => {
+        this.LoadModel();
+      }, 100);
+      return;
+    }
+
     const loader = new FBXLoader();
 
     for (let i = 0; i < this.players.length; i++) {
@@ -135,10 +172,21 @@ export class SocketPlayersComponent implements OnInit {
             playerOn.rotation.y,
             playerOn.rotation.z
           );
+
+          const animation = this._animations[playerOn.state];
+          if (animation && playerOn.previousState != playerOn.state) {
+            this._mixer = new THREE.AnimationMixer(player);
+            const idleAction = this._mixer.clipAction(animation);
+            idleAction.play();
+          }
         }
       });
 
       this.Animate();
     });
+
+    if (this._mixer) {
+      this._mixer.update(1 / 60);
+    }
   }
 }

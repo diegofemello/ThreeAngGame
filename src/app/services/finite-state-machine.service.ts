@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import * as THREE from 'three';
 import { BasicControllerProxy } from '../components/player/player.component';
+import { PlayerService } from './player.service';
 
 @Injectable({
   providedIn: 'root',
@@ -10,7 +11,7 @@ export class FiniteStateMachineService {
   public _currentState: any;
   private _proxy: any;
 
-  constructor() {
+  constructor(private playerService: PlayerService) {
     this._states = {};
     this._currentState = null;
   }
@@ -43,6 +44,7 @@ export class FiniteStateMachineService {
     const state = new this._states[name](this);
 
     this._currentState = state;
+    this.playerService.currentPlayer.state = name;
     state.Enter(prevState);
   }
 

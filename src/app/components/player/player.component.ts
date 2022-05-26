@@ -97,7 +97,7 @@ export class PlayerComponent implements OnInit {
       object.visible = true;
       this.manager.initialized = true;
 
-      this.playerService.newPlayer(this.username, this.style, this._player);
+      this.playerService.newPlayer(this.username, this.style);
 
       this.LoadAnimations();
       this.Update(1 / 60);

@@ -7,5 +7,6 @@ export class Player {
   rotation: Euler = new Euler();
   style!: number;
   state!: string;
+  previousState!: string;
   object!: THREE.Object3D;
 }

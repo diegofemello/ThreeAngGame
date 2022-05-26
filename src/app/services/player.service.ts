@@ -7,7 +7,7 @@ import * as THREE from 'three';
   providedIn: 'root',
 })
 export class PlayerService {
-  players = this.socket.fromEvent<Player[]>('players');
+  players = this.socket.fromEvent<Player[]>('players')
   playersMovement = this.socket.fromEvent<Player[]>('playersMovement');
 
   currentPlayer!: Player;
@@ -19,12 +19,12 @@ export class PlayerService {
     this.socket.emit('getPlayers');
   }
 
-  newPlayer(username: string, style: number, object: THREE.Object3D) {
+  newPlayer(username: string, style: number) {
     this.currentPlayer = new Player();
     this.currentPlayer.uid =  Math.random().toString(36).substring(2, 15);
     this.currentPlayer.username = username;
     this.currentPlayer.style = style;
-    this.currentPlayer.object = object;
+    this.currentPlayer.state = 'idle';
 
     this.socket.emit('addPlayer', {
       uid: this.currentPlayer.uid,
@@ -32,6 +32,7 @@ export class PlayerService {
       position: new THREE.Vector3(),
       rotation: new THREE.Vector3(),
       style: this.currentPlayer.style,
+      state: this.currentPlayer.state,
     });
   }
 
@@ -43,6 +44,7 @@ export class PlayerService {
       uid: this.currentPlayer.uid,
       position: position,
       rotation: rotation,
+      state: this.currentPlayer.state,
     });
   }
 
