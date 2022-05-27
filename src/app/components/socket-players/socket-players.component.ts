@@ -205,9 +205,6 @@ export class SocketPlayersComponent implements OnInit {
               }
 
               action.crossFadeFrom(prevAction, 1, true);
-            } else {
-              this.playerMixers[player.uuid].stopAllAction();
-              this.playerMixers[player.uuid].uncacheRoot(player);
             }
 
             action.play();
