@@ -19,9 +19,9 @@ export class PlayerService {
     this.socket.emit('getPlayers');
   }
 
-  newPlayer(username: string, style: any) {
+  newPlayer(username: string, style: any, uuid: string) {
     this.currentPlayer = new Player();
-    this.currentPlayer.uid = Math.random().toString(36).substring(2, 15);
+    this.currentPlayer.uid = uuid;
     this.currentPlayer.username = username;
     this.currentPlayer.style = style;
     this.currentPlayer.state = 'idle';
