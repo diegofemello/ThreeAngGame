@@ -21,7 +21,6 @@ export class PlayerComponent implements OnInit {
   private _animations: any = {};
   private _loadingManager!: THREE.LoadingManager;
   private _mixer!: THREE.AnimationMixer;
-  private _player!: THREE.Object3D;
   private _stateMachine!: FiniteStateMachineService;
 
   private isGrounded = false;
@@ -30,8 +29,16 @@ export class PlayerComponent implements OnInit {
   private physicsBody: any;
   private scale = 0.2;
   private scalingFactor = 35;
-  private style = Math.floor(Math.random() * 4) + 1;
   private username = 'Diego';
+
+  private style: any = {
+    ShoulderPad: Math.floor(Math.random() * 4) + 1,
+    Face: Math.floor(Math.random() * 4) + 1,
+    Cloth: Math.floor(Math.random() * 4) + 1,
+    Hair: Math.floor(Math.random() * 4) + 1,
+    Glove: Math.floor(Math.random() * 4) + 1,
+    Shoe: Math.floor(Math.random() * 4) + 1,
+  };
 
   constructor(
     private manager: ManagerService,
@@ -68,38 +75,19 @@ export class PlayerComponent implements OnInit {
   LoadModel = () => {
     const loader = new FBXLoader();
     loader.load(this.path, (object: THREE.Object3D) => {
-      object.traverse((c: THREE.Object3D) => {
-        if (c instanceof THREE.Mesh) {
-          if (
-            c.name == 'ShoulderPad' + this.style ||
-            c.name == 'Face' + this.style ||
-            c.name == 'Cloth' + this.style ||
-            c.name == 'Hair' + this.style ||
-            c.name == 'Glove' + this.style ||
-            c.name == 'Shoe' + this.style
-          ) {
-            c.visible = true;
-            c.material.displacementScale = 0.01;
-            c.castShadow = true;
-          } else {
-            c.visible = false;
-          }
-          c.name = this.username;
-        }
-      });
-
       this.manager._scene.add(object);
       object.name = '_Player';
 
       object.scale.multiplyScalar(this.scale);
       object.visible = false;
 
-      this._player = object;
+      this.playerService.playerObject = object;
       object.visible = true;
       this.manager.initialized = true;
 
       this.playerService.newPlayer(this.username, this.style);
 
+      this.playerService.updateMesh();
       this.LoadAnimations();
       this.Update(1 / 60);
     });
@@ -107,7 +95,7 @@ export class PlayerComponent implements OnInit {
 
   LoadAnimations = () => {
     this._loadingManager = new THREE.LoadingManager();
-    this._mixer = new THREE.AnimationMixer(this._player);
+    this._mixer = new THREE.AnimationMixer(this.playerService.playerObject);
 
     const onLoad = (animName: any, anim: any) => {
       const clip = anim.animations[0];
@@ -165,9 +153,9 @@ export class PlayerComponent implements OnInit {
   };
 
   MovePlayer = () => {
-    if (!this._player?.userData['physicsBody']) return;
+    if (!this.playerService.playerObject?.userData['physicsBody']) return;
 
-    this.physicsBody = this._player.userData['physicsBody'];
+    this.physicsBody = this.playerService.playerObject.userData['physicsBody'];
     if (this.physicsBody) {
       let rotateY = 0;
 
@@ -184,12 +172,15 @@ export class PlayerComponent implements OnInit {
       }
 
       const rotation = new THREE.Vector3(
-        this._player.rotation.x,
-        this._player.rotation.y,
-        this._player.rotation.z
+        this.playerService.playerObject.rotation.x,
+        this.playerService.playerObject.rotation.y,
+        this.playerService.playerObject.rotation.z
       );
 
-      this.playerService.updatePlayerPosition(this._player.position, rotation);
+      this.playerService.updatePlayerPosition(
+        this.playerService.playerObject.position,
+        rotation
+      );
 
       this.physicsBody.setAngularVelocity(new Ammo.btVector3(0, rotateY, 0));
       this.physicsBody.setAngularFactor(new Ammo.btVector3(0, 0, 0));
@@ -201,7 +192,7 @@ export class PlayerComponent implements OnInit {
       }
 
       let direction = new THREE.Vector3(0, 0, -1);
-      direction.applyQuaternion(this._player.quaternion);
+      direction.applyQuaternion(this.playerService.playerObject.quaternion);
       direction.normalize();
 
       let moveZ =
@@ -223,20 +214,21 @@ export class PlayerComponent implements OnInit {
   };
 
   Collisions = () => {
-    if (this._player.userData) {
-      this.isGrounded = this._player.userData['collision']?.tag == 'Ground';
+    if (this.playerService.playerObject.userData) {
+      this.isGrounded =
+        this.playerService.playerObject.userData['collision']?.tag == 'Ground';
     }
   };
 
   FollowCamera = () => {
     this.manager._camera.position.set(
-      this._player.position.x,
-      this._player.position.y,
-      this._player.position.z
+      this.playerService.playerObject.position.x,
+      this.playerService.playerObject.position.y,
+      this.playerService.playerObject.position.z
     );
     const cameraOffset = new THREE.Vector3(0.0, 60, 150);
     this.manager._camera.position.add(cameraOffset);
-    this.manager._camera.lookAt(this._player.position);
+    this.manager._camera.lookAt(this.playerService.playerObject.position);
   };
 
   Update(timeInSeconds: number) {

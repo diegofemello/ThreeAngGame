@@ -98,27 +98,6 @@ export class SocketPlayersComponent implements OnInit {
       });
 
       loader.load(this.path, (object: THREE.Object3D) => {
-        object.traverse((c: THREE.Object3D) => {
-          if (c instanceof THREE.Mesh) {
-            if (
-              c.name == 'Face' + player.style ||
-              c.name == 'Cloth' + player.style ||
-              c.name == 'Hair' + player.style ||
-              c.name == 'Glove' + player.style ||
-              c.name == 'Shoe' + player.style ||
-              c.name == 'ShoulderPad' + player.style ||
-              c.name == 'Belt' + player.style
-            ) {
-              c.visible = true;
-              c.material.displacementScale = 0.01;
-              c.castShadow = true;
-            } else {
-              c.visible = false;
-            }
-            c.name = player.username;
-          }
-        });
-
         object.scale.multiplyScalar(this.scale);
 
         object.position.set(
@@ -172,6 +151,12 @@ export class SocketPlayersComponent implements OnInit {
             playerOn.rotation.x,
             playerOn.rotation.y,
             playerOn.rotation.z
+          );
+
+          this.playerService.updateMesh(
+            player,
+            playerOn.style,
+            playerOn.username
           );
 
           if (playerOn.state != playerOn.previousState) {

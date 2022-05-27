@@ -9,8 +9,8 @@ import {
 import * as THREE from 'three';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
-import { ManagerService } from 'src/app/services/manager.service';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { PlayerService } from 'src/app/services/player.service';
 
 @Component({
   selector: 'app-edit-player',
@@ -58,15 +58,6 @@ export class EditPlayerComponent implements OnInit, AfterViewInit {
   //   map: this.loader.load(this.texture),
   // });
 
-  private style: any = {
-    ShoulderPad: 1,
-    Face: 1,
-    Cloth: 1,
-    Hair: 1,
-    Glove: 1,
-    Shoe: 1,
-  };
-
   private renderer!: THREE.WebGLRenderer;
 
   private scene!: THREE.Scene;
@@ -74,6 +65,8 @@ export class EditPlayerComponent implements OnInit, AfterViewInit {
   private playerObject!: THREE.Object3D;
 
   private mixer!: THREE.AnimationMixer;
+
+  private style: any;
 
   // /**
   //  *Animate the cube
@@ -150,6 +143,8 @@ export class EditPlayerComponent implements OnInit, AfterViewInit {
   }
 
   public updateMesh() {
+    this.style = this.playerService.currentPlayer.style;
+
     this.playerObject.traverse((c: THREE.Object3D) => {
       if (c instanceof THREE.Mesh) {
         if (
@@ -204,8 +199,6 @@ export class EditPlayerComponent implements OnInit, AfterViewInit {
     }
 
     this.updateMesh();
-
-    console.log(this.style);
   }
 
   private loadModel() {
@@ -235,6 +228,11 @@ export class EditPlayerComponent implements OnInit, AfterViewInit {
         action.play();
       });
     });
+  }
+
+  public save() {
+    this.playerService.updatePlayerStyle(this.style);
+    this.modal.close();
   }
 
   private getAspectRatio() {
@@ -274,7 +272,7 @@ export class EditPlayerComponent implements OnInit, AfterViewInit {
 
   constructor(
     public modal: NgbActiveModal,
-    private managerService: ManagerService
+    private playerService: PlayerService
   ) {}
 
   ngOnInit(): void {}

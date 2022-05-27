@@ -25,7 +25,6 @@ export class DescriptionComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-
     const scene = this.manager._scene;
     let camera: any = this.manager._camera;
     let renderer: any = this.manager._renderer;
@@ -84,13 +83,16 @@ export class DescriptionComponent implements OnInit {
             currentIntersection.name.toLowerCase()
           )
         ) {
-          // labelDescription.style.display = 'block';
+          labelDescription.style.display = 'block';
           labelDescription.innerHTML =
             Description[
               currentIntersection.name.toLowerCase() as keyof typeof Description
             ] + '</p>';
         } else if (currentIntersection.userData) {
           labelDescription.style.display = 'none';
+          if (currentIntersection.userData['username']) {
+            labelDiv.textContent = currentIntersection.userData['username'];
+          }
         } else {
           resetLabel();
         }
@@ -105,7 +107,6 @@ export class DescriptionComponent implements OnInit {
         }
       }
       labelRenderer.render(scene, camera);
-
     };
 
     const onMouseDown = (_event: any) => {
@@ -148,7 +149,7 @@ export class DescriptionComponent implements OnInit {
     modalRef.componentInstance.name = this.currentIntersection.object.name;
   }
 
-  edit(){
+  edit() {
     const modalRef = this.modalService.open(EditPlayerComponent, {
       size: 'lg',
       centered: true,

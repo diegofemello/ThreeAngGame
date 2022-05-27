@@ -5,8 +5,7 @@ export class Player {
   username!: string;
   position: Vector3 = new Vector3();
   rotation: Euler = new Euler();
-  style!: number;
+  style!: any;
   state!: string;
   previousState!: string;
-  object!: THREE.Object3D;
 }
