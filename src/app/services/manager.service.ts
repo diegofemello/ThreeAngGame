@@ -20,8 +20,8 @@ export class ManagerService {
     this._SetupGraphics();
     this._OnWindowResize();
 
-    this._gui = new GUI({ width: 250 });
-    this._gui.domElement.id = 'gui';
+    // this._gui = new GUI({ width: 250 });
+    // this._gui.domElement.id = 'gui';
 
     this._Update();
 

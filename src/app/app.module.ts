@@ -17,6 +17,7 @@ import { environment } from 'src/environments/environment';
 import { LoginModalComponent } from './ui/login-modal/login-modal.component';
 import { TextLoaderComponent } from './loaders/text-loader/text-loader.component';
 import { ModelLoaderComponent } from './loaders/model-loader/model-loader.component';
+import { EditPlayerComponent } from './ui/edit-player/edit-player.component';
 
 const config: SocketIoConfig = { url: environment.socketUrl, options: {} };
 
@@ -31,6 +32,7 @@ const config: SocketIoConfig = { url: environment.socketUrl, options: {} };
     LoginModalComponent,
     TextLoaderComponent,
     ModelLoaderComponent,
+    EditPlayerComponent,
   ],
   imports: [
     BrowserModule,

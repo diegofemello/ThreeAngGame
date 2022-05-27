@@ -1,0 +1,115 @@
+<div class="modal-header">
+  <h4 class="modal-title" id="modal-title">Editar Personagem</h4>
+  <button
+    type="button"
+    class="btn-close"
+    aria-describedby="modal-title"
+    (click)="modal.dismiss('Cross click')"
+  ></button>
+</div>
+
+<form class="row">
+  <div class="col-lg-8">
+    <canvas
+      #canvas
+      id="canvas"
+      style="height: 100%; width: 100%; padding: 10px; margin: 10px"
+    ></canvas>
+  </div>
+  <div class="col-auto">
+    <div class="form-group">
+      <div class="btn-group">
+        <button class="btn btn-outline-secondary" (click)="changeHair(-1)">
+          <i class="fa-solid fa-angles-left"></i>
+        </button>
+        <button class="btn btn-secondary namelabel" disabled>Cabelo</button>
+        <button class="btn btn-outline-secondary" (click)="changeHair(1)">
+          <i class="fa-solid fa-angles-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="btn-group">
+        <button class="btn btn-outline-secondary" (click)="changeFace(-1)">
+          <i class="fa-solid fa-angles-left"></i>
+        </button>
+        <button class="btn btn-secondary namelabel" disabled>Rosto</button>
+        <button class="btn btn-outline-secondary" (click)="changeFace(1)">
+          <i class="fa-solid fa-angles-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="btn-group">
+        <button
+          class="btn btn-outline-secondary"
+          (click)="changeShoulderPad(-1)"
+        >
+          <i class="fa-solid fa-angles-left"></i>
+        </button>
+        <button class="btn btn-secondary namelabel" disabled>Ombreiras</button>
+        <button
+          class="btn btn-outline-secondary"
+          (click)="changeShoulderPad(1)"
+        >
+          <i class="fa-solid fa-angles-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="btn-group">
+        <button class="btn btn-outline-secondary" (click)="changeCloth(-1)">
+          <i class="fa-solid fa-angles-left"></i>
+        </button>
+        <button class="btn btn-secondary namelabel" disabled>Roupa</button>
+        <button class="btn btn-outline-secondary" (click)="changeCloth(1)">
+          <i class="fa-solid fa-angles-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="btn-group">
+        <button class="btn btn-outline-secondary" (click)="changeGlove(-1)">
+          <i class="fa-solid fa-angles-left"></i>
+        </button>
+        <button class="btn btn-secondary namelabel" disabled>Luvas</button>
+        <button class="btn btn-outline-secondary" (click)="changeGlove(1)">
+          <i class="fa-solid fa-angles-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="btn-group">
+        <button class="btn btn-outline-secondary" (click)="changeShoe(-1)">
+          <i class="fa-solid fa-angles-left"></i>
+        </button>
+        <button class="btn btn-secondary namelabel" disabled>Sapatos</button>
+        <button class="btn btn-outline-secondary" (click)="changeShoe(1)">
+          <i class="fa-solid fa-angles-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="btn-group">
+        <button class="btn btn-outline-secondary" (click)="changeShoe(-1)">
+          <i class="fa-solid fa-angles-left"></i>
+        </button>
+        <button class="btn btn-secondary namelabel" disabled>Sapatos</button>
+        <button class="btn btn-outline-secondary" (click)="changeShoe(1)">
+          <i class="fa-solid fa-angles-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</form>
+<div class="modal-footer">
+  <div class="container col-md-12 text-center">
+    <button type="button" class="btn btn-outline-secondary">Fechar</button>
+  </div>
+</div>

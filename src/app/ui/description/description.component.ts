@@ -7,6 +7,7 @@ import {
 } from 'three/examples/jsm/renderers/CSS2DRenderer';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ModalTestComponent } from '../modal-test/modal-test.component';
+import { EditPlayerComponent } from '../edit-player/edit-player.component';
 
 @Component({
   selector: 'app-description',
@@ -24,6 +25,7 @@ export class DescriptionComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+
     const scene = this.manager._scene;
     let camera: any = this.manager._camera;
     let renderer: any = this.manager._renderer;
@@ -82,7 +84,7 @@ export class DescriptionComponent implements OnInit {
             currentIntersection.name.toLowerCase()
           )
         ) {
-          labelDescription.style.display = 'block';
+          // labelDescription.style.display = 'block';
           labelDescription.innerHTML =
             Description[
               currentIntersection.name.toLowerCase() as keyof typeof Description
@@ -103,6 +105,7 @@ export class DescriptionComponent implements OnInit {
         }
       }
       labelRenderer.render(scene, camera);
+
     };
 
     const onMouseDown = (_event: any) => {
@@ -141,6 +144,17 @@ export class DescriptionComponent implements OnInit {
       keyboard: false,
       scrollable: true,
       backdropClass: 'modal-backdrop-test',
+    });
+    modalRef.componentInstance.name = this.currentIntersection.object.name;
+  }
+
+  edit(){
+    const modalRef = this.modalService.open(EditPlayerComponent, {
+      size: 'lg',
+      centered: true,
+      keyboard: false,
+      scrollable: true,
+      // backdropClass: 'modal-backdrop-test',
     });
     modalRef.componentInstance.name = this.currentIntersection.object.name;
   }
