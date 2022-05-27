@@ -13,23 +13,13 @@ import { PlayerService } from 'src/app/services/player.service';
   styleUrls: ['./socket-players.component.scss'],
 })
 export class SocketPlayersComponent implements OnInit {
-  _obsPlayer!: Observable<Player[]>;
-  private playersOn: THREE.Object3D[] = [];
+  playersOn: THREE.Object3D[] = [];
 
-  private path = './assets/models3d/CharacterRPG/CharacterBaseMesh.fbx';
-  private scale = 0.2;
   players!: Player[];
   private _playersSub!: Subscription;
   private _playersMovement!: Subscription;
 
-  private _animations: any = {};
-  private _loadingManager!: THREE.LoadingManager;
-  private playerMixers: any = {};
-
-  constructor(
-    private manager: ManagerService,
-    private playerService: PlayerService
-  ) {}
+  constructor(private playerService: PlayerService) {}
 
   ngOnDestroy(): void {
     this._playersSub.unsubscribe();
@@ -37,9 +27,6 @@ export class SocketPlayersComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.LoadAnimations();
-
-    this._obsPlayer = this.playerService.players;
     this._playersSub = this.playerService.players.subscribe((players) => {
       this.players = players;
       this.LoadModel();
@@ -53,33 +40,7 @@ export class SocketPlayersComponent implements OnInit {
     this.Animate();
   }
 
-  LoadAnimations = () => {
-    this._loadingManager = new THREE.LoadingManager();
-
-    const onLoad = (animName: any, anim: any) => {
-      const clip = anim.animations[0];
-      this._animations[animName] = clip;
-    };
-
-    const loader = new FBXLoader(this._loadingManager);
-    loader.setPath('./assets/models3d/CharacterRPG/animations/');
-    loader.load('walk.fbx', (a) => {
-      onLoad('walk', a);
-    });
-    loader.load('run.fbx', (a) => {
-      onLoad('run', a);
-    });
-    loader.load('idle.fbx', (a) => {
-      onLoad('idle', a);
-    });
-    loader.load('jump.fbx', (a) => {
-      onLoad('jump', a);
-    });
-  };
-
   LoadModel = () => {
-    const loader = new FBXLoader();
-
     for (let i = 0; i < this.players.length; i++) {
       const player = this.players[i];
       const playerOn = this.playersOn.find((p) => p.uuid == player.uid);
@@ -87,47 +48,13 @@ export class SocketPlayersComponent implements OnInit {
       if (playerOn || player.uid == this.playerService?.currentPlayer?.uid) {
         continue;
       }
-
-      const playersToRemove = this.playersOn.filter((player) => {
-        return !this.players.find((p) => p.uid === player.uuid);
-      });
-
-      playersToRemove.forEach((player) => {
-        this.manager._scene.remove(player);
-        this.playersOn.slice(this.playersOn.indexOf(player), 1);
-      });
-
-      loader.load(this.path, (object: THREE.Object3D) => {
-        object.scale.multiplyScalar(this.scale);
-
-        object.position.set(
-          player.position.x,
-          player.position.y,
-          player.position.z
-        );
-
-        object.name = player.uid;
-        object.uuid = player.uid;
-        object.visible = false;
-        this.manager._scene.add(object);
-        this.playersOn.push(object);
-
-        object.visible = true;
-
-        this.playerMixers[player.uid] = new THREE.AnimationMixer(object);
-        const action = this.playerMixers[player.uid].clipAction(
-          this._animations['idle']
-        );
-
-        action.play();
-      });
+      const object = new THREE.Object3D();
+      object.uuid = player.uid;
+      this.playersOn.push(object);
     }
 
     this.playersOn.forEach((player: THREE.Object3D) => {
       if (!this.players.find((p) => p.uid == player.uuid)) {
-        delete this.playerMixers[player.uuid];
-
-        this.manager._scene.remove(player);
         this.playersOn.forEach((p: THREE.Object3D, i: number) => {
           if (p.uuid == player.uuid) this.playersOn.splice(i, 1);
         });
@@ -138,68 +65,6 @@ export class SocketPlayersComponent implements OnInit {
   Animate() {
     requestAnimationFrame(() => {
       this.playerService.getPlayers();
-
-      this.playersOn.forEach((player: THREE.Object3D) => {
-        const playerOn = this.players.find((p) => p.uid == player.uuid);
-        if (playerOn) {
-          player.position.set(
-            playerOn.position.x,
-            playerOn.position.y,
-            playerOn.position.z
-          );
-          player.rotation.set(
-            playerOn.rotation.x,
-            playerOn.rotation.y,
-            playerOn.rotation.z
-          );
-
-          this.playerService.updateMesh(
-            player,
-            playerOn.style,
-            playerOn.username
-          );
-
-          if (playerOn.state != playerOn.previousState) {
-            const action = this.playerMixers[player.uuid].clipAction(
-              this._animations[playerOn.state]
-            );
-
-            if (playerOn.previousState) {
-              const prevAction = this.playerMixers[player.uuid].clipAction(
-                this._animations[playerOn.previousState]
-              );
-
-              action.enabled = true;
-
-              if (playerOn.state == 'idle') {
-                action.time = 0.0;
-                action.setEffectiveTimeScale(1.0);
-                action.setEffectiveWeight(1.0);
-                action.crossFadeFrom(prevAction, 0.5, true);
-              } else if (
-                (playerOn.state == 'walk' && playerOn.previousState == 'run') ||
-                (playerOn.state == 'run' && playerOn.previousState == 'walk')
-              ) {
-                const ratio =
-                  action.getClip().duration / prevAction.getClip().duration;
-                action.time = prevAction.time * ratio;
-              } else {
-                action.time = 0.0;
-                action.setEffectiveTimeScale(1.0);
-                action.setEffectiveWeight(1.0);
-              }
-
-              action.crossFadeFrom(prevAction, 1, true);
-            }
-
-            action.play();
-          }
-
-          this.playerMixers[playerOn.uid].update(
-            this.manager._clock.getDelta()
-          );
-        }
-      });
       this.Animate();
     });
   }

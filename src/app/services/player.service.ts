@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Socket } from 'ngx-socket-io';
 import { Player } from 'src/app/models/player.model';
 import * as THREE from 'three';
+import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 
 @Injectable({
   providedIn: 'root',
@@ -12,8 +13,11 @@ export class PlayerService {
 
   currentPlayer!: Player;
   playerObject!: THREE.Object3D;
+  animations: any = {};
 
-  constructor(private socket: Socket) {}
+  constructor(private socket: Socket) {
+    this.LoadAnimations();
+  }
 
   getPlayers() {
     this.socket.emit('getPlayers');
@@ -76,8 +80,30 @@ export class PlayerService {
         } else {
           c.visible = false;
         }
-        if(name) c.userData['username'] = name;
+        if (name) c.userData['username'] = name;
       }
     });
   }
+
+  LoadAnimations = () => {
+    const onLoad = (animName: any, anim: any) => {
+      const clip = anim.animations[0];
+      this.animations[animName] = clip;
+    };
+
+    const loader = new FBXLoader();
+    loader.setPath('./assets/models3d/CharacterRPG/animations/');
+    loader.load('walk.fbx', (a) => {
+      onLoad('walk', a);
+    })
+    loader.load('run.fbx', (a) => {
+      onLoad('run', a);
+    });
+    loader.load('idle.fbx', (a) => {
+      onLoad('idle', a);
+    });
+    loader.load('jump.fbx', (a) => {
+      onLoad('jump', a);
+    });
+  };
 }

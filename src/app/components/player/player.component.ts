@@ -19,7 +19,6 @@ declare const Ammo: any;
 })
 export class PlayerComponent implements OnInit {
   private _animations: any = {};
-  private _loadingManager!: THREE.LoadingManager;
   private _mixer!: THREE.AnimationMixer;
   private _stateMachine!: FiniteStateMachineService;
 
@@ -88,17 +87,17 @@ export class PlayerComponent implements OnInit {
       this.playerService.newPlayer(this.username, this.style, object.uuid);
 
       this.playerService.updateMesh();
-      this.LoadAnimations();
+
       this.Update(1 / 60);
+      this.LoadAnimations();
     });
   };
 
   LoadAnimations = () => {
-    this._loadingManager = new THREE.LoadingManager();
     this._mixer = new THREE.AnimationMixer(this.playerService.playerObject);
 
-    const onLoad = (animName: any, anim: any) => {
-      const clip = anim.animations[0];
+    const onLoad = (animName: any) => {
+      const clip = this.playerService.animations[animName];
       const action = this._mixer.clipAction(clip);
 
       this._animations[animName] = {
@@ -107,24 +106,14 @@ export class PlayerComponent implements OnInit {
       };
     };
 
-    this._loadingManager.onLoad = () => {
-      this._stateMachine.SetState('idle');
-    };
-
-    const loader = new FBXLoader(this._loadingManager);
+    const loader = new FBXLoader();
     loader.setPath('./assets/models3d/CharacterRPG/animations/');
-    loader.load('walk.fbx', (a) => {
-      onLoad('walk', a);
-    });
-    loader.load('run.fbx', (a) => {
-      onLoad('run', a);
-    });
-    loader.load('idle.fbx', (a) => {
-      onLoad('idle', a);
-    });
-    loader.load('jump.fbx', (a) => {
-      onLoad('jump', a);
-    });
+
+    onLoad('walk');
+    onLoad('run');
+    onLoad('idle');
+    onLoad('jump');
+    this._stateMachine.SetState('idle');
   };
 
   Jump = () => {

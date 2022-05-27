@@ -18,6 +18,7 @@ import { LoginModalComponent } from './ui/login-modal/login-modal.component';
 import { TextLoaderComponent } from './loaders/text-loader/text-loader.component';
 import { ModelLoaderComponent } from './loaders/model-loader/model-loader.component';
 import { EditPlayerComponent } from './ui/edit-player/edit-player.component';
+import { IndividualPlayerComponent } from './components/socket-players/individual-player/individual-player.component';
 
 const config: SocketIoConfig = { url: environment.socketUrl, options: {} };
 
@@ -33,6 +34,7 @@ const config: SocketIoConfig = { url: environment.socketUrl, options: {} };
     TextLoaderComponent,
     ModelLoaderComponent,
     EditPlayerComponent,
+    IndividualPlayerComponent,
   ],
   imports: [
     BrowserModule,

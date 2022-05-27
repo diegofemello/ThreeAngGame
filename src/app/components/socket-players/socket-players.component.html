@@ -3,3 +3,12 @@
     {{ player.username }}
   </span>
 </div>
+
+<div class="main">
+  <div *ngFor="let player of playersOn">
+    <app-individual-player
+      [player]="player"
+      [players]="players"
+    ></app-individual-player>
+  </div>
+</div>
