@@ -187,56 +187,32 @@ class IdleState extends State implements IState {
   Update(_: any, input: any) {
     if (input._keys.forward || input._keys.backward) {
       this._parent.SetState('walk');
-    } else if (input._keys.space) {
-      this._parent.SetState('jump');
     }
   }
 }
 
 class JumpState extends State implements IState {
-  private _FinishedCallback: () => void;
-  private _CleanupCallback: any;
   constructor(parent: any) {
     super(parent);
     this._name = 'jump';
-
-    this._FinishedCallback = () => {
-      this._Finished();
-    };
   }
 
   Enter(prevState: any) {
     const curAction = this._parent._animations[this._name].action;
-    const mixer = curAction.getMixer();
-    mixer.addEventListener('finished', this._FinishedCallback);
-
     if (prevState) {
       const prevAction = this._parent._animations[prevState.Name].action;
 
       curAction.reset();
       curAction.setLoop(THREE.LoopOnce, 1);
       curAction.clampWhenFinished = true;
-      curAction.crossFadeFrom(prevAction, 0.2, true);
+      curAction.crossFadeFrom(prevAction, 0.2, false);
       curAction.play();
     } else {
       curAction.play();
     }
   }
 
-  _Finished() {
-    this._Cleanup();
-    this._parent.SetState('idle');
-  }
+  Exit() {}
 
-  _Cleanup() {
-    const action = this._parent._animations['jump'].action;
-
-    action.getMixer().removeEventListener('finished', this._CleanupCallback);
-  }
-
-  Exit() {
-    this._Cleanup();
-  }
-
-  Update(_: any) {}
+  Update() {}
 }

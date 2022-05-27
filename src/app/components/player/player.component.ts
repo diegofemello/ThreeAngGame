@@ -25,6 +25,7 @@ export class PlayerComponent implements OnInit {
   private _stateMachine!: FiniteStateMachineService;
 
   private isGrounded = false;
+  private isJumping = false;
   private path = './assets/models3d/CharacterRPG/CharacterBaseMesh.fbx';
   private physicsBody: any;
   private scale = 0.2;
@@ -70,12 +71,12 @@ export class PlayerComponent implements OnInit {
       object.traverse((c: THREE.Object3D) => {
         if (c instanceof THREE.Mesh) {
           if (
+            c.name == 'ShoulderPad' + this.style ||
             c.name == 'Face' + this.style ||
             c.name == 'Cloth' + this.style ||
             c.name == 'Hair' + this.style ||
             c.name == 'Glove' + this.style ||
-            c.name == 'Shoe' + this.style ||
-            c.name == 'ShoulderPad' + this.style
+            c.name == 'Shoe' + this.style
           ) {
             c.visible = true;
             c.material.displacementScale = 0.01;
@@ -139,11 +140,27 @@ export class PlayerComponent implements OnInit {
   };
 
   Jump = () => {
-    if (this._player && this.physicsBody && this.isGrounded) {
+    if (
+      (this.physicsBody &&
+        this.isGrounded &&
+        this.physicsBody.getLinearVelocity().y() < 1 &&
+        this.physicsBody.getLinearVelocity().y() > -1,
+      !this.isJumping)
+    ) {
+      console.log(this.physicsBody.getLinearVelocity().y());
+
       let jumpImpulse = new Ammo.btVector3(0, 50, 0);
 
       this.physicsBody.setLinearVelocity(jumpImpulse);
       this.isGrounded = false;
+      this.isJumping = true;
+
+      this._stateMachine.SetState('jump');
+
+      setTimeout(() => {
+        this.isJumping = false;
+        this._stateMachine.SetState('idle');
+      }, 2000);
     }
   };
 
