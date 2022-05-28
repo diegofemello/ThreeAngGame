@@ -18,6 +18,7 @@ export class DescriptionComponent implements OnInit {
   private currentIntersection: any;
   private mouse = new THREE.Vector2();
   private raycaster = new THREE.Raycaster();
+  private labelRenderer = new CSS2DRenderer();
 
   constructor(
     private manager: ManagerService,
@@ -31,12 +32,23 @@ export class DescriptionComponent implements OnInit {
     let currentIntersection: any = null;
 
     // Setup labels
-    const labelRenderer = new CSS2DRenderer();
-    labelRenderer.setSize(innerWidth, innerHeight);
-    labelRenderer.domElement.style.position = 'absolute';
-    labelRenderer.domElement.style.top = '0px';
-    labelRenderer.domElement.style.pointerEvents = 'none';
-    document.body.appendChild(labelRenderer.domElement);
+    this.labelRenderer.setSize(innerWidth, innerHeight);
+    this.labelRenderer.domElement.style.position = 'absolute';
+    this.labelRenderer.domElement.style.top = '0px';
+    this.labelRenderer.domElement.style.left = '0px';
+    this.labelRenderer.domElement.style.pointerEvents = 'none';
+    this.labelRenderer.domElement.style.pointerEvents = 'none';
+    document.body.appendChild(this.labelRenderer.domElement);
+
+    this.labelRenderer.domElement.addEventListener(
+      'resize',
+      () => {
+        this.labelRenderer.setSize(innerWidth, innerHeight);
+        console.log('resize');
+        document.body.removeChild(this.labelRenderer.domElement);
+      },
+      false
+    );
 
     const labelDiv = document.getElementsByClassName(
       'label'
@@ -106,7 +118,7 @@ export class DescriptionComponent implements OnInit {
           currentIntersection.material.color.setRGB(0.03, 0.03, 0.03);
         }
       }
-      labelRenderer.render(scene, camera);
+      this.labelRenderer.render(scene, camera);
     };
 
     const onMouseDown = (_event: any) => {
@@ -115,6 +127,15 @@ export class DescriptionComponent implements OnInit {
 
     renderer.domElement.addEventListener('pointermove', onMouseMove, false);
     renderer.domElement.addEventListener('pointerdown', onMouseDown, false);
+    window.addEventListener(
+      'resize',
+      () => {
+        this.labelRenderer.setSize(innerWidth, innerHeight);
+        document.body.removeChild(this.labelRenderer.domElement);
+        document.body.appendChild(this.labelRenderer.domElement);
+      },
+      false
+    );
 
     function resetLabel() {
       label.visible = false;
@@ -130,6 +151,11 @@ export class DescriptionComponent implements OnInit {
       false
     );
   }
+
+  OnResize = () => {
+    this.labelRenderer.setSize(innerWidth, innerHeight);
+    document;
+  };
 
   OnMouseDown = () => {
     if (this.currentIntersection) {
