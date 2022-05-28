@@ -17,10 +17,10 @@ export class PlayerService {
   animations: any = {};
 
   public styles: any = {
-    BackPack: ['BackPack1', 'BackPack2', 'BackPack3', ''],
+    Mochila: ['BackPack1', 'BackPack2', 'BackPack3', ''],
 
-    Belt: ['Belt1', 'Belt2', 'Belt3', ''],
-    Cloth: [
+    Cinto: ['Belt1', 'Belt2', 'Belt3', ''],
+    Roupa: [
       'Cloth1',
       'Cloth2',
       'Cloth3',
@@ -29,15 +29,15 @@ export class PlayerService {
       'Cloth6',
       'Cloth7',
     ],
-    Crown: ['Crown1', 'Crown2', 'Crown3', 'Crown4', ''],
-    Face: ['Face1', 'Face2', 'Face3', 'Face4'],
-    Glove: ['Glove1', 'Glove2', 'Glove3', 'Glove4', 'Glove5', 'Glove6'],
-    Hair: ['Hair1', 'Hair2', 'Hair3', 'Hair4', 'Hair5'],
+    Coroa: ['Crown1', 'Crown2', 'Crown3', 'Crown4', ''],
+    Rosto: ['Face1', 'Face2', 'Face3', 'Face4'],
+    Luvas: ['Glove1', 'Glove2', 'Glove3', 'Glove4', 'Glove5', 'Glove6'],
+    Cabelo: ['Hair1', 'Hair2', 'Hair3', 'Hair4', 'Hair5'],
     // HairHalf: ['', 'Hair1Half', 'Hair2Half', 'Hair3Half', 'Hair4Half', 'Hair5Half',''],
-    Hat: ['Hat1', 'Hat2', 'Hat3', ''],
-    Helm: ['Helm1', 'Helm2', 'Helm3', 'Helm4', 'Helm5', 'Helm6', 'Helm7', ''],
-    Shoe: ['Shoe1', 'Shoe2', 'Shoe3', 'Shoe4', 'Shoe5', 'Shoe6'],
-    ShoulderPad: [
+    Chapeu: ['Hat1', 'Hat2', 'Hat3', ''],
+    Elmo: ['Helm1', 'Helm2', 'Helm3', 'Helm4', 'Helm5', 'Helm6', 'Helm7', ''],
+    Sapatos: ['Shoe1', 'Shoe2', 'Shoe3', 'Shoe4', 'Shoe5', 'Shoe6'],
+    Ombreiras: [
       'ShoulderPad1',
       'ShoulderPad2',
       'ShoulderPad3',
@@ -108,25 +108,25 @@ export class PlayerService {
     style: any = this.currentPlayer.style,
     name: string = 'Player'
   ) {
-    const hat = this.styles['Hat'][style['Hat'] - 1];
-    const helm = this.styles['Helm'][style['Helm'] - 1];
+    const hat = this.styles['Chapeu'][style['Chapeu'] - 1];
+    const helm = this.styles['Elmo'][style['Elmo'] - 1];
 
     const hair = hat != '' || helm != '' ? 'HairHalf' : 'Hair';
 
     object.traverse((c: THREE.Object3D) => {
       if (c instanceof THREE.Mesh) {
         if (
-          c.name == 'BackPack' + style['BackPack'] ||
-          c.name == 'Belt' + style['Belt'] ||
-          c.name == 'Cloth' + style['Cloth'] ||
+          c.name == 'BackPack' + style['Mochila'] ||
+          c.name == 'Belt' + style['Cinto'] ||
+          c.name == 'Cloth' + style['Roupa'] ||
           c.name == 'Crown' + style['Crown'] ||
-          c.name == 'Face' + style['Face'] ||
-          c.name == 'Glove' + style['Glove'] ||
-          c.name == hair + style['Hair'] ||
-          (c.name == 'Hat' + style['Hat'] && helm == '') ||
-          c.name == 'Helm' + style['Helm'] ||
-          c.name == 'Shoe' + style['Shoe'] ||
-          c.name == 'ShoulderPad' + style['ShoulderPad']
+          c.name == 'Face' + style['Rosto'] ||
+          c.name == 'Glove' + style['Luvas'] ||
+          c.name == hair + style['Cabelo'] ||
+          (c.name == 'Hat' + style['Chapeu'] && helm == '') ||
+          c.name == 'Helm' + style['Elmo'] ||
+          c.name == 'Shoe' + style['Sapatos'] ||
+          c.name == 'ShoulderPad' + style['Ombreiras']
         ) {
           c.visible = true;
           c.material.displacementScale = 0.01;
