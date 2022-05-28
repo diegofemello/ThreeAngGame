@@ -16,6 +16,58 @@ export class PlayerService {
   playerObject!: THREE.Object3D;
   animations: any = {};
 
+  basePlayerObject!: THREE.Object3D;
+  private path = './assets/models3d/CharacterRPG/CharacterBaseMesh.fbx';
+
+  resetClonedSkinnedMeshes(source: THREE.Object3D, clone: THREE.Object3D) {
+    const clonedMeshes: any[] = [];
+    const meshSources: any = {};
+    const boneClones: any = {};
+
+    this.parallelTraverse(
+      source,
+      clone,
+      function (sourceNode: any, clonedNode: any) {
+        if (sourceNode.isSkinnedMesh) {
+          meshSources[clonedNode.uuid] = sourceNode;
+          clonedMeshes.push(clonedNode);
+        }
+        if (sourceNode.isBone) boneClones[sourceNode.uuid] = clonedNode;
+      }
+    );
+
+    for (let i = 0, l = clonedMeshes.length; i < l; i++) {
+      const clone = clonedMeshes[i];
+      const sourceMesh = meshSources[clone.uuid];
+      const sourceBones = sourceMesh.skeleton.bones;
+
+      clone.skeleton = sourceMesh.skeleton.clone();
+      clone.bindMatrix.copy(sourceMesh.bindMatrix);
+
+      clone.skeleton.bones = sourceBones.map(function (bone: any) {
+        return boneClones[bone.uuid];
+      });
+
+      clone.bind(clone.skeleton, clone.bindMatrix);
+    }
+  }
+
+  parallelTraverse(a: any, b: any, callback: any) {
+    callback(a, b);
+
+    for (let i = 0; i < a.children.length; i++) {
+      this.parallelTraverse(a.children[i], b.children[i], callback);
+    }
+  }
+
+  LoadModel = () => {
+    const loader = new FBXLoader();
+    loader.load(this.path, (object: THREE.Object3D) => {
+      this.basePlayerObject = object;
+      this.basePlayerObject.scale.multiplyScalar(0.2);
+    });
+  };
+
   public styles: any = {
     Mochila: ['BackPack1', 'BackPack2', 'BackPack3', ''],
 
@@ -33,9 +85,8 @@ export class PlayerService {
     Rosto: ['Face1', 'Face2', 'Face3', 'Face4'],
     Luvas: ['Glove1', 'Glove2', 'Glove3', 'Glove4', 'Glove5', 'Glove6'],
     Cabelo: ['Hair1', 'Hair2', 'Hair3', 'Hair4', 'Hair5'],
-    // HairHalf: ['', 'Hair1Half', 'Hair2Half', 'Hair3Half', 'Hair4Half', 'Hair5Half',''],
     Chapeu: ['Hat1', 'Hat2', 'Hat3', ''],
-    Elmo: ['Helm1', 'Helm2', 'Helm3', 'Helm4', 'Helm5', 'Helm6', 'Helm7', ''],
+    Elmo: ['Helm1', 'Helm2', 'Helm3', 'Helm4', 'Helm5', 'Helm6', 'Helm7'],
     Sapatos: ['Shoe1', 'Shoe2', 'Shoe3', 'Shoe4', 'Shoe5', 'Shoe6'],
     Ombreiras: [
       'ShoulderPad1',
@@ -49,6 +100,7 @@ export class PlayerService {
   };
 
   constructor(private socket: Socket) {
+    this.LoadModel();
     this.LoadAnimations();
   }
 
@@ -129,8 +181,6 @@ export class PlayerService {
           c.name == 'ShoulderPad' + style['Ombreiras']
         ) {
           c.visible = true;
-          c.material.displacementScale = 0.01;
-          c.castShadow = true;
         } else {
           c.visible = false;
         }

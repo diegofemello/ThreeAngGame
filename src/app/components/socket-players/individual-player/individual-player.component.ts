@@ -27,31 +27,43 @@ export class IndividualPlayerComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+
     this.playerService.styleUpdated.subscribe((uid: string) => {
       if (uid === this.player.uuid) {
         this.UpdateMesh();
       }
     });
 
-    const loader = new FBXLoader();
+    this.LoadModel();
+  }
 
-    loader.load(this.path, (object: THREE.Object3D) => {
-      object.scale.multiplyScalar(this.scale);
+  LoadModel = (): void => {
+    if (!this.playerService.basePlayerObject) {
+      setTimeout(() => {
+        this.LoadModel();
+      }, 100);
+      return;
+    }
 
-      object.name = this.player.uuid;
-      object.uuid = this.player.uuid;
-      object.visible = false;
-      this.manager._scene.add(object);
+    const player = this.playerService.basePlayerObject.clone();
+    this.playerService.resetClonedSkinnedMeshes(
+      this.playerService.basePlayerObject,
+      player
+    );
 
-      this.manager._scene.add(object);
-      this.player = object;
+    this.manager._scene.add(player);
 
-      object.visible = true;
+    player.name = this.player.uuid;
+      player.uuid = this.player.uuid;
+      player.visible = false;
+      this.manager._scene.add(player);
+      this.player = player;
+
+      player.visible = true;
       this.Animate();
       this.LoadAnimations();
 
       this.UpdateMesh();
-    });
   }
 
   LoadAnimations = () => {

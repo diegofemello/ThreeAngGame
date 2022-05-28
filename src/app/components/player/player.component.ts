@@ -63,24 +63,34 @@ export class PlayerComponent implements OnInit {
   }
 
   LoadModel = () => {
-    const loader = new FBXLoader();
-    loader.load(this.path, (object: THREE.Object3D) => {
-      this.manager._scene.add(object);
-      object.name = '_Player';
-      object.scale.multiplyScalar(this.scale);
-      object.visible = false;
+    if (!this.playerService.basePlayerObject) {
+      setTimeout(() => {
+        this.LoadModel();
+        console.log('waiting for player object');
+      }, 100);
+      return;
+    }
 
-      this.playerService.playerObject = object;
-      object.visible = true;
-      this.manager.initialized = true;
+    const player = this.playerService.basePlayerObject.clone();
+    this.playerService.resetClonedSkinnedMeshes(
+      this.playerService.basePlayerObject,
+      player
+    );
 
-      this.playerService.newPlayer(this.username, object.uuid);
+    this.manager._scene.add(player);
+    player.name = '_Player';
+    player.visible = false;
 
-      this.playerService.updateMesh();
+    this.playerService.playerObject = player;
+    player.visible = true;
+    this.manager.initialized = true;
 
-      this.Update(1 / 60);
-      this.LoadAnimations();
-    });
+    this.playerService.newPlayer(this.username, player.uuid);
+
+    this.playerService.updateMesh();
+
+    this.Update(1 / 60);
+    this.LoadAnimations();
   };
 
   LoadAnimations = () => {
