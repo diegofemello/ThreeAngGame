@@ -40,6 +40,8 @@ export class FiniteStateMachineService {
       prevState.Exit();
     }
 
+    console.log('SetState: ' + name, this);
+
     const state = new this._states[name](this);
 
     this._currentState = state;

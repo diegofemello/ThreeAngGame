@@ -77,7 +77,7 @@ export class PlayerComponent implements OnInit {
   };
 
   LoadAnimations = () => {
-    if (!this.playerService.basePlayerObject) {
+    if (!this.playerService.playerObject) {
       setTimeout(() => {
         this.LoadAnimations();
       }, 100);
@@ -99,7 +99,7 @@ export class PlayerComponent implements OnInit {
     onLoad('run');
     onLoad('idle');
     onLoad('jump');
-    this._stateMachine.SetState('idle');
+    // this._stateMachine.SetState('idle');
   };
 
   Jump = () => {
