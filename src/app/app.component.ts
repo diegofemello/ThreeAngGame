@@ -13,5 +13,6 @@ export class AppComponent {
 
   ngOnInit(): void {
     this.manager._Initialize();
+
   }
 }

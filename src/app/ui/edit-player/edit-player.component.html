@@ -16,92 +16,22 @@
       style="height: 100%; width: 100%; padding: 10px; margin: 10px"
     ></canvas>
   </div>
-  <div class="col-auto">
-    <div class="form-group">
-      <div class="btn-group">
-        <button class="btn btn-outline-secondary" (click)="changeHair(-1)">
-          <i class="fa-solid fa-angles-left"></i>
-        </button>
-        <button class="btn btn-secondary namelabel" disabled>Cabelo</button>
-        <button class="btn btn-outline-secondary" (click)="changeHair(1)">
-          <i class="fa-solid fa-angles-right"></i>
-        </button>
-      </div>
-    </div>
-
-    <div class="form-group">
-      <div class="btn-group">
-        <button class="btn btn-outline-secondary" (click)="changeFace(-1)">
-          <i class="fa-solid fa-angles-left"></i>
-        </button>
-        <button class="btn btn-secondary namelabel" disabled>Rosto</button>
-        <button class="btn btn-outline-secondary" (click)="changeFace(1)">
-          <i class="fa-solid fa-angles-right"></i>
-        </button>
-      </div>
-    </div>
-
-    <div class="form-group">
+  <div class="col-auto container col-lg-4 text-center">
+    <div *ngFor="let style of styleKeys" class="form-group">
       <div class="btn-group">
         <button
           class="btn btn-outline-secondary"
-          (click)="changeShoulderPad(-1)"
+          (click)="changeField(style, -1)"
         >
           <i class="fa-solid fa-angles-left"></i>
         </button>
-        <button class="btn btn-secondary namelabel" disabled>Ombreiras</button>
+        <button class="btn btn-secondary namelabel" disabled>
+          {{ style }}
+        </button>
         <button
           class="btn btn-outline-secondary"
-          (click)="changeShoulderPad(1)"
+          (click)="changeField(style, 1)"
         >
-          <i class="fa-solid fa-angles-right"></i>
-        </button>
-      </div>
-    </div>
-
-    <div class="form-group">
-      <div class="btn-group">
-        <button class="btn btn-outline-secondary" (click)="changeCloth(-1)">
-          <i class="fa-solid fa-angles-left"></i>
-        </button>
-        <button class="btn btn-secondary namelabel" disabled>Roupa</button>
-        <button class="btn btn-outline-secondary" (click)="changeCloth(1)">
-          <i class="fa-solid fa-angles-right"></i>
-        </button>
-      </div>
-    </div>
-
-    <div class="form-group">
-      <div class="btn-group">
-        <button class="btn btn-outline-secondary" (click)="changeGlove(-1)">
-          <i class="fa-solid fa-angles-left"></i>
-        </button>
-        <button class="btn btn-secondary namelabel" disabled>Luvas</button>
-        <button class="btn btn-outline-secondary" (click)="changeGlove(1)">
-          <i class="fa-solid fa-angles-right"></i>
-        </button>
-      </div>
-    </div>
-
-    <div class="form-group">
-      <div class="btn-group">
-        <button class="btn btn-outline-secondary" (click)="changeShoe(-1)">
-          <i class="fa-solid fa-angles-left"></i>
-        </button>
-        <button class="btn btn-secondary namelabel" disabled>Sapatos</button>
-        <button class="btn btn-outline-secondary" (click)="changeShoe(1)">
-          <i class="fa-solid fa-angles-right"></i>
-        </button>
-      </div>
-    </div>
-
-    <div class="form-group">
-      <div class="btn-group">
-        <button class="btn btn-outline-secondary" (click)="changeShoe(-1)">
-          <i class="fa-solid fa-angles-left"></i>
-        </button>
-        <button class="btn btn-secondary namelabel" disabled>Sapatos</button>
-        <button class="btn btn-outline-secondary" (click)="changeShoe(1)">
           <i class="fa-solid fa-angles-right"></i>
         </button>
       </div>
@@ -110,6 +40,8 @@
 </form>
 <div class="modal-footer">
   <div class="container col-md-12 text-center">
-    <button type="button" class="btn btn-outline-primary" (click)="save()">Salvar</button>
+    <button type="button" class="btn btn-outline-primary" (click)="save()">
+      Salvar
+    </button>
   </div>
 </div>

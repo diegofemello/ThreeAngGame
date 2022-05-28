@@ -10,13 +10,10 @@ export class ManagerService {
   public _camera!: THREE.PerspectiveCamera;
   public _scene!: THREE.Scene;
   public _gui!: GUI;
-  public _clock!: THREE.Clock;
 
   public initialized = false;
 
   _Initialize() {
-    this._clock = new THREE.Clock();
-
     this._SetupGraphics();
     this._OnWindowResize();
 

@@ -68,6 +68,8 @@ export class EditPlayerComponent implements OnInit, AfterViewInit {
 
   private style: any;
 
+  public styleKeys = Object.keys(this.playerService.styles);
+
   // /**
   //  *Animate the cube
   //  *
@@ -145,55 +147,16 @@ export class EditPlayerComponent implements OnInit, AfterViewInit {
   public updateMesh() {
     this.style = this.playerService.currentPlayer.style;
 
-    this.playerObject.traverse((c: THREE.Object3D) => {
-      if (c instanceof THREE.Mesh) {
-        if (
-          c.name == 'ShoulderPad' + this.style['ShoulderPad'] ||
-          c.name == 'Face' + this.style['Face'] ||
-          c.name == 'Cloth' + this.style['Cloth'] ||
-          c.name == 'Hair' + this.style['Hair'] ||
-          c.name == 'Glove' + this.style['Glove'] ||
-          c.name == 'Shoe' + this.style['Shoe']
-        ) {
-          c.visible = true;
-          c.material.displacementScale = 0.01;
-          c.castShadow = true;
-        } else {
-          c.visible = false;
-        }
-      }
-    });
-  }
-
-  public changeHair(style: number) {
-    this.changeField('Hair', style);
-  }
-
-  public changeFace(style: number) {
-    this.changeField('Face', style);
-  }
-
-  public changeShoulderPad(style: number) {
-    this.changeField('ShoulderPad', style);
-  }
-
-  public changeCloth(style: number) {
-    this.changeField('Cloth', style);
-  }
-
-  public changeGlove(style: number) {
-    this.changeField('Glove', style);
-  }
-
-  public changeShoe(style: number) {
-    this.changeField('Shoe', style);
+    this.playerService.updateMesh(this.playerObject, this.style);
   }
 
   public changeField(field: string, style: number) {
-    if (this.style[field] == 4 && style == 1) {
+    const items = this.playerService.styles[field] as string[];
+
+    if (this.style[field] == items.length && style == 1) {
       this.style[field] = 1;
     } else if (this.style[field] == 1 && style == -1) {
-      this.style[field] = 4;
+      this.style[field] = items.length;
     } else {
       this.style[field] += style;
     }

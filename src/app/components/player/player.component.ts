@@ -30,15 +30,6 @@ export class PlayerComponent implements OnInit {
   private scalingFactor = 35;
   private username = 'Diego';
 
-  private style: any = {
-    ShoulderPad: Math.floor(Math.random() * 4) + 1,
-    Face: Math.floor(Math.random() * 4) + 1,
-    Cloth: Math.floor(Math.random() * 4) + 1,
-    Hair: Math.floor(Math.random() * 4) + 1,
-    Glove: Math.floor(Math.random() * 4) + 1,
-    Shoe: Math.floor(Math.random() * 4) + 1,
-  };
-
   constructor(
     private manager: ManagerService,
     private controller: BasicControllerInputService,
@@ -76,7 +67,6 @@ export class PlayerComponent implements OnInit {
     loader.load(this.path, (object: THREE.Object3D) => {
       this.manager._scene.add(object);
       object.name = '_Player';
-
       object.scale.multiplyScalar(this.scale);
       object.visible = false;
 
@@ -84,7 +74,7 @@ export class PlayerComponent implements OnInit {
       object.visible = true;
       this.manager.initialized = true;
 
-      this.playerService.newPlayer(this.username, this.style, object.uuid);
+      this.playerService.newPlayer(this.username, object.uuid);
 
       this.playerService.updateMesh();
 
@@ -105,9 +95,6 @@ export class PlayerComponent implements OnInit {
         action: action,
       };
     };
-
-    const loader = new FBXLoader();
-    loader.setPath('./assets/models3d/CharacterRPG/animations/');
 
     onLoad('walk');
     onLoad('run');

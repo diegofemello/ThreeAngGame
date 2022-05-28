@@ -7,5 +7,4 @@ export class Player {
   rotation: Euler = new Euler();
   style!: any;
   state!: string;
-  previousState!: string;
 }
