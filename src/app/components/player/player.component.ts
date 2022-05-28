@@ -45,7 +45,7 @@ export class PlayerComponent implements OnInit {
 
     this.LoadModel();
     this.controller._Init();
-    this._stateMachine._Init();
+
   }
 
   async OpenModal(): Promise<string> {
@@ -100,7 +100,8 @@ export class PlayerComponent implements OnInit {
     onLoad('run');
     onLoad('idle');
     onLoad('jump');
-    this._stateMachine.SetState('idle');
+
+    this._stateMachine._Init();
   };
 
   Jump = () => {

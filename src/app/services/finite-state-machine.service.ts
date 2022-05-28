@@ -20,6 +20,8 @@ export class FiniteStateMachineService {
     this._AddState('walk', WalkState);
     this._AddState('run', RunState);
     this._AddState('jump', JumpState);
+
+    this.SetState('idle');
   }
 
   _AddState(name: string, type: any) {
@@ -39,8 +41,6 @@ export class FiniteStateMachineService {
       }
       prevState.Exit();
     }
-
-    console.log('SetState: ' + name, this);
 
     const state = new this._states[name](this);
 
