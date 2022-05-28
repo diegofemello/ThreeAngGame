@@ -18,6 +18,7 @@ export class PlayerService {
 
   basePlayerObject!: THREE.Object3D;
   private path = './assets/models3d/CharacterRPG/CharacterBaseMesh.fbx';
+  private animationsPath = './assets/models3d/CharacterRPG/animations/';
   private scale = 0.2;
 
   styles: any = {
@@ -218,7 +219,7 @@ export class PlayerService {
     };
 
     const loader = new FBXLoader();
-    loader.setPath('./assets/models3d/CharacterRPG/animations/');
+    loader.setPath(this.animationsPath);
     loader.load('walk.fbx', (a) => {
       onLoad('walk', a);
     });

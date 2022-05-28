@@ -133,8 +133,8 @@ export class DescriptionComponent implements OnInit {
 
   OnMouseDown = () => {
     if (this.currentIntersection) {
-      console.log('point', this.currentIntersection.point);
-      console.log('object', this.currentIntersection.object);
+      // console.log('point', this.currentIntersection.point);
+      // console.log('object', this.currentIntersection.object);
     }
   };
 

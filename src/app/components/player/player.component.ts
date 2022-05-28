@@ -23,9 +23,7 @@ export class PlayerComponent implements OnInit {
 
   private isGrounded = false;
   private isJumping = false;
-  private path = './assets/models3d/CharacterRPG/CharacterBaseMesh.fbx';
   private physicsBody: any;
-  private scale = 0.2;
   private scalingFactor = 35;
   private username = 'Diego';
 
@@ -79,6 +77,12 @@ export class PlayerComponent implements OnInit {
   };
 
   LoadAnimations = () => {
+    if (!this.playerService.basePlayerObject) {
+      setTimeout(() => {
+        this.LoadAnimations();
+      }, 100);
+      return;
+    }
     this._mixer = new THREE.AnimationMixer(this.playerService.playerObject);
 
     const onLoad = (animName: any) => {
@@ -106,8 +110,6 @@ export class PlayerComponent implements OnInit {
         this.physicsBody.getLinearVelocity().y() > -1,
       !this.isJumping)
     ) {
-      console.log(this.physicsBody.getLinearVelocity().y());
-
       let jumpImpulse = new Ammo.btVector3(0, 50, 0);
 
       this.physicsBody.setLinearVelocity(jumpImpulse);
