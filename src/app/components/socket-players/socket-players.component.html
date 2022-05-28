@@ -5,9 +5,9 @@
 </div>
 
 <div class="main">
-  <div *ngFor="let player of playersOn">
+  <div *ngFor="let uid of playersOn">
     <app-individual-player
-      [player]="player"
+      [uid]="uid"
       [players]="players"
     ></app-individual-player>
   </div>

@@ -1,9 +1,5 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { Observable, Subscription } from 'rxjs';
-
-import * as THREE from 'three';
-import { ManagerService } from 'src/app/services/manager.service';
-import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
+import { Component, OnInit } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { Player } from 'src/app/models/player.model';
 import { PlayerService } from 'src/app/services/player.service';
 
@@ -13,7 +9,7 @@ import { PlayerService } from 'src/app/services/player.service';
   styleUrls: ['./socket-players.component.scss'],
 })
 export class SocketPlayersComponent implements OnInit {
-  playersOn: THREE.Object3D[] = [];
+  playersOn: string[] = [];
 
   players!: Player[];
   private _playersSub!: Subscription;
@@ -43,23 +39,23 @@ export class SocketPlayersComponent implements OnInit {
   LoadModel = () => {
     for (let i = 0; i < this.players.length; i++) {
       const player = this.players[i];
-      const playerOn = this.playersOn.find((p) => p.uuid == player.uid);
+      const playerOn = this.playersOn.find((p) => p == player.uid);
 
       if (playerOn || player.uid == this.playerService?.currentPlayer?.uid) {
         continue;
       }
-      const object = new THREE.Object3D();
-      object.uuid = player.uid;
-      this.playersOn.push(object);
+      this.playersOn.push(player.uid);
     }
 
-    this.playersOn.forEach((player: THREE.Object3D) => {
-      if (!this.players.find((p) => p.uid == player.uuid)) {
-        this.playersOn.forEach((p: THREE.Object3D, i: number) => {
-          if (p.uuid == player.uuid) this.playersOn.splice(i, 1);
-        });
+    for (let i = 0; i < this.playersOn.length; i++) {
+      const playerOn = this.playersOn[i];
+      const player = this.players.find((p) => p.uid == playerOn);
+
+      if (!player) {
+        this.playersOn.splice(i, 1);
+        i--;
       }
-    });
+    }
   };
 
   Animate() {

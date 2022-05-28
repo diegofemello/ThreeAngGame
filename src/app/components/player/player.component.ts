@@ -5,7 +5,6 @@ import { LoginModalComponent } from '../../ui/login-modal/login-modal.component'
 
 import * as THREE from 'three';
 import { BasicControllerInputService } from 'src/app/services/basic-controller-input.service';
-import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 import { FiniteStateMachineService } from 'src/app/services/finite-state-machine.service';
 import { ManagerService } from 'src/app/services/manager.service';
 import { PlayerService } from 'src/app/services/player.service';
@@ -66,31 +65,17 @@ export class PlayerComponent implements OnInit {
     if (!this.playerService.basePlayerObject) {
       setTimeout(() => {
         this.LoadModel();
-        console.log('waiting for player object');
       }, 100);
       return;
     }
 
-    const player = this.playerService.basePlayerObject.clone();
-    this.playerService.resetClonedSkinnedMeshes(
-      this.playerService.basePlayerObject,
-      player
-    );
-
+    const player = this.playerService.newPlayer(this.username);
     this.manager._scene.add(player);
     player.name = '_Player';
-    player.visible = false;
-
-    this.playerService.playerObject = player;
-    player.visible = true;
-    this.manager.initialized = true;
-
-    this.playerService.newPlayer(this.username, player.uuid);
-
-    this.playerService.updateMesh();
 
     this.Update(1 / 60);
     this.LoadAnimations();
+    this.manager.initialized = true;
   };
 
   LoadAnimations = () => {

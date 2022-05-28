@@ -3,7 +3,6 @@ import { Player } from 'src/app/models/player.model';
 import { ManagerService } from 'src/app/services/manager.service';
 import { PlayerService } from 'src/app/services/player.service';
 import * as THREE from 'three';
-import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 
 @Component({
   selector: 'app-individual-player',
@@ -11,15 +10,15 @@ import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
   styleUrls: ['./individual-player.component.scss'],
 })
 export class IndividualPlayerComponent implements OnInit {
-  @Input() player!: THREE.Object3D;
+  private player!: THREE.Object3D;
+  @Input() uid = '';
   @Input() players: Player[] = [];
   animations: any = {};
   actualState: string = 'idle';
 
   mixer!: THREE.AnimationMixer;
 
-  private path = './assets/models3d/CharacterRPG/CharacterBaseMesh.fbx';
-  private scale = 0.2;
+
 
   constructor(
     private manager: ManagerService,
@@ -27,7 +26,6 @@ export class IndividualPlayerComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-
     this.playerService.styleUpdated.subscribe((uid: string) => {
       if (uid === this.player.uuid) {
         this.UpdateMesh();
@@ -53,18 +51,18 @@ export class IndividualPlayerComponent implements OnInit {
 
     this.manager._scene.add(player);
 
-    player.name = this.player.uuid;
-      player.uuid = this.player.uuid;
-      player.visible = false;
-      this.manager._scene.add(player);
-      this.player = player;
+    player.name = this.uid;
+    player.uuid = this.uid;
+    player.visible = false;
+    this.manager._scene.add(player);
+    this.player = player;
 
-      player.visible = true;
-      this.Animate();
-      this.LoadAnimations();
+    player.visible = true;
+    this.Animate();
+    this.LoadAnimations();
 
-      this.UpdateMesh();
-  }
+    this.UpdateMesh();
+  };
 
   LoadAnimations = () => {
     this.mixer = new THREE.AnimationMixer(this.player);

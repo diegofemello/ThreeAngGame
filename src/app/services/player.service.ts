@@ -18,6 +18,38 @@ export class PlayerService {
 
   basePlayerObject!: THREE.Object3D;
   private path = './assets/models3d/CharacterRPG/CharacterBaseMesh.fbx';
+  private scale = 0.2;
+
+  styles: any = {
+    Mochila: ['BackPack1', 'BackPack2', 'BackPack3', ''],
+
+    Cinto: ['Belt1', 'Belt2', 'Belt3', ''],
+    Roupa: [
+      'Cloth1',
+      'Cloth2',
+      'Cloth3',
+      'Cloth4',
+      'Cloth5',
+      'Cloth6',
+      'Cloth7',
+    ],
+    Coroa: ['Crown1', 'Crown2', 'Crown3', 'Crown4', ''],
+    Rosto: ['Face1', 'Face2', 'Face3', 'Face4'],
+    Luvas: ['Glove1', 'Glove2', 'Glove3', 'Glove4', 'Glove5', 'Glove6'],
+    Cabelo: ['Hair1', 'Hair2', 'Hair3', 'Hair4', 'Hair5'],
+    Chapeu: ['Hat1', 'Hat2', 'Hat3', ''],
+    Elmo: ['Helm1', 'Helm2', 'Helm3', 'Helm4', 'Helm5', 'Helm6', 'Helm7', ''],
+    Sapatos: ['Shoe1', 'Shoe2', 'Shoe3', 'Shoe4', 'Shoe5', 'Shoe6'],
+    Ombreiras: [
+      'ShoulderPad1',
+      'ShoulderPad2',
+      'ShoulderPad3',
+      'ShoulderPad4',
+      'ShoulderPad5',
+      'ShoulderPad6',
+      '',
+    ],
+  };
 
   resetClonedSkinnedMeshes(source: THREE.Object3D, clone: THREE.Object3D) {
     const clonedMeshes: any[] = [];
@@ -64,39 +96,8 @@ export class PlayerService {
     const loader = new FBXLoader();
     loader.load(this.path, (object: THREE.Object3D) => {
       this.basePlayerObject = object;
-      this.basePlayerObject.scale.multiplyScalar(0.2);
+      this.basePlayerObject.scale.multiplyScalar(this.scale);
     });
-  };
-
-  public styles: any = {
-    Mochila: ['BackPack1', 'BackPack2', 'BackPack3', ''],
-
-    Cinto: ['Belt1', 'Belt2', 'Belt3', ''],
-    Roupa: [
-      'Cloth1',
-      'Cloth2',
-      'Cloth3',
-      'Cloth4',
-      'Cloth5',
-      'Cloth6',
-      'Cloth7',
-    ],
-    Coroa: ['Crown1', 'Crown2', 'Crown3', 'Crown4', ''],
-    Rosto: ['Face1', 'Face2', 'Face3', 'Face4'],
-    Luvas: ['Glove1', 'Glove2', 'Glove3', 'Glove4', 'Glove5', 'Glove6'],
-    Cabelo: ['Hair1', 'Hair2', 'Hair3', 'Hair4', 'Hair5'],
-    Chapeu: ['Hat1', 'Hat2', 'Hat3', ''],
-    Elmo: ['Helm1', 'Helm2', 'Helm3', 'Helm4', 'Helm5', 'Helm6', 'Helm7'],
-    Sapatos: ['Shoe1', 'Shoe2', 'Shoe3', 'Shoe4', 'Shoe5', 'Shoe6'],
-    Ombreiras: [
-      'ShoulderPad1',
-      'ShoulderPad2',
-      'ShoulderPad3',
-      'ShoulderPad4',
-      'ShoulderPad5',
-      'ShoulderPad6',
-      '',
-    ],
   };
 
   constructor(private socket: Socket) {
@@ -110,8 +111,19 @@ export class PlayerService {
 
   getRandomStyle() {
     const styles: any = {};
+    const acessories: string[] = [
+      'Coroa',
+      'Chapeu',
+      'Cinto',
+      'Elmo',
+      'Mochila',
+      'Ombreiras',
+    ];
+
     for (const key in this.styles) {
-      if (this.styles.hasOwnProperty(key)) {
+      if (acessories.indexOf(key) !== -1) {
+        styles[key] = this.styles[key].length;
+      } else if (this.styles.hasOwnProperty(key)) {
         const index = Math.floor(Math.random() * this.styles[key].length);
         styles[key] = index + 1;
       }
@@ -119,12 +131,15 @@ export class PlayerService {
     return styles;
   }
 
-  newPlayer(username: string, uuid: string) {
+  newPlayer(username: string) {
+    const player = this.basePlayerObject.clone();
+
     this.currentPlayer = new Player();
-    this.currentPlayer.uid = uuid;
     this.currentPlayer.username = username;
     this.currentPlayer.style = this.getRandomStyle();
     this.currentPlayer.state = 'idle';
+    this.playerObject = this.basePlayerObject.clone();
+    this.currentPlayer.uid = player.uuid;
 
     this.socket.emit('addPlayer', {
       uid: this.currentPlayer.uid,
@@ -134,6 +149,12 @@ export class PlayerService {
       style: this.currentPlayer.style,
       state: this.currentPlayer.state,
     });
+
+    this.resetClonedSkinnedMeshes(this.basePlayerObject, player);
+    this.playerObject = player;
+
+    this.updateMesh();
+    return this.playerObject;
   }
 
   updatePlayerPosition(position: THREE.Vector3, rotation: THREE.Vector3) {
@@ -163,7 +184,8 @@ export class PlayerService {
     const hat = this.styles['Chapeu'][style['Chapeu'] - 1];
     const helm = this.styles['Elmo'][style['Elmo'] - 1];
 
-    const hair = hat != '' || helm != '' ? 'HairHalf' : 'Hair';
+    let hair = hat != '' ? 'HairHalf' : 'Hair';
+    hair = helm != '' ? '' : hair;
 
     object.traverse((c: THREE.Object3D) => {
       if (c instanceof THREE.Mesh) {
@@ -171,7 +193,7 @@ export class PlayerService {
           c.name == 'BackPack' + style['Mochila'] ||
           c.name == 'Belt' + style['Cinto'] ||
           c.name == 'Cloth' + style['Roupa'] ||
-          c.name == 'Crown' + style['Crown'] ||
+          (c.name == 'Crown' + style['Coroa'] && hair == 'Hair') ||
           c.name == 'Face' + style['Rosto'] ||
           c.name == 'Glove' + style['Luvas'] ||
           c.name == hair + style['Cabelo'] ||

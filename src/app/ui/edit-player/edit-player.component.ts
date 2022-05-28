@@ -8,7 +8,6 @@ import {
 } from '@angular/core';
 import * as THREE from 'three';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { PlayerService } from 'src/app/services/player.service';
 
@@ -23,40 +22,19 @@ export class EditPlayerComponent implements OnInit, AfterViewInit {
   @ViewChild('canvas')
   private canvasRef!: ElementRef;
 
-  //* Cube Properties
-
-  @Input() public rotationSpeedX: number = 0.05;
-
-  @Input() public rotationSpeedY: number = 0.01;
-
-  @Input() public size: number = 200;
-
-  @Input() public texture: string = '/assets/texture.jpg';
-
-  //* Stage Properties
-
   @Input() public cameraZ: number = 400;
 
-  @Input() public fieldOfView: number = 1;
+  @Input() public fieldOfView: number = 7;
 
   @Input('nearClipping') public nearClippingPlane: number = 1;
 
   @Input('farClipping') public farClippingPlane: number = 1000;
 
-  //? Helper Properties (Private Properties);
-
   private camera!: THREE.PerspectiveCamera;
-
-  private path = './assets/models3d/CharacterRPG/CharacterBaseMesh.fbx';
 
   private get canvas(): HTMLCanvasElement {
     return this.canvasRef.nativeElement;
   }
-  // private loader = new THREE.TextureLoader();
-  // private geometry = new THREE.BoxGeometry(1, 1, 1);
-  // private material = new THREE.MeshBasicMaterial({
-  //   map: this.loader.load(this.texture),
-  // });
 
   private renderer!: THREE.WebGLRenderer;
 
@@ -70,17 +48,6 @@ export class EditPlayerComponent implements OnInit, AfterViewInit {
 
   public styleKeys = Object.keys(this.playerService.styles);
 
-  // /**
-  //  *Animate the cube
-  //  *
-  //  * @private
-  //  * @memberof EditPlayerComponent
-  //  */
-  // private animateCube() {
-  //   this.cube.rotation.x += this.rotationSpeedX;
-  //   this.cube.rotation.y += this.rotationSpeedY;
-  // }
-
   /**
    * Create the scene
    *
@@ -91,7 +58,6 @@ export class EditPlayerComponent implements OnInit, AfterViewInit {
     //* Scene
     this.scene = new THREE.Scene();
 
-    // this.scene.add(this.cube);
     //*Camera
     let aspectRatio = this.getAspectRatio();
     this.camera = new THREE.PerspectiveCamera(
@@ -165,32 +131,27 @@ export class EditPlayerComponent implements OnInit, AfterViewInit {
   }
 
   private loadModel() {
-    const loader = new FBXLoader();
-    loader.load(this.path, (object: THREE.Object3D) => {
-      object.visible = false;
-      this.scene.add(object);
-      // object.name = '_Player';
+    const player = this.playerService.basePlayerObject.clone();
+    this.playerService.resetClonedSkinnedMeshes(
+      this.playerService.basePlayerObject,
+      player
+    );
 
-      object.scale.multiplyScalar(0.03);
+    this.scene.add(player);
 
-      //size of the model
-      let box3 = new THREE.Box3().setFromObject(object);
-      let size = new THREE.Vector3();
-      box3.getSize(size);
+    //size of the model
+    let box3 = new THREE.Box3().setFromObject(player);
+    let size = new THREE.Vector3();
+    box3.getSize(size);
 
-      object.position.set(0, -size.y / 2, 0);
-      this.playerObject = object;
-      this.updateMesh();
+    player.position.set(0, -size.y / 2, 0);
+    this.playerObject = player;
+    this.updateMesh();
 
-      this.mixer = new THREE.AnimationMixer(object);
-
-      const loader = new FBXLoader();
-      loader.setPath('./assets/models3d/CharacterRPG/animations/');
-      loader.load('idle.fbx', (a) => {
-        const action = this.mixer.clipAction(a.animations[0]);
-        action.play();
-      });
-    });
+    this.mixer = new THREE.AnimationMixer(player);
+    const clip = this.playerService.animations['idle'];
+    const action = this.mixer.clipAction(clip);
+    action.play();
   }
 
   public save() {
@@ -228,7 +189,6 @@ export class EditPlayerComponent implements OnInit, AfterViewInit {
         component.playerObject.visible = true;
       }
 
-      // component.animateCube();
       component.renderer.render(component.scene, component.camera);
     })();
   }
