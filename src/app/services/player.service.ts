@@ -23,9 +23,23 @@ export class PlayerService {
   private scale = 0.2;
 
   styles: any = {
-    Mochila: ['BackPack1', 'BackPack2', 'BackPack3', ''],
-
     Cinto: ['Belt1', 'Belt2', 'Belt3', ''],
+    Chapeu: ['Hat1', 'Hat2', 'Hat3', ''],
+    Coroa: ['Crown1', 'Crown2', 'Crown3', 'Crown4', ''],
+    Cabelo: ['Hair1', 'Hair2', 'Hair3', 'Hair4', 'Hair5'],
+    Elmo: ['Helm1', 'Helm2', 'Helm3', 'Helm4', 'Helm5', 'Helm6', 'Helm7', ''],
+    Luvas: ['Glove1', 'Glove2', 'Glove3', 'Glove4', 'Glove5', 'Glove6'],
+    Mochila: ['BackPack1', 'BackPack2', ''],
+    Ombreiras: [
+      'ShoulderPad1',
+      'ShoulderPad2',
+      'ShoulderPad3',
+      'ShoulderPad4',
+      'ShoulderPad5',
+      'ShoulderPad6',
+      '',
+    ],
+    Rosto: ['Face1', 'Face2', 'Face3', 'Face4'],
     Roupa: [
       'Cloth1',
       'Cloth2',
@@ -35,20 +49,25 @@ export class PlayerService {
       'Cloth6',
       'Cloth7',
     ],
-    Coroa: ['Crown1', 'Crown2', 'Crown3', 'Crown4', ''],
-    Rosto: ['Face1', 'Face2', 'Face3', 'Face4'],
-    Luvas: ['Glove1', 'Glove2', 'Glove3', 'Glove4', 'Glove5', 'Glove6'],
-    Cabelo: ['Hair1', 'Hair2', 'Hair3', 'Hair4', 'Hair5'],
-    Chapeu: ['Hat1', 'Hat2', 'Hat3', ''],
-    Elmo: ['Helm1', 'Helm2', 'Helm3', 'Helm4', 'Helm5', 'Helm6', 'Helm7', ''],
     Sapatos: ['Shoe1', 'Shoe2', 'Shoe3', 'Shoe4', 'Shoe5', 'Shoe6'],
-    Ombreiras: [
-      'ShoulderPad1',
-      'ShoulderPad2',
-      'ShoulderPad3',
-      'ShoulderPad4',
-      'ShoulderPad5',
-      'ShoulderPad6',
+    WeaponL: [
+      'WeaponL1',
+      'WeaponL2',
+      'WeaponL3',
+      'WeaponL4',
+      'WeaponL5',
+      'WeaponL6',
+      'WeaponL7',
+      '',
+    ],
+    WeaponR: [
+      'WeaponR1',
+      'WeaponR2',
+      'WeaponR3',
+      'WeaponR4',
+      'WeaponR5',
+      'WeaponR6',
+      'WeaponR7',
       '',
     ],
   };
@@ -65,8 +84,7 @@ export class PlayerService {
         if (sourceNode.isSkinnedMesh) {
           meshSources[clonedNode.uuid] = sourceNode;
           clonedMeshes.push(clonedNode);
-        }
-        if (sourceNode.isBone) boneClones[sourceNode.uuid] = clonedNode;
+        } else if (sourceNode.isBone) boneClones[sourceNode.uuid] = clonedNode;
       }
     );
 
@@ -95,6 +113,14 @@ export class PlayerService {
   }
 
   LoadModel = () => {
+    // const textureLoader = new THREE.TextureLoader();
+    // const texture = textureLoader.load(
+    //   './assets/models3d/CharacterRPG/PolyArt.png',
+    //   (texture) => {
+    //     return texture;
+    //   }
+    // )
+
     const loader = new GLTFLoader();
     loader.load(this.path, (object: GLTF) => {
       this.basePlayerObject = object.scene;
@@ -102,23 +128,9 @@ export class PlayerService {
 
       this.basePlayerObject.traverse(function (child: any) {
         if (child.isMesh) {
-          // disable transparency
-          child.material.transparent = true;
-          child.material.opacity = 1;
-
-
-
-          // child.material.transparent = true;
-          // child.material.opacity = 1;
-          // child.castShadow = true;
-          // child.receiveShadow = true;
-          // if(child.material.map) child.material.map.anisotropy = 1;
-          // child.material.color.setHex(0xff00ff);
-          // child.material.map =
-          // child.material.normalScale = new THREE.Vector2(1, 1);
+          // child.material.map = texture;
         }
       });
-
     });
   };
 
@@ -140,6 +152,8 @@ export class PlayerService {
       'Elmo',
       'Mochila',
       'Ombreiras',
+      'WeaponL',
+      'WeaponR',
     ];
 
     for (const key in this.styles) {
@@ -222,7 +236,9 @@ export class PlayerService {
           (c.name == 'Hat' + style['Chapeu'] && helm == '') ||
           c.name == 'Helm' + style['Elmo'] ||
           c.name == 'Shoe' + style['Sapatos'] ||
-          c.name == 'ShoulderPad' + style['Ombreiras']
+          c.name == 'ShoulderPad' + style['Ombreiras'] ||
+          c.name == 'WeaponL' + style['WeaponL'] ||
+          c.name == 'WeaponR' + style['WeaponR']
         ) {
           c.visible = true;
         } else {
