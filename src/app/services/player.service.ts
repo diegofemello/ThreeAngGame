@@ -72,6 +72,8 @@ export class PlayerService {
     ],
   };
 
+  listener = new THREE.AudioListener();
+
   resetClonedSkinnedMeshes(source: THREE.Object3D, clone: THREE.Object3D) {
     const clonedMeshes: any[] = [];
     const meshSources: any = {};
@@ -190,6 +192,7 @@ export class PlayerService {
     this.playerObject = player;
 
     this.updateMesh();
+    this.playerObject.add(this.listener);
     return this.playerObject;
   }
 

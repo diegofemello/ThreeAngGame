@@ -86,7 +86,6 @@ export class PlayerComponent implements OnInit {
     this._mixer = new THREE.AnimationMixer(this.playerService.playerObject);
 
     const onLoad = (animName: any) => {
-      console.log(" animações carregadas",this.playerService.animations)
       const clip = this.playerService.animations[animName];
       const action = this._mixer.clipAction(clip);
 
