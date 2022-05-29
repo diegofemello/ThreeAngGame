@@ -100,7 +100,7 @@ export class EditPlayerComponent implements OnInit, AfterViewInit {
     this.loadModel();
 
     const controls = new OrbitControls(this.camera, this.canvas);
-    controls.target.set(0, 0, 0);
+
     controls.enablePan = false;
     controls.minDistance = 300;
     controls.maxDistance = 450;
@@ -108,6 +108,9 @@ export class EditPlayerComponent implements OnInit, AfterViewInit {
     controls.maxPolarAngle = Math.PI / 2;
 
     controls.update();
+
+    this.camera.lookAt(0, 17, 0);
+    controls.target.set(0, 17, 0);
   }
 
   public updateMesh() {
@@ -139,12 +142,14 @@ export class EditPlayerComponent implements OnInit, AfterViewInit {
 
     this.scene.add(player);
 
+    console.log(player);
+
     //size of the model
     let box3 = new THREE.Box3().setFromObject(player);
     let size = new THREE.Vector3();
     box3.getSize(size);
 
-    player.position.set(0, -size.y / 2, 0);
+    // player.position.set(0, -size.y, 0);
     this.playerObject = player;
     this.updateMesh();
 
@@ -152,6 +157,7 @@ export class EditPlayerComponent implements OnInit, AfterViewInit {
     const clip = this.playerService.animations['idle'];
     const action = this.mixer.clipAction(clip);
     action.play();
+
   }
 
   public save() {

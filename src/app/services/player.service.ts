@@ -3,6 +3,7 @@ import { Socket } from 'ngx-socket-io';
 import { Player } from 'src/app/models/player.model';
 import * as THREE from 'three';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
+import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 @Injectable({
   providedIn: 'root',
@@ -17,7 +18,7 @@ export class PlayerService {
   animations: any = {};
 
   basePlayerObject!: THREE.Object3D;
-  private path = './assets/models3d/CharacterRPG/CharacterBaseMesh.fbx';
+  private path = './assets/models3d/CharacterRPG/Character.gltf';
   private animationsPath = './assets/models3d/CharacterRPG/animations/';
   private scale = 0.2;
 
@@ -94,10 +95,30 @@ export class PlayerService {
   }
 
   LoadModel = () => {
-    const loader = new FBXLoader();
-    loader.load(this.path, (object: THREE.Object3D) => {
-      this.basePlayerObject = object;
+    const loader = new GLTFLoader();
+    loader.load(this.path, (object: GLTF) => {
+      this.basePlayerObject = object.scene;
       this.basePlayerObject.scale.multiplyScalar(this.scale);
+
+      this.basePlayerObject.traverse(function (child: any) {
+        if (child.isMesh) {
+          // disable transparency
+          child.material.transparent = true;
+          child.material.opacity = 1;
+
+
+
+          // child.material.transparent = true;
+          // child.material.opacity = 1;
+          // child.castShadow = true;
+          // child.receiveShadow = true;
+          // if(child.material.map) child.material.map.anisotropy = 1;
+          // child.material.color.setHex(0xff00ff);
+          // child.material.map =
+          // child.material.normalScale = new THREE.Vector2(1, 1);
+        }
+      });
+
     });
   };
 
