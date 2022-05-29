@@ -7,37 +7,39 @@
     (click)="modal.dismiss('Cross click')"
   ></button>
 </div>
+<div class="modal-body">
 
-<form class="row">
-  <div class="col-lg-8">
-    <canvas
-      #canvas
-      id="canvas"
-      style="height: 100%; width: 100%; padding: 10px; margin: 10px"
-    ></canvas>
-  </div>
-  <div class="col-auto container col-lg-4 text-center">
-    <div *ngFor="let style of styleKeys" class="form-group">
-      <div class="btn-group">
-        <button
-          class="btn btn-outline-secondary"
-          (click)="changeField(style, -1)"
-        >
-          <i class="fa-solid fa-angles-left"></i>
-        </button>
-        <button class="btn btn-secondary namelabel" disabled>
-          {{ style }}
-        </button>
-        <button
-          class="btn btn-outline-secondary"
-          (click)="changeField(style, 1)"
-        >
-          <i class="fa-solid fa-angles-right"></i>
-        </button>
+  <form class="row">
+    <div class="col-lg-8">
+      <canvas
+        #canvas
+        id="canvas"
+        style="height: 100%; width: 100%; padding: 10px; margin: 10px"
+      ></canvas>
+    </div>
+    <div class="col-auto container col-lg-4 text-center">
+      <div *ngFor="let style of styleKeys" class="form-group">
+        <div class="btn-group">
+          <button
+            class="btn btn-outline-secondary"
+            (click)="changeField(style, -1)"
+          >
+            <i class="fa-solid fa-angles-left"></i>
+          </button>
+          <button class="btn btn-secondary namelabel" disabled>
+            {{ style }}
+          </button>
+          <button
+            class="btn btn-outline-secondary"
+            (click)="changeField(style, 1)"
+          >
+            <i class="fa-solid fa-angles-right"></i>
+          </button>
+        </div>
       </div>
     </div>
-  </div>
-</form>
+  </form>
+</div>
 <div class="modal-footer">
   <div class="container col-md-12 text-center">
     <button type="button" class="btn btn-outline-primary" (click)="save()">
