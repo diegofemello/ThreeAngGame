@@ -13,12 +13,15 @@ export class IndividualPlayerComponent implements OnInit {
   private player!: THREE.Object3D;
   @Input() uid = '';
   @Input() players: Player[] = [];
+  @Input() positionX: number = 0;
+  @Input() positionY: number = 0;
+  @Input() positionZ: number = 0;
+  @Input() actualState: string = 'idle';
+  @Input() username: string = '';
+
   animations: any = {};
-  actualState: string = 'idle';
 
   mixer!: THREE.AnimationMixer;
-
-
 
   constructor(
     private manager: ManagerService,
@@ -53,6 +56,8 @@ export class IndividualPlayerComponent implements OnInit {
 
     player.name = this.uid;
     player.uuid = this.uid;
+    player.position.set(this.positionX, this.positionY, this.positionZ);
+
     player.visible = false;
     this.manager._scene.add(player);
     this.player = player;
@@ -79,6 +84,7 @@ export class IndividualPlayerComponent implements OnInit {
     onLoad('run');
     onLoad('idle');
     onLoad('jump');
+    onLoad('dance');
 
     this.animations[this.actualState].action.play();
   };
@@ -94,54 +100,62 @@ export class IndividualPlayerComponent implements OnInit {
         playerSocket.style,
         playerSocket.username
       );
+    }else{
+      this.playerService.updateMesh(
+        this.player,
+        this.playerService.getRandomStyle(),
+        this.username
+      );
     }
   }
 
   Animate() {
     requestAnimationFrame(() => {
-      const playerSocket = this.players.find(
-        (player: Player) => player.uid === this.player.uuid
-      );
-
-      if (playerSocket) {
-        this.player.position.copy(playerSocket.position);
-        this.player.rotation.set(
-          playerSocket.rotation.x,
-          playerSocket.rotation.y,
-          playerSocket.rotation.z
+      if (this.players) {
+        const playerSocket = this.players.find(
+          (player: Player) => player.uid === this.player.uuid
         );
 
-        if (playerSocket.state != this.actualState) {
-          const action = this.animations[playerSocket.state].action;
+        if (playerSocket) {
+          this.player.position.copy(playerSocket.position);
+          this.player.rotation.set(
+            playerSocket.rotation.x,
+            playerSocket.rotation.y,
+            playerSocket.rotation.z
+          );
 
-          if (this.actualState) {
-            const prevAction = this.animations[this.actualState].action;
+          if (playerSocket.state != this.actualState) {
+            const action = this.animations[playerSocket.state].action;
 
-            action.enabled = true;
+            if (this.actualState) {
+              const prevAction = this.animations[this.actualState].action;
 
-            if (playerSocket.state == 'idle') {
-              action.time = 0.0;
-              action.setEffectiveTimeScale(1.0);
-              action.setEffectiveWeight(1.0);
-              action.crossFadeFrom(prevAction, 0.5, true);
-            } else if (
-              (playerSocket.state == 'walk' && this.actualState == 'run') ||
-              (playerSocket.state == 'run' && this.actualState == 'walk')
-            ) {
-              const ratio =
-                action.getClip().duration / prevAction.getClip().duration;
-              action.time = prevAction.time * ratio;
-            } else {
-              action.time = 0.0;
-              action.setEffectiveTimeScale(1.0);
-              action.setEffectiveWeight(1.0);
+              action.enabled = true;
+
+              if (playerSocket.state == 'idle') {
+                action.time = 0.0;
+                action.setEffectiveTimeScale(1.0);
+                action.setEffectiveWeight(1.0);
+                action.crossFadeFrom(prevAction, 0.5, true);
+              } else if (
+                (playerSocket.state == 'walk' && this.actualState == 'run') ||
+                (playerSocket.state == 'run' && this.actualState == 'walk')
+              ) {
+                const ratio =
+                  action.getClip().duration / prevAction.getClip().duration;
+                action.time = prevAction.time * ratio;
+              } else {
+                action.time = 0.0;
+                action.setEffectiveTimeScale(1.0);
+                action.setEffectiveWeight(1.0);
+              }
+
+              action.crossFadeFrom(prevAction, 1, true);
             }
 
-            action.crossFadeFrom(prevAction, 1, true);
+            this.actualState = playerSocket.state;
+            action.play();
           }
-
-          this.actualState = playerSocket.state;
-          action.play();
         }
       }
 

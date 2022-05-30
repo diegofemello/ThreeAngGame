@@ -50,26 +50,26 @@ export class PlayerService {
       'Cloth7',
     ],
     Sapatos: ['Shoe1', 'Shoe2', 'Shoe3', 'Shoe4', 'Shoe5', 'Shoe6'],
-    WeaponL: [
-      'WeaponL1',
-      'WeaponL2',
-      'WeaponL3',
-      'WeaponL4',
-      'WeaponL5',
-      'WeaponL6',
-      'WeaponL7',
-      '',
-    ],
-    WeaponR: [
-      'WeaponR1',
-      'WeaponR2',
-      'WeaponR3',
-      'WeaponR4',
-      'WeaponR5',
-      'WeaponR6',
-      'WeaponR7',
-      '',
-    ],
+    // WeaponL: [
+    //   'WeaponL1',
+    //   'WeaponL2',
+    //   'WeaponL3',
+    //   'WeaponL4',
+    //   'WeaponL5',
+    //   'WeaponL6',
+    //   'WeaponL7',
+    //   '',
+    // ],
+    // WeaponR: [
+    //   'WeaponR1',
+    //   'WeaponR2',
+    //   'WeaponR3',
+    //   'WeaponR4',
+    //   'WeaponR5',
+    //   'WeaponR6',
+    //   'WeaponR7',
+    //   '',
+    // ],
   };
 
   listener = new THREE.AudioListener();
@@ -260,17 +260,22 @@ export class PlayerService {
 
     const loader = new FBXLoader();
     loader.setPath(this.animationsPath);
+
     loader.load('walk.fbx', (a) => {
       onLoad('walk', a);
     });
     loader.load('run.fbx', (a) => {
       onLoad('run', a);
     });
+
+    loader.load('jump.fbx', (a) => {
+      onLoad('jump', a);
+    });
     loader.load('idle.fbx', (a) => {
       onLoad('idle', a);
     });
-    loader.load('jump.fbx', (a) => {
-      onLoad('jump', a);
+    loader.load('dance.fbx', (a) => {
+      onLoad('dance', a);
     });
   };
 }

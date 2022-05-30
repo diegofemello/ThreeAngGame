@@ -16,7 +16,7 @@ import { PlayerService } from 'src/app/services/player.service';
   templateUrl: './edit-player.component.html',
   styleUrls: ['./edit-player.component.scss'],
 })
-export class EditPlayerComponent implements OnInit, AfterViewInit {
+export class EditPlayerComponent implements AfterViewInit {
   @Input() name?: string;
 
   @ViewChild('canvas')
@@ -57,6 +57,7 @@ export class EditPlayerComponent implements OnInit, AfterViewInit {
   private createScene() {
     //* Scene
     this.scene = new THREE.Scene();
+    // this.scene.background = new THREE.Color(0xFF0000);
 
     //*Camera
     let aspectRatio = this.getAspectRatio();
@@ -157,7 +158,6 @@ export class EditPlayerComponent implements OnInit, AfterViewInit {
     const clip = this.playerService.animations['idle'];
     const action = this.mixer.clipAction(clip);
     action.play();
-
   }
 
   public save() {
@@ -203,8 +203,6 @@ export class EditPlayerComponent implements OnInit, AfterViewInit {
     public modal: NgbActiveModal,
     private playerService: PlayerService
   ) {}
-
-  ngOnInit(): void {}
 
   ngAfterViewInit() {
     this.createScene();

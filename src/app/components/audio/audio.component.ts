@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { ManagerService } from 'src/app/services/manager.service';
 import { PlayerService } from 'src/app/services/player.service';
 import * as THREE from 'three';
@@ -10,7 +10,7 @@ import { math } from './math';
   templateUrl: './audio.component.html',
   styleUrls: ['./audio.component.scss'],
 })
-export class AudioComponent implements OnInit {
+export class AudioComponent implements AfterViewInit {
   analyzer1_!: THREE.AudioAnalyser;
   analyzer1Data_!: any[];
   analyzer2_!: THREE.AudioAnalyser;
@@ -25,7 +25,7 @@ export class AudioComponent implements OnInit {
     private playerService: PlayerService
   ) {}
 
-  ngOnInit(): void {
+  ngAfterViewInit(): void {
     const geometry = new THREE.BoxBufferGeometry(20, 20, 20);
     const material = new THREE.MeshStandardMaterial({
       color: 0xffffff,
@@ -50,11 +50,11 @@ export class AudioComponent implements OnInit {
     // mesh2.add(sound2);
 
     const loader = new THREE.AudioLoader();
-    loader.load('assets/resources/music/Ectoplasm.mp3', (buffer) => {
+    loader.load('assets/resources/music/OneKiss.mp3', (buffer) => {
       setTimeout(() => {
         sound1.setBuffer(buffer);
+        sound1.setVolume(2);
         sound1.setLoop(true);
-        sound1.setVolume(1.0);
         sound1.setRefDistance(1);
         sound1.play();
         this.analyzer1_ = new THREE.AudioAnalyser(sound1, 32);
@@ -150,7 +150,7 @@ export class AudioComponent implements OnInit {
           const sc = 1 + 6 * freqScale;
           //TODO: noise
           // + this.noise1_.Get(this.indexTimer_, r * 0.42142, i * 0.3455);
-          speakerRow[i].scale.set(sc / 2, 1, sc);
+          speakerRow[i].scale.set(sc / 2, sc / 2, sc);
           speakerRow[i].material.color.copy(colourSpline.Get(freqScale));
           speakerRow[i].material.emissive.copy(colourSpline.Get(freqScale));
           speakerRow[i].material.emissive.multiplyScalar(freqScale ** 5);

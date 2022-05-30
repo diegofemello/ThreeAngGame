@@ -180,7 +180,7 @@ export class DescriptionComponent implements OnInit {
       size: 'lg',
       centered: true,
       keyboard: false,
-      scrollable: true,
+      scrollable: false,
       // backdropClass: 'modal-backdrop-test',
     });
     modalRef.componentInstance.name = this.currentIntersection.object.name;

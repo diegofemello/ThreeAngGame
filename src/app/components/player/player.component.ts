@@ -99,6 +99,7 @@ export class PlayerComponent implements OnInit {
     onLoad('run');
     onLoad('idle');
     onLoad('jump');
+    onLoad('dance');
 
     this._stateMachine._Init();
   };
