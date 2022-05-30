@@ -19,6 +19,7 @@ import { TextLoaderComponent } from './loaders/text-loader/text-loader.component
 import { ModelLoaderComponent } from './loaders/model-loader/model-loader.component';
 import { EditPlayerComponent } from './ui/edit-player/edit-player.component';
 import { IndividualPlayerComponent } from './components/socket-players/individual-player/individual-player.component';
+import { AudioComponent } from './components/audio/audio.component';
 
 const config: SocketIoConfig = { url: environment.socketUrl, options: {} };
 
@@ -35,6 +36,7 @@ const config: SocketIoConfig = { url: environment.socketUrl, options: {} };
     ModelLoaderComponent,
     EditPlayerComponent,
     IndividualPlayerComponent,
+    AudioComponent,
   ],
   imports: [
     BrowserModule,
