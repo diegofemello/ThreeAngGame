@@ -257,10 +257,12 @@ export class PlayerService {
       const clip = anim.animations[0];
       this.animations[animName] = clip;
     };
-
     const loader = new FBXLoader();
     loader.setPath(this.animationsPath);
 
+    loader.load('idle.fbx', (a) => {
+      onLoad('idle', a);
+    });
     loader.load('walk.fbx', (a) => {
       onLoad('walk', a);
     });
@@ -270,9 +272,6 @@ export class PlayerService {
 
     loader.load('jump.fbx', (a) => {
       onLoad('jump', a);
-    });
-    loader.load('idle.fbx', (a) => {
-      onLoad('idle', a);
     });
     loader.load('dance.fbx', (a) => {
       onLoad('dance', a);

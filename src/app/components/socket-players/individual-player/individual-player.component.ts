@@ -70,23 +70,28 @@ export class IndividualPlayerComponent implements OnInit {
   };
 
   LoadAnimations = () => {
-    this.mixer = new THREE.AnimationMixer(this.player);
+    if (this.playerService?.animations?.length > 4) {
+      this.mixer = new THREE.AnimationMixer(this.player);
+      const onLoad = (animName: any) => {
+        const clip = this.playerService.animations[animName];
 
-    const onLoad = (animName: any) => {
-      const clip = this.playerService.animations[animName];
-
-      this.animations[animName] = {
-        clip: clip,
-        action: this.mixer.clipAction(clip),
+        this.animations[animName] = {
+          clip: clip,
+          action: this.mixer.clipAction(clip),
+        };
       };
-    };
-    onLoad('walk');
-    onLoad('run');
-    onLoad('idle');
-    onLoad('jump');
-    onLoad('dance');
+      onLoad('walk');
+      onLoad('run');
+      onLoad('idle');
+      onLoad('jump');
+      onLoad('dance');
 
-    this.animations[this.actualState].action.play();
+      this.animations[this.actualState].action.play();
+    } else {
+      setTimeout(() => {
+        this.LoadAnimations();
+      }, 100);
+    }
   };
 
   UpdateMesh() {
@@ -100,7 +105,7 @@ export class IndividualPlayerComponent implements OnInit {
         playerSocket.style,
         playerSocket.username
       );
-    }else{
+    } else {
       this.playerService.updateMesh(
         this.player,
         this.playerService.getRandomStyle(),
