@@ -164,7 +164,9 @@ export class IndividualPlayerComponent implements OnInit {
         }
       }
 
-      this.mixer.update(1 / 60);
+      if (this.mixer) {
+        this.mixer.update(1 / 60);
+      }
       this.Animate();
     });
   }
