@@ -70,7 +70,7 @@ export class IndividualPlayerComponent implements OnInit {
   };
 
   LoadAnimations = () => {
-    if (this.playerService?.animations?.length > 4) {
+    if (this.playerService?.animations) {
       this.mixer = new THREE.AnimationMixer(this.player);
       const onLoad = (animName: any) => {
         const clip = this.playerService.animations[animName];
