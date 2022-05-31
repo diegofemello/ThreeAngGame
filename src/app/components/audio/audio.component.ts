@@ -7,8 +7,7 @@ import { math } from './math';
 
 @Component({
   selector: 'app-audio',
-  templateUrl: './audio.component.html',
-  styleUrls: ['./audio.component.scss'],
+  templateUrl: './audio.component.html'
 })
 export class AudioComponent implements AfterViewInit {
   analyzer1_!: THREE.AudioAnalyser;
@@ -17,7 +16,6 @@ export class AudioComponent implements AfterViewInit {
   analyzer2Texture_!: THREE.DataTexture;
   speakerMeshes1_: any;
   indexTimer_ = 0;
-  noise1_: any;
   previousRAF_?: number;
 
   constructor(
@@ -102,6 +100,8 @@ export class AudioComponent implements AfterViewInit {
     }
     mesh.add(speaker1Group);
 
+    this.indexTimer_ = 0;
+
     this.raf_();
   }
 
@@ -148,8 +148,6 @@ export class AudioComponent implements AfterViewInit {
             1
           );
           const sc = 1 + 6 * freqScale;
-          //TODO: noise
-          // + this.noise1_.Get(this.indexTimer_, r * 0.42142, i * 0.3455);
           speakerRow[i].scale.set(sc / 2, sc / 2, sc);
           speakerRow[i].material.color.copy(colourSpline.Get(freqScale));
           speakerRow[i].material.emissive.copy(colourSpline.Get(freqScale));

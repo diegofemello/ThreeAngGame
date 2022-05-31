@@ -113,10 +113,9 @@ export class PlayerService {
     }
   }
 
-  LoadModel = () => {
+  LoadBaseModel = () => {
     const modelLoadingManager = new THREE.LoadingManager();
     modelLoadingManager.onLoad = function () {
-      console.log('Player Load complete!');
     };
 
     const loader = new GLTFLoader(modelLoadingManager);
@@ -133,7 +132,7 @@ export class PlayerService {
   };
 
   constructor(private socket: Socket) {
-    this.LoadModel();
+    this.LoadBaseModel();
     this.LoadAnimations();
   }
 
@@ -326,7 +325,6 @@ export class PlayerService {
   LoadAnimations = async () => {
     const animationLoadingManager = new THREE.LoadingManager();
     animationLoadingManager.onLoad = function () {
-      console.log('Animations Load complete!');
     };
 
     const animationsFiles = [

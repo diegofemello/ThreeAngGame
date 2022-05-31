@@ -19,7 +19,6 @@ declare const Ammo: any;
 export class PlayerComponent implements OnInit {
   private _animations: any = {};
   private _mixer!: THREE.AnimationMixer;
-  private _stateMachine!: FiniteStateMachineService;
 
   private isGrounded = false;
   private isJumping = false;
@@ -38,8 +37,7 @@ export class PlayerComponent implements OnInit {
     private stateMachineService: FiniteStateMachineService,
     private physicsService: PhysicsService
   ) {
-    this._stateMachine = this.stateMachineService;
-    this._stateMachine.SetProxy(this._animations);
+    stateMachineService.SetProxy(this._animations);
   }
 
   async ngOnInit(): Promise<void> {
@@ -48,7 +46,6 @@ export class PlayerComponent implements OnInit {
     }
 
     await this.LoadModel();
-    this.controller._Init();
   }
 
   async OpenModal(): Promise<string> {
@@ -110,8 +107,6 @@ export class PlayerComponent implements OnInit {
     onLoad('idle');
     onLoad('jump');
     onLoad('dance');
-
-    this._stateMachine._Init();
   };
 
   Jump = () => {
@@ -128,11 +123,11 @@ export class PlayerComponent implements OnInit {
       this.isGrounded = false;
       this.isJumping = true;
 
-      this._stateMachine.SetState('jump');
+      this.stateMachineService.SetState('jump');
 
       setTimeout(() => {
         this.isJumping = false;
-        this._stateMachine.SetState('idle');
+        this.stateMachineService.SetState('idle');
       }, 2000);
     }
   };
@@ -214,7 +209,7 @@ export class PlayerComponent implements OnInit {
 
   Update(timeInSeconds: number) {
     requestAnimationFrame(() => {
-      this._stateMachine.Update(timeInSeconds, this.controller);
+      this.stateMachineService.Update(timeInSeconds, this.controller);
 
       this.MovePlayer();
       this.FollowCamera();

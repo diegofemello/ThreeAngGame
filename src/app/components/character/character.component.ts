@@ -1,14 +1,15 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Player } from 'src/app/models/player.model';
 import { ManagerService } from 'src/app/services/manager.service';
+import { PhysicsService } from 'src/app/services/physics.service';
 import { PlayerService } from 'src/app/services/player.service';
 import * as THREE from 'three';
 
 @Component({
-  selector: 'app-individual-player',
-  template: '<ng-content></ng-content>'
+  selector: 'app-character',
+  template: '<ng-content></ng-content>',
 })
-export class IndividualPlayerComponent implements OnInit {
+export class CharacterComponent implements OnInit {
   private player!: THREE.Object3D;
   @Input() uid = '';
   @Input() players: Player[] = [];
@@ -24,7 +25,8 @@ export class IndividualPlayerComponent implements OnInit {
 
   constructor(
     private manager: ManagerService,
-    private playerService: PlayerService
+    private playerService: PlayerService,
+    private physicsService: PhysicsService
   ) {}
 
   ngOnInit(): void {
@@ -54,6 +56,24 @@ export class IndividualPlayerComponent implements OnInit {
     this.LoadAnimations();
 
     this.UpdateMesh();
+    this.AddPhysics();
+  };
+
+  AddPhysics = async () => {
+    const mass = 1;
+
+    let pos = this.player.position.addScalar(2);
+    let quat = this.player.quaternion;
+
+    await this.physicsService.CreateObjectPhysics(
+      this.player,
+      pos,
+      this.player.scale,
+      quat,
+      'Player',
+      mass
+    );
+    this.physicsService.rigidBodies.push(this.player);
   };
 
   LoadAnimations = async () => {

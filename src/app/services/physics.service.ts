@@ -1,7 +1,7 @@
 import { Injectable, OnInit } from '@angular/core';
+
 import * as THREE from 'three';
 import { ManagerService } from './manager.service';
-import { PlayerService } from './player.service';
 
 declare const Ammo: any;
 
@@ -20,7 +20,6 @@ export class PhysicsService {
   }
 
   _Init(): void {
-    console.log('PhysicsService');
     Ammo().then(async () => {
       this._transformAux1 = new Ammo.btTransform();
 
@@ -50,7 +49,6 @@ export class PhysicsService {
       });
     }
   }
-
 
   CreateObjectPhysics = async (
     object: THREE.Object3D,

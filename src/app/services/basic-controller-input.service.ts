@@ -7,7 +7,7 @@ export class BasicControllerInputService {
   public _keys: any;
   public moveDirection = { left: 0, right: 0, forward: 0, back: 0, up: 0 };
   constructor() {
-    // this._Init()
+    this._Init()
   }
 
   _Init() {
@@ -24,6 +24,11 @@ export class BasicControllerInputService {
       mouseDown: false,
       mouseWheel: false,
       mouseWheelDelta: 0,
+      q: false,
+      e: false,
+      r: false,
+      f: false,
+      t: false,
     };
 
     document.addEventListener('keydown', (e) => this._onKeyDown(e), false);
@@ -62,6 +67,9 @@ export class BasicControllerInputService {
       case 16: // SHIFT
         this._keys.shift = true;
         break;
+      case 81: // Q
+        this._keys.q = true;
+        break;
     }
   }
 
@@ -89,6 +97,8 @@ export class BasicControllerInputService {
       case 16: // SHIFT
         this._keys.shift = false;
         break;
+      case 81: // Q
+        this._keys.q = false;
     }
   }
 

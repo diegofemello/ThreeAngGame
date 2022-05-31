@@ -6,20 +6,21 @@ import { PlayerService } from './player.service';
   providedIn: 'root',
 })
 export class FiniteStateMachineService {
-  private _states: any;
-  public _currentState: any;
   public _animations: any;
+  private _currentState?: State;
+  private _states: any;
 
   constructor(private playerService: PlayerService) {
     this._states = {};
-    this._currentState = null;
+    this._Init();
   }
 
   async _Init() {
-     this._AddState('idle', IdleState);
+    this._AddState('idle', IdleState);
     this._AddState('walk', WalkState);
     this._AddState('run', RunState);
     this._AddState('jump', JumpState);
+    this._AddState('dance', DanceState);
 
     await this.SetState('idle');
   }
@@ -68,21 +69,19 @@ export class State {
   get Name() {
     return this._name;
   }
+
+  Exit() {}
+  Enter(prevState: any) {}
+  Update(timeElapsed: any, input: any) {}
 }
 
-export interface IState {
-  Enter(prevState: any): any;
-  Exit(): any;
-  Update(timeElapsed: any, input: any): any;
-}
-
-class WalkState extends State implements IState {
+class WalkState extends State {
   constructor(parent: any) {
     super(parent);
     this._name = 'walk';
   }
 
-  Enter(prevState: State) {
+  override Enter(prevState: State) {
     const curAction = this._parent._animations[this._name].action;
     if (prevState) {
       const prevAction = this._parent._animations[prevState.Name].action;
@@ -106,9 +105,7 @@ class WalkState extends State implements IState {
     }
   }
 
-  Exit() {}
-
-  Update(timeElapsed: any, input: any) {
+  override Update(timeElapsed: any, input: any) {
     if (input._keys.forward || input._keys.backward) {
       if (input._keys.shift) {
         this._parent.SetState('run');
@@ -120,13 +117,13 @@ class WalkState extends State implements IState {
   }
 }
 
-class RunState extends State implements IState {
+class RunState extends State {
   constructor(parent: any) {
     super(parent);
     this._name = 'run';
   }
 
-  Enter(prevState: any) {
+  override Enter(prevState: any) {
     const curAction = this._parent._animations[this._name].action;
     if (prevState) {
       const prevAction = this._parent._animations[prevState.Name].action;
@@ -150,9 +147,7 @@ class RunState extends State implements IState {
     }
   }
 
-  Exit() {}
-
-  Update(timeElapsed: any, input: any) {
+  override Update(timeElapsed: any, input: any) {
     if (input._keys.forward || input._keys.backward) {
       if (!input._keys.shift) {
         this._parent.SetState('walk');
@@ -164,13 +159,13 @@ class RunState extends State implements IState {
   }
 }
 
-class IdleState extends State implements IState {
+class IdleState extends State {
   constructor(parent: any) {
     super(parent);
     this._name = 'idle';
   }
 
-  Enter(prevState: any) {
+  override Enter(prevState: any) {
     const curAction = this._parent._animations[this._name].action;
     if (prevState) {
       const prevAction = this._parent._animations[prevState.Name].action;
@@ -185,22 +180,22 @@ class IdleState extends State implements IState {
     }
   }
 
-  Exit() {}
-
-  Update(_: any, input: any) {
+  override Update(_: any, input: any) {
     if (input._keys.forward || input._keys.backward) {
       this._parent.SetState('walk');
+    } else if (input._keys.q) {
+      this._parent.SetState('dance');
     }
   }
 }
 
-class JumpState extends State implements IState {
+class JumpState extends State {
   constructor(parent: any) {
     super(parent);
     this._name = 'jump';
   }
 
-  Enter(prevState: any) {
+  override Enter(prevState: any) {
     const curAction = this._parent._animations[this._name].action;
     if (prevState) {
       const prevAction = this._parent._animations[prevState.Name].action;
@@ -214,8 +209,49 @@ class JumpState extends State implements IState {
       curAction.play();
     }
   }
+}
 
-  Exit() {}
+class DanceState extends State {
+  private _FinishedCallback: () => void;
+  private _CleanupCallback: any;
+  constructor(parent: any) {
+    super(parent);
 
-  Update() {}
+    this._FinishedCallback = () => {
+      this._Finished();
+    };
+  }
+
+  override Enter(prevState: any) {
+    const curAction = this._parent._animations[this._name].action;
+    const mixer = curAction.getMixer();
+    mixer.addEventListener('finished', this._FinishedCallback);
+
+    if (prevState) {
+      const prevAction = this._parent._proxy._animations[prevState.Name].action;
+
+      curAction.reset();
+      curAction.setLoop(THREE.LoopOnce, 1);
+      curAction.clampWhenFinished = true;
+      curAction.crossFadeFrom(prevAction, 0.2, true);
+      curAction.play();
+    } else {
+      curAction.play();
+    }
+  }
+
+  _Finished() {
+    this._Cleanup();
+    this._parent.SetState('idle');
+  }
+
+  _Cleanup() {
+    const action = this._parent._proxy._animations['dance'].action;
+
+    action.getMixer().removeEventListener('finished', this._CleanupCallback);
+  }
+
+  override Exit() {
+    this._Cleanup();
+  }
 }

@@ -7,8 +7,7 @@ import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry';
 
 @Component({
   selector: 'app-text-loader',
-  templateUrl: './text-loader.component.html',
-  styleUrls: ['./text-loader.component.scss'],
+  template: '<ng-content></ng-content>',
 })
 export class TextLoaderComponent implements OnInit {
   @Input() color: string = '#ffffff';

@@ -3,12 +3,11 @@ import { ManagerService } from 'src/app/services/manager.service';
 
 import * as THREE from 'three';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
-import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 @Component({
   selector: 'app-model-loader',
-  templateUrl: './model-loader.component.html',
-  styleUrls: ['./model-loader.component.scss'],
+  template: '<ng-content></ng-content>',
 })
 export class ModelLoaderComponent implements OnInit {
   @Input() positionX = 0;

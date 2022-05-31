@@ -44,7 +44,6 @@ export class DescriptionComponent implements OnInit {
       'resize',
       () => {
         this.labelRenderer.setSize(innerWidth, innerHeight);
-        console.log('resize');
         document.body.removeChild(this.labelRenderer.domElement);
       },
       false
@@ -122,7 +121,7 @@ export class DescriptionComponent implements OnInit {
     };
 
     const onMouseDown = (_event: any) => {
-      this.openModal();
+      if(currentIntersection) this.openModal();
     };
 
     renderer.domElement.addEventListener('pointermove', onMouseMove, false);

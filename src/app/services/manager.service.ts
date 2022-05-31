@@ -10,7 +10,6 @@ export class ManagerService {
   public _camera!: THREE.PerspectiveCamera;
   public _scene!: THREE.Scene;
   public _gui!: GUI;
-
   public initialized = false;
 
   _Initialize() {
