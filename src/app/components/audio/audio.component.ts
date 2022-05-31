@@ -7,7 +7,7 @@ import { math } from './math';
 
 @Component({
   selector: 'app-audio',
-  templateUrl: './audio.component.html'
+  templateUrl: './audio.component.html',
 })
 export class AudioComponent implements AfterViewInit {
   analyzer1_!: THREE.AudioAnalyser;
@@ -24,7 +24,7 @@ export class AudioComponent implements AfterViewInit {
   ) {}
 
   ngAfterViewInit(): void {
-    const geometry = new THREE.BoxBufferGeometry(20, 20, 20);
+    const geometry = new THREE.BoxBufferGeometry(1000, 20, 20);
     const material = new THREE.MeshStandardMaterial({
       color: 0xffffff,
       metalness: 0.5,
@@ -35,8 +35,7 @@ export class AudioComponent implements AfterViewInit {
     const mesh = new THREE.Mesh(geometry, material);
     this.manager._scene.add(mesh);
     mesh.position.set(0, 10, -550);
-    mesh.scale.set(5, 5, 5);
-
+    mesh.scale.set(5,5,5);
     // const mesh2 = new THREE.Mesh(geometry, material);
     // this.manager._scene.add(mesh2);
     // mesh2.position.set(-550, 10, -550);
@@ -49,12 +48,13 @@ export class AudioComponent implements AfterViewInit {
 
     const loader = new THREE.AudioLoader();
     loader.load('assets/resources/music/OneKiss.mp3', (buffer) => {
-      setTimeout(() => {
+      setTimeout( async () => {
         sound1.setBuffer(buffer);
         sound1.setVolume(2);
         sound1.setLoop(true);
         sound1.setRefDistance(1);
         sound1.play();
+
         this.analyzer1_ = new THREE.AudioAnalyser(sound1, 32);
         this.analyzer1Data_ = [];
       }, 5000);
@@ -86,7 +86,7 @@ export class AudioComponent implements AfterViewInit {
     this.speakerMeshes1_ = [];
     const speaker1Group = new THREE.Group();
 
-    for (let x = -5; x <= 20; ++x) {
+    for (let x = -50; x <= 50; ++x) {
       const row = [];
       for (let y = 0; y <= 15; ++y) {
         const speaker1_1 = new THREE.Mesh(speaker1Geo, speaker1Mat.clone());
@@ -134,10 +134,11 @@ export class AudioComponent implements AfterViewInit {
         return c.lerp(b, t);
       });
       colourSpline.AddPoint(0.0, new THREE.Color(0x4040ff));
-      colourSpline.AddPoint(0.25, new THREE.Color(0xff4040));
+      colourSpline.AddPoint(0.25, new THREE.Color(0xff0000));
       colourSpline.AddPoint(1.0, new THREE.Color(0xffff80));
+      colourSpline.AddPoint(1.0, new THREE.Color(0x4040ff));
 
-      const remap = [15, 13, 11, 9, 7, 5, 3, 1, 0, 2, 4, 6, 8, 10, 12, 14];
+      const remap = [15,13,11, 9, 7, 5, 3, 1, 0, 2, 4, 6, 8, 10, 12, 14];
       for (let r = 0; r < this.analyzer1Data_.length; ++r) {
         const data = this.analyzer1Data_[r];
         const speakerRow = this.speakerMeshes1_[r];
@@ -148,7 +149,7 @@ export class AudioComponent implements AfterViewInit {
             1
           );
           const sc = 1 + 6 * freqScale;
-          speakerRow[i].scale.set(sc / 2, sc / 2, sc);
+          speakerRow[i].scale.set(sc / 2, sc / 2, sc*2);
           speakerRow[i].material.color.copy(colourSpline.Get(freqScale));
           speakerRow[i].material.emissive.copy(colourSpline.Get(freqScale));
           speakerRow[i].material.emissive.multiplyScalar(freqScale ** 5);

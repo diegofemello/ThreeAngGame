@@ -184,6 +184,7 @@ class IdleState extends State {
     if (input._keys.forward || input._keys.backward) {
       await this._parent.SetState('walk');
     } else if (input._keys.q) {
+      console.log('dance');
       await this._parent.SetState('dance');
     }
   }
