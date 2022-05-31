@@ -6,8 +6,7 @@ import * as THREE from 'three';
 
 @Component({
   selector: 'app-individual-player',
-  templateUrl: './individual-player.component.html',
-  styleUrls: ['./individual-player.component.scss'],
+  template: '<ng-content></ng-content>'
 })
 export class IndividualPlayerComponent implements OnInit {
   private player!: THREE.Object3D;

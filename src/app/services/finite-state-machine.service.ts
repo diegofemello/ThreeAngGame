@@ -15,13 +15,13 @@ export class FiniteStateMachineService {
     this._currentState = null;
   }
 
-  _Init() {
-    this._AddState('idle', IdleState);
+  async _Init() {
+     this._AddState('idle', IdleState);
     this._AddState('walk', WalkState);
     this._AddState('run', RunState);
     this._AddState('jump', JumpState);
 
-    this.SetState('idle');
+    await this.SetState('idle');
   }
 
   _AddState(name: string, type: any) {

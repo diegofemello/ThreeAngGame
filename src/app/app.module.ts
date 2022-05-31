@@ -1,4 +1,4 @@
-import {  NgModule } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -6,7 +6,6 @@ import { AppComponent } from './app.component';
 
 import { DescriptionComponent } from './ui/description/description.component';
 import { PlayerComponent } from './components/player/player.component';
-import { PhysicsComponent } from './components/physics/physics.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ModalTestComponent } from './ui/modal-test/modal-test.component';
 
@@ -28,7 +27,6 @@ const config: SocketIoConfig = { url: environment.socketUrl, options: {} };
     AppComponent,
     DescriptionComponent,
     PlayerComponent,
-    PhysicsComponent,
     ModalTestComponent,
     SocketPlayersComponent,
     LoginModalComponent,

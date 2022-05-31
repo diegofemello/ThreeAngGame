@@ -12,28 +12,28 @@ export class SocketPlayersComponent implements OnInit {
   playersOn: string[] = [];
 
   players!: Player[];
-  private _playersSub!: Subscription;
-  private _playersMovement!: Subscription;
+  private playersSub!: Subscription;
+  private playersMovement!: Subscription;
 
   constructor(private playerService: PlayerService) {}
 
   ngOnDestroy(): void {
-    this._playersSub.unsubscribe();
-    this._playersMovement.unsubscribe();
+    this.playersSub.unsubscribe();
+    this.playersMovement.unsubscribe();
   }
 
   ngOnInit(): void {
-    this._playersSub = this.playerService.players.subscribe((players) => {
+    this.playersSub = this.playerService.players.subscribe((players) => {
       this.players = players;
       this.LoadModel();
     });
 
-    this._playersMovement = this.playerService.playersMovement.subscribe(
+    this.playersMovement = this.playerService.playersMovement.subscribe(
       (players) => {
         this.players = players;
       }
     );
-    this.Animate();
+    this.Update();
   }
 
   LoadModel =  async () => {
@@ -43,7 +43,7 @@ export class SocketPlayersComponent implements OnInit {
       const player = this.players[i];
       const playerOn = this.playersOn.find((p) => p == player.uid);
 
-      if (playerOn || player.uid == currentPlayer.uid) {
+      if (playerOn || player.uid == currentPlayer?.uid) {
         continue;
       }
       this.playersOn.push(player.uid);
@@ -60,10 +60,10 @@ export class SocketPlayersComponent implements OnInit {
     }
   };
 
-  Animate() {
+  Update() {
     requestAnimationFrame(() => {
       this.playerService.getPlayers();
-      this.Animate();
+      this.Update();
     });
   }
 }

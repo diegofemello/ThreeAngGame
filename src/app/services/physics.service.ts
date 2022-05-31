@@ -1,38 +1,35 @@
-import { Component, OnInit } from '@angular/core';
-import { ManagerService } from 'src/app/services/manager.service';
-import { PlayerService } from 'src/app/services/player.service';
+import { Injectable, OnInit } from '@angular/core';
 import * as THREE from 'three';
+import { ManagerService } from './manager.service';
+import { PlayerService } from './player.service';
+
 declare const Ammo: any;
 
 const STATE = { DISABLE_DEACTIVATION: 4 };
 
-@Component({
-  selector: 'app-physics',
-  templateUrl: './physics.component.html',
-  styleUrls: ['./physics.component.scss'],
+@Injectable({
+  providedIn: 'root',
 })
-export class PhysicsComponent implements OnInit {
+export class PhysicsService {
   private _physicsWorld: any;
   private _transformAux1: any;
-  private rigidBodies: any = [];
-  private _player: any;
+  rigidBodies: any = [];
 
-  private cbContactResult: any;
+  constructor(private manager: ManagerService) {
+    this._Init();
+  }
 
-  constructor(private manager: ManagerService, private playerService: PlayerService) {}
-
-  ngOnInit() {
+  _Init(): void {
+    console.log('PhysicsService');
     Ammo().then(async () => {
       this._transformAux1 = new Ammo.btTransform();
 
       this.SetupPhysicsWorld();
       // this.CreateFloorTiles();
 
-      await this.CreatePlayer();
-
       this.AddCollisionToGroundMesh();
 
-      this.SetupContactResultCallback();
+      // this.CreateGround();
 
       this.Update(1 / 60);
 
@@ -40,22 +37,22 @@ export class PhysicsComponent implements OnInit {
     });
   }
 
-  SetupPhysicsWorld = () => {
-    let collisionConfiguration = new Ammo.btDefaultCollisionConfiguration(),
-      dispatcher = new Ammo.btCollisionDispatcher(collisionConfiguration),
-      overlappingPairCache = new Ammo.btDbvtBroadphase(),
-      solver = new Ammo.btSequentialImpulseConstraintSolver();
+  async getPhysicsWorld(): Promise<any> {
+    if (this._physicsWorld) {
+      return new Promise((resolve) => {
+        resolve(this._physicsWorld);
+      });
+    } else {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve(this.getPhysicsWorld());
+        }, 500);
+      });
+    }
+  }
 
-    this._physicsWorld = new Ammo.btDiscreteDynamicsWorld(
-      dispatcher,
-      overlappingPairCache,
-      solver,
-      collisionConfiguration
-    );
-    this._physicsWorld.setGravity(new Ammo.btVector3(0, -50, 0));
-  };
 
-  CreateObjectPhysics = (
+  CreateObjectPhysics = async (
     object: THREE.Object3D,
     pos = new THREE.Vector3(),
     scale = new THREE.Vector3(1, 1, 1),
@@ -65,6 +62,8 @@ export class PhysicsComponent implements OnInit {
     friction = 0.5,
     restitution = 0.5
   ) => {
+    const physiscsWorld = await this.getPhysicsWorld();
+
     let transform = new Ammo.btTransform();
     transform.setIdentity();
     transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
@@ -96,12 +95,27 @@ export class PhysicsComponent implements OnInit {
     body.setRollingFriction(10);
     body.setActivationState(STATE.DISABLE_DEACTIVATION);
 
-    this._physicsWorld.addRigidBody(body);
+    physiscsWorld.addRigidBody(body);
     object.userData = {
       physicsBody: body,
       tag: tag,
     };
     body.threeObject = object;
+  };
+
+  SetupPhysicsWorld = () => {
+    let collisionConfiguration = new Ammo.btDefaultCollisionConfiguration(),
+      dispatcher = new Ammo.btCollisionDispatcher(collisionConfiguration),
+      overlappingPairCache = new Ammo.btDbvtBroadphase(),
+      solver = new Ammo.btSequentialImpulseConstraintSolver();
+
+    this._physicsWorld = new Ammo.btDiscreteDynamicsWorld(
+      dispatcher,
+      overlappingPairCache,
+      solver,
+      collisionConfiguration
+    );
+    this._physicsWorld.setGravity(new Ammo.btVector3(0, -50, 0));
   };
 
   CreateFloorTiles = () => {
@@ -137,6 +151,35 @@ export class PhysicsComponent implements OnInit {
     }
   };
 
+  CreateGround = () => {
+    let scale = new THREE.Vector3(1500, 6, 1500);
+    let quat = new THREE.Quaternion(0, 0, 0, 1);
+    let mass = 0;
+
+    let mesh = new THREE.Mesh(
+      new THREE.BoxBufferGeometry(),
+      new THREE.MeshPhongMaterial({ color: 0x00ffaa })
+    );
+
+    mesh.position.set(0, -6, 0);
+    mesh.scale.set(scale.x, scale.y, scale.z);
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+
+    mesh.name = 'Ground';
+
+    this.manager._scene.add(mesh);
+
+    this.CreateObjectPhysics(
+      mesh,
+      new THREE.Vector3(0, 0, 0),
+      scale,
+      quat,
+      'ground',
+      mass
+    );
+  };
+
   AddCollisionToGroundMesh = () => {
     let groundMesh = this.manager._scene.getObjectByName('_Ground');
 
@@ -165,26 +208,6 @@ export class PhysicsComponent implements OnInit {
     }
   };
 
-  CreatePlayer = async () => {
-    const mass = 1;
-    const player = await this.playerService.getPlayerObject();
-
-    let pos = player.position.addScalar(2);
-    let quat = player.quaternion;
-
-    this.CreateObjectPhysics(player, pos, player.scale, quat, 'Player', mass);
-
-    this.rigidBodies.push(player);
-    this._player = player;
-  };
-
-  CheckContact = () => {
-    this._physicsWorld.contactTest(
-      this._player.userData['physicsBody'],
-      this.cbContactResult
-    );
-  };
-
   UpdatePhysics = (deltaTime: any) => {
     this._physicsWorld.stepSimulation(deltaTime, 10);
 
@@ -205,68 +228,8 @@ export class PhysicsComponent implements OnInit {
 
   Update(timeInSeconds: number) {
     requestAnimationFrame(() => {
-      if (this._player) {
-        this.UpdatePhysics(timeInSeconds);
-        this.CheckContact();
-      }
-
+      this.UpdatePhysics(timeInSeconds);
       this.Update(timeInSeconds);
     });
   }
-
-  SetupContactResultCallback = () => {
-    this.cbContactResult = new Ammo.ConcreteContactResultCallback();
-
-    this.cbContactResult.addSingleResult = (
-      cp: any,
-      colObj0Wrap: any,
-      partId0: any,
-      index0: any,
-      colObj1Wrap: any,
-      partId1: any,
-      index1: any
-    ) => {
-      let contactPoint = Ammo.wrapPointer(cp, Ammo.btManifoldPoint);
-
-      const distance = contactPoint.getDistance();
-
-      if (distance > 0) return;
-
-      let colWrapper1 = Ammo.wrapPointer(
-        colObj1Wrap,
-        Ammo.btCollisionObjectWrapper
-      );
-      let rb1 = Ammo.castObject(
-        colWrapper1.getCollisionObject(),
-        Ammo.btRigidBody
-      );
-
-      let threeObject1 = rb1.threeObject;
-
-      let tag, localPos, worldPos;
-
-      tag = threeObject1.userData.tag;
-      localPos = contactPoint.get_m_localPointB();
-      worldPos = contactPoint.get_m_positionWorldOnB();
-
-      let localPosDisplay = {
-        x: localPos.x(),
-        y: localPos.y(),
-        z: localPos.z(),
-      };
-      let worldPosDisplay = {
-        x: worldPos.x(),
-        y: worldPos.y(),
-        z: worldPos.z(),
-      };
-
-      // console.log({ tag, localPosDisplay, worldPosDisplay });
-
-      this._player.userData['collision'] = {
-        tag,
-        localPosDisplay,
-        worldPosDisplay,
-      };
-    };
-  };
 }
