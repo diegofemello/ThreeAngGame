@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ManagerService } from 'src/app/services/manager.service';
+import { PlayerService } from 'src/app/services/player.service';
 import * as THREE from 'three';
 declare const Ammo: any;
 
@@ -18,16 +19,16 @@ export class PhysicsComponent implements OnInit {
 
   private cbContactResult: any;
 
-  constructor(private manager: ManagerService) {}
+  constructor(private manager: ManagerService, private playerService: PlayerService) {}
 
-  ngOnInit(): void {
-    Ammo().then(() => {
+  ngOnInit() {
+    Ammo().then(async () => {
       this._transformAux1 = new Ammo.btTransform();
 
       this.SetupPhysicsWorld();
       // this.CreateFloorTiles();
 
-      this.CreatePlayer();
+      await this.CreatePlayer();
 
       this.AddCollisionToGroundMesh();
 
@@ -164,17 +165,9 @@ export class PhysicsComponent implements OnInit {
     }
   };
 
-  CreatePlayer = () => {
+  CreatePlayer = async () => {
     const mass = 1;
-    const player = this.manager._scene.getObjectByName('_Player');
-
-    // while player is not loaded yet we wait
-    if (!player) {
-      setTimeout(() => {
-        this.CreatePlayer();
-      }, 100);
-      return;
-    }
+    const player = await this.playerService.getPlayerObject();
 
     let pos = player.position.addScalar(2);
     let quat = player.quaternion;

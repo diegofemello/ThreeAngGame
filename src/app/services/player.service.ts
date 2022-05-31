@@ -199,6 +199,20 @@ export class PlayerService {
     }
   }
 
+  async getPlayerObject(): Promise<THREE.Object3D> {
+    if (this.playerObject) {
+      return new Promise((resolve) => {
+        resolve(this.playerObject);
+      });
+    } else {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve(this.getPlayerObject());
+        }, 500);
+      });
+    }
+  }
+
   async getRandomStyle(): Promise<string> {
     return new Promise((resolve) => {
       const styles: any = {};
