@@ -182,7 +182,6 @@ export class DescriptionComponent implements OnInit {
       scrollable: false,
       // backdropClass: 'modal-backdrop-test',
     });
-    modalRef.componentInstance.name = this.currentIntersection.object.name;
   }
 }
 

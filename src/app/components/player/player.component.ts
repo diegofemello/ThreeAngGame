@@ -127,7 +127,6 @@ export class PlayerComponent implements OnInit {
 
       setTimeout(() => {
         this.isJumping = false;
-        this.stateMachineService.SetState('idle');
       }, 2000);
     }
   };
