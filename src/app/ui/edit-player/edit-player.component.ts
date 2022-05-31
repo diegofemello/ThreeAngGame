@@ -114,8 +114,9 @@ export class EditPlayerComponent implements AfterViewInit {
     controls.target.set(0, 17, 0);
   }
 
-  public updateMesh() {
-    this.style = this.playerService.currentPlayer.style;
+  public async updateMesh() {
+    const currentPlayer = await this.playerService.getCurrentPlayer();
+    this.style = currentPlayer.style;
 
     this.playerService.updateMesh(this.playerObject, this.style);
   }
@@ -134,16 +135,12 @@ export class EditPlayerComponent implements AfterViewInit {
     this.updateMesh();
   }
 
-  private loadModel() {
-    const player = this.playerService.basePlayerObject.clone();
-    this.playerService.resetClonedSkinnedMeshes(
-      this.playerService.basePlayerObject,
-      player
-    );
+  private async loadModel() {
+    const player = await this.playerService.getBasePlayerObject();
+    const animations: any = await this.playerService.getAnimations();
+    player.visible = false;
 
     this.scene.add(player);
-
-    console.log(player);
 
     //size of the model
     let box3 = new THREE.Box3().setFromObject(player);
@@ -152,10 +149,12 @@ export class EditPlayerComponent implements AfterViewInit {
 
     // player.position.set(0, -size.y, 0);
     this.playerObject = player;
-    this.updateMesh();
+    await this.updateMesh();
+
+    player.visible = true;
 
     this.mixer = new THREE.AnimationMixer(player);
-    const clip = this.playerService.animations['idle'];
+    const clip = animations['idle'];
     const action = this.mixer.clipAction(clip);
     action.play();
   }
@@ -204,7 +203,7 @@ export class EditPlayerComponent implements AfterViewInit {
     private playerService: PlayerService
   ) {}
 
-  ngAfterViewInit() {
+  async ngAfterViewInit() {
     this.createScene();
     this.startRenderingLoop();
   }

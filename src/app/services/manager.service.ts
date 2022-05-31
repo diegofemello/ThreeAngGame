@@ -92,6 +92,24 @@ export class ManagerService {
     this._renderer.shadowMap.enabled = true;
 
     document.body.appendChild(this._renderer.domElement);
+
+
+    // Add Cube with image texture
+    const cubeGeometry = new THREE.BoxGeometry(100, 100, 100);
+    const cubeMaterial = new THREE.MeshPhongMaterial({
+      map: new THREE.TextureLoader().load('assets/test.jpg'),
+      side: THREE.DoubleSide,
+    });
+
+    const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+    cube.position.set(200, 50, -550);
+    cube.castShadow = true;
+    cube.receiveShadow = true;
+    this._scene.add(cube);
+
+
+
+
   };
 
   _OnWindowResize() {

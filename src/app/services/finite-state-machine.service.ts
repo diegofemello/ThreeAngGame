@@ -32,8 +32,9 @@ export class FiniteStateMachineService {
     this._animations = animations;
   }
 
-  SetState(name: string) {
+  async SetState(name: string) {
     const prevState = this._currentState;
+    const currentPlayer = await this.playerService.getCurrentPlayer();
 
     if (prevState) {
       if (prevState.Name == name) {
@@ -45,7 +46,7 @@ export class FiniteStateMachineService {
     const state = new this._states[name](this);
 
     this._currentState = state;
-    this.playerService.currentPlayer.state = name;
+    currentPlayer.state = name;
     state.Enter(prevState);
   }
 

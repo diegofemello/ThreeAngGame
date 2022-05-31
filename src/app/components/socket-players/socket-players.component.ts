@@ -36,12 +36,14 @@ export class SocketPlayersComponent implements OnInit {
     this.Animate();
   }
 
-  LoadModel = () => {
+  LoadModel =  async () => {
+    const currentPlayer = await this.playerService.getCurrentPlayer();
+
     for (let i = 0; i < this.players.length; i++) {
       const player = this.players[i];
       const playerOn = this.playersOn.find((p) => p == player.uid);
 
-      if (playerOn || player.uid == this.playerService?.currentPlayer?.uid) {
+      if (playerOn || player.uid == currentPlayer.uid) {
         continue;
       }
       this.playersOn.push(player.uid);

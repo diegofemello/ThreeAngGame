@@ -12,12 +12,13 @@ export class PlayerService {
   players = this.socket.fromEvent<Player[]>('players');
   styleUpdated = this.socket.fromEvent<string>('styleUpdated');
   playersMovement = this.socket.fromEvent<Player[]>('playersMovement');
+  listener = new THREE.AudioListener();
 
-  currentPlayer!: Player;
-  playerObject!: THREE.Object3D;
-  animations: any = {};
+  private currentPlayer!: Player;
+  private playerObject!: THREE.Object3D;
+  private animations: any = {};
 
-  basePlayerObject!: THREE.Object3D;
+  private basePlayerObject!: THREE.Object3D;
   private path = './assets/models3d/CharacterRPG/Character.gltf';
   private animationsPath = './assets/models3d/CharacterRPG/animations/';
   private scale = 0.2;
@@ -72,8 +73,6 @@ export class PlayerService {
     // ],
   };
 
-  listener = new THREE.AudioListener();
-
   resetClonedSkinnedMeshes(source: THREE.Object3D, clone: THREE.Object3D) {
     const clonedMeshes: any[] = [];
     const meshSources: any = {};
@@ -115,15 +114,12 @@ export class PlayerService {
   }
 
   LoadModel = () => {
-    // const textureLoader = new THREE.TextureLoader();
-    // const texture = textureLoader.load(
-    //   './assets/models3d/CharacterRPG/PolyArt.png',
-    //   (texture) => {
-    //     return texture;
-    //   }
-    // )
+    const modelLoadingManager = new THREE.LoadingManager();
+    modelLoadingManager.onLoad = function () {
+      console.log('Player Load complete!');
+    };
 
-    const loader = new GLTFLoader();
+    const loader = new GLTFLoader(modelLoadingManager);
     loader.load(this.path, (object: GLTF) => {
       this.basePlayerObject = object.scene;
       this.basePlayerObject.scale.multiplyScalar(this.scale);
@@ -145,38 +141,100 @@ export class PlayerService {
     this.socket.emit('getPlayers');
   }
 
-  getRandomStyle() {
-    const styles: any = {};
-    const acessories: string[] = [
-      'Coroa',
-      'Chapeu',
-      'Cinto',
-      'Elmo',
-      'Mochila',
-      'Ombreiras',
-      'WeaponL',
-      'WeaponR',
-    ];
-
-    for (const key in this.styles) {
-      if (acessories.indexOf(key) !== -1) {
-        styles[key] = this.styles[key].length;
-      } else if (this.styles.hasOwnProperty(key)) {
-        const index = Math.floor(Math.random() * this.styles[key].length);
-        styles[key] = index + 1;
-      }
+  async getBasePlayerObject(): Promise<THREE.Object3D> {
+    if (this.basePlayerObject) {
+      return new Promise((resolve) => {
+        const player = this.basePlayerObject.clone();
+        this.resetClonedSkinnedMeshes(this.basePlayerObject, player);
+        resolve(player);
+      });
+    } else {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve(this.getBasePlayerObject());
+        }, 500);
+      });
     }
-    return styles;
   }
 
-  newPlayer(username: string) {
-    const player = this.basePlayerObject.clone();
+  async getAnimation(name: string): Promise<THREE.AnimationClip> {
+    if (this.animations[name]) {
+      return new Promise((resolve) => {
+        resolve(this.animations[name]);
+      });
+    } else {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve(this.getAnimation(name));
+        }, 500);
+      });
+    }
+  }
+
+  async getAnimations(): Promise<THREE.AnimationClip[]> {
+    if (this.animations) {
+      return new Promise((resolve) => {
+        resolve(this.animations);
+      });
+    } else {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve(this.getAnimations());
+        }, 500);
+      });
+    }
+  }
+
+  async getCurrentPlayer(): Promise<Player> {
+    if (this.currentPlayer) {
+      return new Promise((resolve) => {
+        resolve(this.currentPlayer);
+      });
+    } else {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve(this.getCurrentPlayer());
+        }, 500);
+      });
+    }
+  }
+
+  async getRandomStyle(): Promise<string> {
+    return new Promise((resolve) => {
+      const styles: any = {};
+      const acessories: string[] = [
+        'Coroa',
+        'Chapeu',
+        'Cinto',
+        'Elmo',
+        'Mochila',
+        'Ombreiras',
+        'WeaponL',
+        'WeaponR',
+      ];
+
+      for (const key in this.styles) {
+        if (acessories.indexOf(key) !== -1) {
+          styles[key] = this.styles[key].length;
+        } else if (this.styles.hasOwnProperty(key)) {
+          const index = Math.floor(Math.random() * this.styles[key].length);
+          styles[key] = index + 1;
+        }
+      }
+
+      resolve(styles);
+    });
+  }
+
+  async newPlayer(username: string): Promise<THREE.Object3D> {
+    const player = await this.getBasePlayerObject();
+    player.name = '_' + username;
 
     this.currentPlayer = new Player();
     this.currentPlayer.username = username;
-    this.currentPlayer.style = this.getRandomStyle();
+    this.currentPlayer.style = await this.getRandomStyle();
     this.currentPlayer.state = 'idle';
-    this.playerObject = this.basePlayerObject.clone();
+    this.playerObject = player;
     this.currentPlayer.uid = player.uuid;
 
     this.socket.emit('addPlayer', {
@@ -188,12 +246,11 @@ export class PlayerService {
       state: this.currentPlayer.state,
     });
 
-    this.resetClonedSkinnedMeshes(this.basePlayerObject, player);
-    this.playerObject = player;
-
     this.updateMesh();
     this.playerObject.add(this.listener);
-    return this.playerObject;
+    return new Promise((resolve) => {
+      resolve(this.playerObject);
+    });
   }
 
   updatePlayerPosition(position: THREE.Vector3, rotation: THREE.Vector3) {
@@ -252,29 +309,33 @@ export class PlayerService {
     });
   }
 
-  LoadAnimations = () => {
+  LoadAnimations = async () => {
+    const animationLoadingManager = new THREE.LoadingManager();
+    animationLoadingManager.onLoad = function () {
+      console.log('Animations Load complete!');
+    };
+
+    const animationsFiles = [
+      'idle.fbx',
+      'walk.fbx',
+      'run.fbx',
+      'jump.fbx',
+      'dance.fbx',
+    ];
+    const animationLoader = new FBXLoader(animationLoadingManager);
+
     const onLoad = (animName: any, anim: any) => {
       const clip = anim.animations[0];
       this.animations[animName] = clip;
     };
-    const loader = new FBXLoader();
-    loader.setPath(this.animationsPath);
 
-    loader.load('idle.fbx', (a) => {
-      onLoad('idle', a);
-    });
-    loader.load('walk.fbx', (a) => {
-      onLoad('walk', a);
-    });
-    loader.load('run.fbx', (a) => {
-      onLoad('run', a);
-    });
+    animationLoader.setPath(this.animationsPath);
 
-    loader.load('jump.fbx', (a) => {
-      onLoad('jump', a);
-    });
-    loader.load('dance.fbx', (a) => {
-      onLoad('dance', a);
-    });
+    for (let i = 0; i < animationsFiles.length; i++) {
+      const animName = animationsFiles[i].split('.')[0];
+      animationLoader.load(animationsFiles[i], (anim: any) => {
+        onLoad(animName, anim);
+      });
+    }
   };
 }

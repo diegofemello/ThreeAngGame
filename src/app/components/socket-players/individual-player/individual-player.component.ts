@@ -38,20 +38,8 @@ export class IndividualPlayerComponent implements OnInit {
     this.LoadModel();
   }
 
-  LoadModel = (): void => {
-    if (!this.playerService.basePlayerObject) {
-      setTimeout(() => {
-        this.LoadModel();
-      }, 100);
-      return;
-    }
-
-    const player = this.playerService.basePlayerObject.clone();
-    this.playerService.resetClonedSkinnedMeshes(
-      this.playerService.basePlayerObject,
-      player
-    );
-
+  LoadModel = async (): Promise<void> => {
+    const player = await this.playerService.getBasePlayerObject();
     this.manager._scene.add(player);
 
     player.name = this.uid;
@@ -69,32 +57,27 @@ export class IndividualPlayerComponent implements OnInit {
     this.UpdateMesh();
   };
 
-  LoadAnimations = () => {
-    if (this.playerService?.animations) {
-      this.mixer = new THREE.AnimationMixer(this.player);
-      const onLoad = (animName: any) => {
-        const clip = this.playerService.animations[animName];
+  LoadAnimations = async () => {
+    const animations = await this.playerService.getAnimations();
+    this.mixer = new THREE.AnimationMixer(this.player);
+    const onLoad = (animName: any) => {
+      const clip = animations[animName];
 
-        this.animations[animName] = {
-          clip: clip,
-          action: this.mixer.clipAction(clip),
-        };
+      this.animations[animName] = {
+        clip: clip,
+        action: this.mixer.clipAction(clip),
       };
-      onLoad('walk');
-      onLoad('run');
-      onLoad('idle');
-      onLoad('jump');
-      onLoad('dance');
+    };
+    onLoad('walk');
+    onLoad('run');
+    onLoad('idle');
+    onLoad('jump');
+    onLoad('dance');
 
-      this.animations[this.actualState].action.play();
-    } else {
-      setTimeout(() => {
-        this.LoadAnimations();
-      }, 100);
-    }
+    this.animations[this.actualState].action.play();
   };
 
-  UpdateMesh() {
+  async UpdateMesh() {
     const playerSocket = this.players.find(
       (player: Player) => player.uid === this.player.uuid
     );
@@ -108,7 +91,7 @@ export class IndividualPlayerComponent implements OnInit {
     } else {
       this.playerService.updateMesh(
         this.player,
-        this.playerService.getRandomStyle(),
+        await this.playerService.getRandomStyle(),
         this.username
       );
     }

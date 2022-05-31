@@ -25,7 +25,8 @@ export class PlayerComponent implements OnInit {
   private isJumping = false;
   private physicsBody: any;
   private scalingFactor = 35;
-  private username = 'Diego';
+  private username = 'Player';
+  private player!: THREE.Object3D;
 
   constructor(
     private manager: ManagerService,
@@ -43,9 +44,8 @@ export class PlayerComponent implements OnInit {
       this.username = await this.OpenModal();
     }
 
-    this.LoadModel();
+    await this.LoadModel();
     this.controller._Init();
-
   }
 
   async OpenModal(): Promise<string> {
@@ -59,34 +59,21 @@ export class PlayerComponent implements OnInit {
     return await modalRef.result;
   }
 
-  LoadModel = () => {
-    if (!this.playerService.basePlayerObject) {
-      setTimeout(() => {
-        this.LoadModel();
-      }, 100);
-      return;
-    }
-
-    const player = this.playerService.newPlayer(this.username);
-    this.manager._scene.add(player);
-    player.name = '_Player';
+  LoadModel = async () => {
+    this.player = await this.playerService.newPlayer(this.username);
+    this.manager._scene.add(this.player);
 
     this.Update(1 / 60);
-    this.LoadAnimations();
+    await this.LoadAnimations();
     this.manager.initialized = true;
   };
 
-  LoadAnimations = () => {
-    if (!this.playerService.playerObject) {
-      setTimeout(() => {
-        this.LoadAnimations();
-      }, 100);
-      return;
-    }
-    this._mixer = new THREE.AnimationMixer(this.playerService.playerObject);
+  LoadAnimations = async () => {
+    this._mixer = new THREE.AnimationMixer(this.player);
+    const animations = await  this.playerService.getAnimations();
 
     const onLoad = (animName: any) => {
-      const clip = this.playerService.animations[animName];
+      const clip = animations[animName];
       const action = this._mixer.clipAction(clip);
 
       this._animations[animName] = {
@@ -128,9 +115,9 @@ export class PlayerComponent implements OnInit {
   };
 
   MovePlayer = () => {
-    if (!this.playerService.playerObject?.userData['physicsBody']) return;
+    if (!this.player?.userData['physicsBody']) return;
 
-    this.physicsBody = this.playerService.playerObject.userData['physicsBody'];
+    this.physicsBody = this.player.userData['physicsBody'];
     if (this.physicsBody) {
       let rotateY = 0;
 
@@ -147,15 +134,12 @@ export class PlayerComponent implements OnInit {
       }
 
       const rotation = new THREE.Vector3(
-        this.playerService.playerObject.rotation.x,
-        this.playerService.playerObject.rotation.y,
-        this.playerService.playerObject.rotation.z
+        this.player.rotation.x,
+        this.player.rotation.y,
+        this.player.rotation.z
       );
 
-      this.playerService.updatePlayerPosition(
-        this.playerService.playerObject.position,
-        rotation
-      );
+      this.playerService.updatePlayerPosition(this.player.position, rotation);
 
       this.physicsBody.setAngularVelocity(new Ammo.btVector3(0, rotateY, 0));
       this.physicsBody.setAngularFactor(new Ammo.btVector3(0, 0, 0));
@@ -167,7 +151,7 @@ export class PlayerComponent implements OnInit {
       }
 
       let direction = new THREE.Vector3(0, 0, -1);
-      direction.applyQuaternion(this.playerService.playerObject.quaternion);
+      direction.applyQuaternion(this.player.quaternion);
       direction.normalize();
 
       let moveZ =
@@ -189,21 +173,20 @@ export class PlayerComponent implements OnInit {
   };
 
   Collisions = () => {
-    if (this.playerService.playerObject.userData) {
-      this.isGrounded =
-        this.playerService.playerObject.userData['collision']?.tag == 'Ground';
+    if (this.player.userData) {
+      this.isGrounded = this.player.userData['collision']?.tag == 'Ground';
     }
   };
 
   FollowCamera = () => {
     this.manager._camera.position.set(
-      this.playerService.playerObject.position.x,
-      this.playerService.playerObject.position.y,
-      this.playerService.playerObject.position.z
+      this.player.position.x,
+      this.player.position.y,
+      this.player.position.z
     );
     const cameraOffset = new THREE.Vector3(0.0, 60, 150);
     this.manager._camera.position.add(cameraOffset);
-    this.manager._camera.lookAt(this.playerService.playerObject.position);
+    this.manager._camera.lookAt(this.player.position);
   };
 
   Update(timeInSeconds: number) {
