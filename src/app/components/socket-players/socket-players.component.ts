@@ -66,4 +66,5 @@ export class SocketPlayersComponent implements OnInit {
       this.Update();
     });
   }
+
 }

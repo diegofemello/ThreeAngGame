@@ -1,0 +1,41 @@
+<div class="action-buttons form-group">
+  <div class="btn-group">
+    <button
+      *ngIf="localVideoActive"
+      class="btn btn-outline-secondary"
+      (click)="pauseLocalVideo()"
+      [disabled]="!localVideoActive"
+    >
+      <i class="fa-solid fa-microphone-slash"></i>
+    </button>
+
+    <button
+      *ngIf="!localVideoActive"
+      class="btn btn-outline-secondary"
+      (click)="startLocalVideo()"
+      [disabled]="localVideoActive"
+    >
+      <i class="fa-solid fa-microphone"></i>
+    </button>
+  </div>
+  <div class="btn-group">
+    <button
+      class="btn btn-outline-secondary"
+      (click)="call()"
+      [disabled]="inCall || !localVideoActive"
+    >
+      <i class="fa-solid fa-circle-play"></i>
+    </button>
+  </div>
+  <div class="btn-group">
+    <button
+      class="btn btn-outline-secondary"
+      (click)="hangUp()"
+      [disabled]="!inCall"
+    >
+      <i class="fa-solid fa-stop"></i>
+    </button>
+  </div>
+</div>
+
+<audio #received_video [autoplay]="true"></audio>

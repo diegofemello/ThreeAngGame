@@ -12,6 +12,7 @@ export class PlayerService {
   players = this.socket.fromEvent<Player[]>('players');
   styleUpdated = this.socket.fromEvent<string>('styleUpdated');
   playersMovement = this.socket.fromEvent<Player[]>('playersMovement');
+
   listener = new THREE.AudioListener();
 
   private currentPlayer!: Player;
@@ -22,6 +23,7 @@ export class PlayerService {
   private path = './assets/models3d/CharacterRPG/Character.gltf';
   private animationsPath = './assets/models3d/CharacterRPG/animations/';
   private scale = 0.2;
+  objectTest!: THREE.Object3D;
 
   styles: any = {
     Cinto: ['Belt1', 'Belt2', 'Belt3', ''],
@@ -115,8 +117,7 @@ export class PlayerService {
 
   LoadBaseModel = () => {
     const modelLoadingManager = new THREE.LoadingManager();
-    modelLoadingManager.onLoad = function () {
-    };
+    modelLoadingManager.onLoad = function () {};
 
     const loader = new GLTFLoader(modelLoadingManager);
     loader.load(this.path, (object: GLTF) => {
@@ -324,8 +325,7 @@ export class PlayerService {
 
   LoadAnimations = async () => {
     const animationLoadingManager = new THREE.LoadingManager();
-    animationLoadingManager.onLoad = function () {
-    };
+    animationLoadingManager.onLoad = function () {};
 
     const animationsFiles = [
       'idle.fbx',

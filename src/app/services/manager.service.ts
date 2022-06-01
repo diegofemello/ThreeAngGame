@@ -11,6 +11,7 @@ export class ManagerService {
   public _scene!: THREE.Scene;
   public _gui!: GUI;
   public initialized = false;
+  public stream: any;
 
   _Initialize() {
     this._SetupGraphics();

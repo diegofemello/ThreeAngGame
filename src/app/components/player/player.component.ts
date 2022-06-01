@@ -67,6 +67,20 @@ export class PlayerComponent implements OnInit {
     await this.LoadAnimations();
     this.manager.initialized = true;
     await this.AddPhysics();
+
+    const meshGeometryBall = new THREE.SphereGeometry(20,20,20);
+    const meshMaterialBall = new THREE.MeshPhongMaterial({
+      color: 0xffffff,
+      shininess: 0,
+      specular: 0xffffff,
+      flatShading: true,
+    });
+
+    const meshBall = new THREE.Mesh(meshGeometryBall, meshMaterialBall);
+    meshBall.position.set(0, 0,-40);
+
+    this.playerService.objectTest = meshBall;
+    this.manager._scene.add(meshBall);
   };
 
   AddPhysics = async () => {

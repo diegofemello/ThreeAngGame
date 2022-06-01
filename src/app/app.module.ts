@@ -19,6 +19,7 @@ import { ModelLoaderComponent } from './loaders/model-loader/model-loader.compon
 import { EditPlayerComponent } from './ui/edit-player/edit-player.component';
 import { AudioComponent } from './components/audio/audio.component';
 import { CharacterComponent } from './components/character/character.component';
+import { ChatComponent } from './components/chat/chat.component';
 
 const config: SocketIoConfig = { url: environment.socketUrl, options: {} };
 
@@ -35,6 +36,7 @@ const config: SocketIoConfig = { url: environment.socketUrl, options: {} };
     EditPlayerComponent,
     AudioComponent,
     CharacterComponent,
+    ChatComponent,
   ],
   imports: [
     BrowserModule,
