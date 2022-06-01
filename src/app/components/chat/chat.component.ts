@@ -291,11 +291,11 @@ export class ChatComponent implements AfterViewInit {
 
     const sound1 = new THREE.PositionalAudio(this.playerService.listener);
     sound1.setMediaStreamSource(new MediaStream(event.streams[0]));
-    sound1.setVolume(2);
+    sound1.setVolume(1);
     sound1.setLoop(true);
     sound1.setRefDistance(1);
 
     const player = await this.playerService.getPlayerObject();
-    this.playerService.objectTest.add(sound1);
+    player.add(sound1);
   };
 }

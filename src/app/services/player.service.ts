@@ -25,7 +25,6 @@ export class PlayerService {
   private path = './assets/models3d/CharacterRPG/Character.gltf';
   private animationsPath = './assets/models3d/CharacterRPG/animations/';
   private scale = 0.2;
-  objectTest!: THREE.Object3D;
 
   styles: any = {
     Cinto: ['Belt1', 'Belt2', 'Belt3', ''],
