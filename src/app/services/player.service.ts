@@ -4,6 +4,7 @@ import { Player } from 'src/app/models/player.model';
 import * as THREE from 'three';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { Message } from '../models/message.model';
 
 @Injectable({
   providedIn: 'root',
@@ -12,6 +13,7 @@ export class PlayerService {
   players = this.socket.fromEvent<Player[]>('players');
   styleUpdated = this.socket.fromEvent<string>('styleUpdated');
   playersMovement = this.socket.fromEvent<Player[]>('playersMovement');
+  messages$ = this.socket.fromEvent<any>('buffer');
 
   listener = new THREE.AudioListener();
 
@@ -139,6 +141,12 @@ export class PlayerService {
 
   getPlayers() {
     this.socket.emit('getPlayers');
+  }
+
+  sendMessage(msg: Message): void {
+    console.log('sending message: ' + msg.type);
+
+    this.socket.emit('buffer', msg);
   }
 
   async getBasePlayerObject(): Promise<THREE.Object3D> {

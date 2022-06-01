@@ -1,5 +1,4 @@
 import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
-import { DataService } from 'src/app/services/data.service';
 import { PlayerService } from 'src/app/services/player.service';
 import * as THREE from 'three';
 import { environment } from '../../../environments/environment';
@@ -38,10 +37,7 @@ export class ChatComponent implements AfterViewInit {
   inCall = false;
   localVideoActive = false;
 
-  constructor(
-    private dataService: DataService,
-    private playerService: PlayerService
-  ) {}
+  constructor(private playerService: PlayerService) {}
 
   async call(): Promise<void> {
     this.createPeerConnection();
@@ -61,14 +57,14 @@ export class ChatComponent implements AfterViewInit {
 
       this.inCall = true;
 
-      this.dataService.sendMessage({ type: 'offer', data: offer });
+      this.playerService.sendMessage({ type: 'offer', data: offer });
     } catch (err: any) {
       this.handleGetUserMediaError(err);
     }
   }
 
   hangUp(): void {
-    this.dataService.sendMessage({ type: 'hangup', data: '' });
+    this.playerService.sendMessage({ type: 'hangup', data: '' });
     this.closeVideoCall();
   }
 
@@ -78,10 +74,10 @@ export class ChatComponent implements AfterViewInit {
   }
 
   private addIncominMessageHandler(): void {
-    this.dataService.connect();
+    // this.playerService.connect();
 
     // this.transactions$.subscribe();
-    this.dataService.messages$.subscribe(
+    this.playerService.messages$.subscribe(
       (msg) => {
         // console.log('Received message: ' + msg.type);
         switch (msg.type) {
@@ -140,7 +136,7 @@ export class ChatComponent implements AfterViewInit {
       })
       .then(() => {
         // Send local SDP to remote party
-        this.dataService.sendMessage({
+        this.playerService.sendMessage({
           type: 'answer',
           data: this.peerConnection.localDescription,
         });
@@ -198,7 +194,6 @@ export class ChatComponent implements AfterViewInit {
   }
 
   private createPeerConnection(): void {
-    console.log('creating PeerConnection...');
     this.peerConnection = new RTCPeerConnection(ENV_RTCPeerConfiguration);
 
     this.peerConnection.onicecandidate = this.handleICECandidateEvent;
@@ -263,7 +258,7 @@ export class ChatComponent implements AfterViewInit {
   private handleICECandidateEvent = (event: RTCPeerConnectionIceEvent) => {
     console.log(event);
     if (event.candidate) {
-      this.dataService.sendMessage({
+      this.playerService.sendMessage({
         type: 'ice-candidate',
         data: event.candidate,
       });
