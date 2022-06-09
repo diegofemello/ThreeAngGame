@@ -1,0 +1,23 @@
+
+<div class="action-buttons form-group">
+  <div class="btn-group">
+    <div class="container">
+      <div class="form-group">
+        <label class="control-label">
+          {{ label }} | {{ confidence * 100 | number: "0.1" }} %</label
+        >
+      </div>
+      <p></p>
+      <div>
+        <video
+          #video
+          id="videoelement"
+          width="320"
+          height="240"
+          autoplay
+          class="img-thumbnail"
+        ></video>
+      </div>
+    </div>
+  </div>
+</div>

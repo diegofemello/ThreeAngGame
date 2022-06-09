@@ -20,6 +20,7 @@ import { EditPlayerComponent } from './ui/edit-player/edit-player.component';
 import { AudioComponent } from './components/audio/audio.component';
 import { CharacterComponent } from './components/character/character.component';
 import { ChatComponent } from './components/chat/chat.component';
+import { ClassificationComponent } from './components/classification/classification.component';
 
 const config: SocketIoConfig = { url: environment.socketUrl, options: {} };
 
@@ -37,6 +38,7 @@ const config: SocketIoConfig = { url: environment.socketUrl, options: {} };
     AudioComponent,
     CharacterComponent,
     ChatComponent,
+    ClassificationComponent,
   ],
   imports: [
     BrowserModule,

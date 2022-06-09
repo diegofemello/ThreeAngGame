@@ -31,7 +31,7 @@
             "inlineStyleLanguage": "scss",
             "assets": ["src/favicon.ico", "src/assets"],
             "styles": ["src/styles.scss"],
-            "scripts": []
+            "scripts": [ "./node_modules/ml5/dist/ml5.min.js" ]
           },
           "configurations": {
             "production": {
